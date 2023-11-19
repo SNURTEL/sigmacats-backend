@@ -20,11 +20,11 @@ jobs:
         pip install poetry
     - name: Install dependencies
       run: |
-        cd backend/app
+        cd app
         poetry config virtualenvs.create false
         poetry install --no-interaction --no-ansi --with test
     - name: Run mypy analysis
       run: |
-        cd backend/app/app
+        cd app/app
         poetry shell
         mypy .
