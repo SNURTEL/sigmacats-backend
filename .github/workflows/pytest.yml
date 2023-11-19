@@ -15,19 +15,21 @@ jobs:
         repository: SNURTEL/23z-pzsp2-sigmacats
         submodules: true
         token: ${{ secrets.CLONE_TOKEN }}
-    - name: Setup project
-      run: |
-        chmod +x setup.sh
-        ./setup.sh
     - name: Extract branch name
       shell: bash
       run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       id: extract_branch
-    - name: Set current branch in backend
+    - name: Checkout backend
+      uses: actions/checkout@v3
+      with:
+        repository: SNURTEL/sigmacats-backend
+        token: ${{ secrets.CLONE_TOKEN }}
+        path: backend
+        ref: ${{ steps.extract_branch.outputs.branch }}
+    - name: Setup project
       run: |
-        cd backend
-        git fetch origin
-        git checkout ${{ steps.extract_branch.outputs.branch }}
+        chmod +x setup.sh
+        ./setup.sh
     - name: Login to Oracle container image registry
       uses: docker/login-action@v3
       with:
