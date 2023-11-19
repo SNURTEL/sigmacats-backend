@@ -1,0 +1,30 @@
+name: flake8
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  lint:
+    name: flake8
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.11"
+    - name: Install poetry
+      run: |
+        python -m pip install --upgrade pip
+        pip install poetry
+    - name: Install dependencies
+      run: |
+        cd backend/app
+        poetry config virtualenvs.create false
+        poetry install --no-interaction --no-ansi --with test
+    - name: Run flake8 analysis
+      run: |
+        cd backend/app/app
+        poetry shell
+        flake8
