@@ -26,7 +26,10 @@ def create_triggers() -> None:
         with open("app/sql/create_triggers.sql", mode='r') as fp:
             with connection.begin():
                 for stmt in fp.read().split("\n\n"):
-                    connection.execute(text(stmt.replace("\n", " ")))
+                    connection.execute(text(stmt
+                                            .replace("\n", " ")
+                                            # ":" has to be escaped to ":new" won't be treated as bind parameter
+                                            .replace(":", "\\:")))
 
 
 def insert_initial_data() -> None:

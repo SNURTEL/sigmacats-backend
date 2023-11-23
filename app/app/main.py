@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Depends
-from sqlalchemy.orm import Session
+from sqlmodel import Session
 from sqlmodel import select
 
 from app.util.log import get_logger
@@ -26,7 +26,6 @@ async def celery_test() -> dict[str, str]:
 
 @app.get("/db")
 async def db_test(db: Session = Depends(get_db)) -> list[Account]:
-    with db:
-        accounts = db.execute(select(Account)).all()
-        logger.info(accounts)
+    accounts = db.exec(select(Account)).all()
+    logger.info(accounts)
     return accounts

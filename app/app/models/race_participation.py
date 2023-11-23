@@ -15,7 +15,7 @@ class RaceParticipation(SQLModel, table=True):
     id: Optional[int] = Field(primary_key=True, default=None)
     status: RaceParticipationStatus = Field(sa_column_args=(
         CheckConstraint("status in ('pending', 'approved', 'rejected')", name="race_participation_status_enum"),
-    ))
+    ), index=True)
     place_generated: Optional[int] = Field(default=None, sa_column_args=(
         CheckConstraint("place_generated > 0", name="race_participation_place_generated_positive"),
     ))
@@ -30,9 +30,9 @@ class RaceParticipation(SQLModel, table=True):
         CheckConstraint("ride_end_timestamp IS NOT NULL", name="race_participation_gpx_requires_timestamp"),
     ))
 
-    rider_id: int = Field(foreign_key="rider.id")
+    rider_id: int = Field(foreign_key="rider.id", index=True)
     rider: "Rider" = Relationship(back_populates="race_participations")
-    race_id: int = Field(foreign_key="race.id")
+    race_id: int = Field(foreign_key="race.id", index=True)
     race: "Race" = Relationship(back_populates="race_participations")
     bike_id: int = Field(foreign_key="bike.id")
     bike: "Bike" = Relationship(back_populates="race_participations")

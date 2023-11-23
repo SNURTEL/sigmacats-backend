@@ -4,7 +4,6 @@ from enum import Enum
 
 from sqlmodel import Field, SQLModel, Relationship, CheckConstraint
 
-# from .season import Season
 from .race_bonus_race_link import RaceBonusRaceLink
 
 
@@ -36,7 +35,7 @@ class Race(SQLModel, table=True):
     id: Optional[int] = Field(primary_key=True, default=None)
     status: RaceStatus = Field(sa_column_args=(
         CheckConstraint("status in ('pending', 'in_progress', 'ended')", name="race_status_enum"),
-    ))
+    ), index=True)
     name: str = Field(max_length=80)
     description: str = Field(max_length=512)
     requirements: Optional[str] = Field(default=None,  max_length=512)
