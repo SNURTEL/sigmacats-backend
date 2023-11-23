@@ -5,6 +5,12 @@ from sqlalchemy.engine import URL, Engine
 import sys
 import oracledb
 
+# But wait, what is this import doing in `core.config`? All models
+# have to be imported before doing ANYTHING with ORM, putting the import
+# here ensures all ORM relationships will be resolved properly by the mapper
+from app.models import *
+
+
 oracledb.version = "23.0.0.0"
 sys.modules["cx_Oracle"] = oracledb
 

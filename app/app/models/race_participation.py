@@ -4,10 +4,6 @@ from enum import Enum
 
 from sqlmodel import SQLModel, Field, Relationship, CheckConstraint
 
-from .classification import Rider
-from .race import Race
-from .bike import Bike
-
 
 class RaceParticipationStatus(Enum):
     Pending = "pending"
@@ -28,8 +24,8 @@ class RaceParticipation(SQLModel, table=True):
     ))
 
     rider_id: int = Field(foreign_key="rider.id")
-    rider: Rider = Relationship(back_populates="race_participations")
+    rider: "Rider" = Relationship(back_populates="race_participations")
     race_id: int = Field(foreign_key="race.id")
-    race: Race = Relationship(back_populates="race_participations")
+    race: "Race" = Relationship(back_populates="race_participations")
     bike_id: int = Field(foreign_key="bike.id")
-    bike: Bike = Relationship(back_populates="race_participations")
+    bike: "Bike" = Relationship(back_populates="race_participations")

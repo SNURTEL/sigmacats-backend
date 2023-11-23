@@ -3,7 +3,6 @@ from enum import Enum
 
 from sqlmodel import Field, SQLModel, Relationship
 
-from .classification import Rider
 
 
 class BikeType(Enum):
@@ -20,5 +19,5 @@ class Bike(SQLModel, table=True):
     model: Optional[str] = Field(max_length=80, default=None)
 
     rider_id: int = Field(foreign_key="rider.id")
-    rider: Rider = Relationship(back_populates="bikes")
+    rider: "Rider" = Relationship(back_populates="bikes")
     race_participations: list["RaceParticipation"] = Relationship(back_populates="bike")

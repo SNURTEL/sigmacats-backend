@@ -63,7 +63,7 @@ new migration:
 ```shell
 python -m alembic revision --autogenerate -m "<MIGRATION_NAME>"
 # docker alternative:
-docker exec fastapi-backend bash -c "python3 -m alembic revision --autogenerate -m \"testaaa\""
+docker exec fastapi-backend bash -c "python3 -m alembic revision --autogenerate -m \"<MIGRATION_NAME>\""
 docker cp fastapi-backend:$(docker exec fastapi-backend bash -c "ls -rt /app/migrations/versions/*.py | tail -1") migrations/versions/
 ```
 Migrations are applied automatically on backend startup.

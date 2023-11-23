@@ -14,5 +14,3 @@ class ClassificationAccessLimiter(SQLModel, table=True):
         back_populates="access_limiters",
         link_model=AccessLimiterClassificationLink
     )
-
-    access_limiter_classification_link: "AccessLimiterClassificationLink" = Relationship(back_populates="access_limiter")

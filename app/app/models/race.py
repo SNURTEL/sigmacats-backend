@@ -4,7 +4,7 @@ from enum import Enum
 
 from sqlmodel import Field, SQLModel, Relationship
 
-from .season import Season
+# from .season import Season
 from .race_bonus_race_link import RaceBonusRaceLink
 
 
@@ -46,7 +46,7 @@ class Race(SQLModel, table=True):
     wind: Optional[RaceWind] = Field(default=None)
 
     season_id: int = Field(foreign_key="season.id")
-    season: Season = Relationship(back_populates="races")
+    season: "Season" = Relationship(back_populates="races")
     bonuses: list["RaceBonus"] = Relationship(
         back_populates="races",
         link_model=RaceBonusRaceLink

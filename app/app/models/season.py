@@ -11,3 +11,4 @@ class Season(SQLModel, table=True):
     start_timestamp: datetime
     end_timestamp: datetime = Field(sa_column_args=(CheckConstraint("end_timestamp > start_timestamp"),))
     classifications: list["Classification"] = Relationship(back_populates="season")
+    races: list["Race"] = Relationship(back_populates="season")

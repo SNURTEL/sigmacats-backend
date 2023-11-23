@@ -69,6 +69,9 @@ def create_users() -> None:
 
 
 def main() -> None:
+    """
+    Ensures DB is running and initializes user tablespace
+    """
     logger.info("Attempting connection to DB")
     init()
     logger.info("DB up & running! Creating users and granting permissions")
