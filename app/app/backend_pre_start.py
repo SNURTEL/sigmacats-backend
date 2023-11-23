@@ -46,7 +46,7 @@ def create_users() -> None:
             )
             connection.execute(
                 """
-                CREATE TABLESPACE IF NOT EXISTS data_ts DATAFILE 'data_ts.dbf' SIZE 512m
+                CREATE TABLESPACE IF NOT EXISTS data_ts DATAFILE '/opt/oracle/oradata/FREE/data_ts.dbf' SIZE 512m
                 """
             )
             sql = text(
@@ -62,20 +62,17 @@ def create_users() -> None:
                 f"GRANT CREATE TABLE TO {oracle_user_username}"
             )
             connection.execute(sql)
-
-
-def create_tables() -> None:
-    # moved do Alembic
-    pass
+            sql = text(
+                f"GRANT CREATE SEQUENCE TO {oracle_user_username}"
+            )
+            connection.execute(sql)
 
 
 def main() -> None:
     logger.info("Attempting connection to DB")
     init()
-    logger.info("DB up & running! Creating user & tables if not present")
+    logger.info("DB up & running! Creating users and granting permissions")
     create_users()
-    create_tables()
-    logger.info("Done setting up backend!")
 
 
 if __name__ == "__main__":
