@@ -1,11 +1,17 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
+from sqlmodel import select
 
+from app.util.log import get_logger
 from app.db.session import get_db
 from app.tasks import basic_tasks
 
+from app.models.account import Account
+
+
 app = FastAPI()
 
+logger = get_logger()
 
 @app.get("/")
 async def read_root() -> dict[str, str]:
@@ -19,6 +25,8 @@ async def celery_test() -> dict[str, str]:
 
 
 @app.get("/db")
-async def db_test(db: Session = Depends(get_db)) -> dict[str, str]:
-    result = db.execute("SELECT table_name FROM all_tables").all()  # type: ignore
-    return {"tables": str(result)}
+async def db_test(db: Session = Depends(get_db)) -> list[Account]:
+    with db:
+        accounts = db.execute(select(Account)).all()
+        logger.info(accounts)
+    return accounts

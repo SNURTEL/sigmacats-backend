@@ -66,6 +66,10 @@ def create_users() -> None:
                 f"GRANT CREATE SEQUENCE TO {oracle_user_username}"
             )
             connection.execute(sql)
+            sql = text(
+                f"GRANT CREATE TRIGGER TO {oracle_user_username}"
+            )
+            connection.execute(sql)
 
 
 def main() -> None:
