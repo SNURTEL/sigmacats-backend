@@ -1,20 +1,21 @@
 from typing import Optional
 from enum import Enum
 
-from sqlmodel import Field, SQLModel, Relationship
-
+from sqlmodel import Field, SQLModel, Relationship, CheckConstraint
 
 
 class BikeType(Enum):
-    Road = "road"
-    Fixie = "fixie"
-    Other = "other"
+    road = "road"
+    fixie = "fixie"
+    other = "other"
 
 
 class Bike(SQLModel, table=True):
     id: Optional[int] = Field(primary_key=True, default=None)
     name: str = Field(max_length=80)
-    type: BikeType
+    type: BikeType = Field(sa_column_args=(
+        CheckConstraint("type in ('road', 'fixie', 'other')", name="bike_type_enum"),
+    ))
     brand: Optional[str] = Field(max_length=80, default=None)
     model: Optional[str] = Field(max_length=80, default=None)
 

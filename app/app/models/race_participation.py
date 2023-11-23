@@ -6,21 +6,28 @@ from sqlmodel import SQLModel, Field, Relationship, CheckConstraint
 
 
 class RaceParticipationStatus(Enum):
-    Pending = "pending"
-    Approved = "approved"
-    Rejected = "rejected"
+    pending = "pending"
+    approved = "approved"
+    rejected = "rejected"
 
 
 class RaceParticipation(SQLModel, table=True):
     id: Optional[int] = Field(primary_key=True, default=None)
-    place_generated: Optional[int] = Field(default=None)
-    place_assigned: Optional[int] = Field(default=None)
+    status: RaceParticipationStatus = Field(sa_column_args=(
+        CheckConstraint("status in ('pending', 'approved', 'rejected')", name="race_participation_status_enum"),
+    ))
+    place_generated: Optional[int] = Field(default=None, sa_column_args=(
+        CheckConstraint("place_generated > 0", name="race_participation_place_generated_positive"),
+    ))
+    place_assigned: Optional[int] = Field(default=None, sa_column_args=(
+        CheckConstraint("place_assigned > 0", name="race_participation_place_assigned_positive"),
+    ))
     ride_start_timestamp: Optional[datetime] = Field(default=None)
     ride_end_timestamp: Optional[datetime] = Field(default=None, sa_column_args=(
-        CheckConstraint("end_timestamp > start_timestamp"),
+        CheckConstraint("ride_end_timestamp > ride_start_timestamp", name="race_participation_timestamp_order"),
     ))
     ride_gpx_file: Optional[str] = Field(default=None, max_length=256, sa_column_args=(
-        CheckConstraint("ride_end_timestamp IS NOT NULL"),
+        CheckConstraint("ride_end_timestamp IS NOT NULL", name="race_participation_gpx_requires_timestamp"),
     ))
 
     rider_id: int = Field(foreign_key="rider.id")

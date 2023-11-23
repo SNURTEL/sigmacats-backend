@@ -7,7 +7,6 @@ from .access_limiter_classification_link import AccessLimiterClassificationLink
 from .rider_classification_link import RiderClassificationLink
 
 
-
 class Classification(SQLModel, table=True):
     id: Optional[int] = Field(primary_key=True, default=None)
     name: str = Field(max_length=80)

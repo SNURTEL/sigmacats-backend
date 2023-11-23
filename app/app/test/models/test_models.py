@@ -8,6 +8,7 @@ from app.models.rider import Rider
 def test_key_increment(db) -> None:  # type: ignore[no-untyped-def]
     account = Account(
         username="testuser",
+        type="rider",
         name="test",
         surname="user",
         email="test@user.com",
