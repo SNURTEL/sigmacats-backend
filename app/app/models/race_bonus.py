@@ -1,8 +1,11 @@
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from sqlmodel import Field, SQLModel, Relationship
 
 from .race_bonus_race_link import RaceBonusRaceLink
+
+if TYPE_CHECKING:
+    from .race import Race
 
 
 class RaceBonus(SQLModel, table=True):

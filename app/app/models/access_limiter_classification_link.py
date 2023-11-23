@@ -1,4 +1,4 @@
-from sqlmodel import Field, SQLModel, Relationship
+from sqlmodel import Field, SQLModel
 
 
 class AccessLimiterClassificationLink(SQLModel, table=True):
@@ -8,4 +8,3 @@ class AccessLimiterClassificationLink(SQLModel, table=True):
     classification_id: int = Field(
         foreign_key="classification.id", primary_key=True
     )
-

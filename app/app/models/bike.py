@@ -1,7 +1,11 @@
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from enum import Enum
 
 from sqlmodel import Field, SQLModel, Relationship, CheckConstraint
+
+if TYPE_CHECKING:
+    from .rider import Rider
+    from .race_participation import RaceParticipation
 
 
 class BikeType(Enum):

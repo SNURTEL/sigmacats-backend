@@ -8,10 +8,10 @@ from app.tasks import basic_tasks
 
 from app.models.account import Account
 
-
 app = FastAPI()
 
 logger = get_logger()
+
 
 @app.get("/")
 async def read_root() -> dict[str, str]:

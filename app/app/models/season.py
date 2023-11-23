@@ -1,8 +1,12 @@
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from datetime import datetime
 
 from sqlmodel import Field, SQLModel, Relationship, CheckConstraint
+
+if TYPE_CHECKING:
+    from .classification import Classification
+    from .race import Race
 
 
 class Season(SQLModel, table=True):

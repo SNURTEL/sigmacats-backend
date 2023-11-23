@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlmodel import Field, SQLModel, Relationship, CheckConstraint
+from sqlmodel import Field, SQLModel, CheckConstraint
 
 
 class RiderClassificationLink(SQLModel, table=True):

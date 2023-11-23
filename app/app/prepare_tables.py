@@ -8,7 +8,6 @@ from app.util.log import get_logger
 from app.models import *  # noqa: F401,F403
 from app.initial_data import initial_data
 
-
 logger = get_logger()
 
 
@@ -36,12 +35,12 @@ def insert_initial_data() -> None:
     with engine.connect() as connection:
         with connection.begin():
             if connection.execute(text(
-                """
-                select sum(SEGMENT_CREATED = TRUE)
-                from ALL_TABLES 
-                where owner ='USER1' and TABLE_NAME NOT LIKE 'ALEMBIC_VERSION'
-                """
-            )).first()[0]:
+                    """
+                    select sum(SEGMENT_CREATED = TRUE)
+                    from ALL_TABLES
+                    where owner ='USER1' and TABLE_NAME NOT LIKE 'ALEMBIC_VERSION'
+                    """
+            )).first()[0]:  # type: ignore[index]
                 logger.info("SKIPPING inserting initial data - DB not empty")
                 return
 

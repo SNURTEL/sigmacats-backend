@@ -1,7 +1,14 @@
+from typing import TYPE_CHECKING
+
 from sqlmodel import Field, SQLModel, Relationship
 
 from .rider_classification_link import RiderClassificationLink
-# from .account import Account
+
+if TYPE_CHECKING:
+    from .race_participation import RaceParticipation
+    from .account import Account
+    from .classification import Classification
+    from .bike import Bike
 
 
 class Rider(SQLModel, table=True):

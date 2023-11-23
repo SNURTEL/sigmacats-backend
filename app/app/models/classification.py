@@ -1,10 +1,15 @@
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from sqlmodel import Field, SQLModel, Relationship
 
 # from .season import Season
 from .access_limiter_classification_link import AccessLimiterClassificationLink
 from .rider_classification_link import RiderClassificationLink
+
+if TYPE_CHECKING:
+    from .rider import Rider
+    from .classification_access_limiter import ClassificationAccessLimiter
+    from .season import Season
 
 
 class Classification(SQLModel, table=True):
@@ -24,4 +29,3 @@ class Classification(SQLModel, table=True):
         back_populates="classifications",
         link_model=RiderClassificationLink,
     )
-

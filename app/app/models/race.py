@@ -1,10 +1,15 @@
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from datetime import datetime
 from enum import Enum
 
 from sqlmodel import Field, SQLModel, Relationship, CheckConstraint
 
 from .race_bonus_race_link import RaceBonusRaceLink
+
+if TYPE_CHECKING:
+    from .season import Season
+    from .race_bonus import RaceBonus
+    from .race_participation import RaceParticipation
 
 
 class RaceStatus(Enum):
@@ -38,7 +43,7 @@ class Race(SQLModel, table=True):
     ), index=True)
     name: str = Field(max_length=80)
     description: str = Field(max_length=512)
-    requirements: Optional[str] = Field(default=None,  max_length=512)
+    requirements: Optional[str] = Field(default=None, max_length=512)
     checkpoints_gpx_file: str = Field(max_length=256, unique=True)
     start_timestamp: datetime
     end_timestamp: datetime = Field(sa_column_args=(

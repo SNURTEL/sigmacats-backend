@@ -1,8 +1,13 @@
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from datetime import datetime
 from enum import Enum
 
 from sqlmodel import SQLModel, Field, Relationship, CheckConstraint
+
+if TYPE_CHECKING:
+    from .rider import Rider
+    from .race import Race
+    from .bike import Bike
 
 
 class RaceParticipationStatus(Enum):

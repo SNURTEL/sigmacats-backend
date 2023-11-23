@@ -1,8 +1,11 @@
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from sqlmodel import Field, SQLModel, Relationship
 
 from .access_limiter_classification_link import AccessLimiterClassificationLink
+
+if TYPE_CHECKING:
+    from .classification import Classification
 
 
 class ClassificationAccessLimiter(SQLModel, table=True):

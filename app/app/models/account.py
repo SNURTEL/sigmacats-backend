@@ -1,8 +1,11 @@
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from enum import Enum
 from datetime import datetime
 
 from sqlmodel import SQLModel, Field, Relationship, CheckConstraint
+
+if TYPE_CHECKING:
+    from .rider import Rider
 
 
 class Gender(Enum):
