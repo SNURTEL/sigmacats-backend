@@ -1,20 +1,24 @@
 import logging
 import os
-
-from sqlalchemy.sql import text
-from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixed
-
-from app.db.session import engine_admin
 from app.util.log import get_logger
-
-# models HAVE to be imported beforehand for SQLModel.metadata.create_all to work
-from app.models import *  # noqa: F401,F403
-
+from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixed, Retrying
 
 logger = get_logger()
 
 max_tries = int(os.environ.get("FASTAPI_DB_CONNECTION_TIMEOUT", default=120))
 wait_seconds = int(os.environ.get("FASTAPI_DB_CONNECTION_RETRY_PERIOD", default=3))
+
+for attempt in Retrying(
+        stop=stop_after_attempt(max_tries),
+        wait=wait_fixed(wait_seconds),
+        before=before_log(logger, logging.INFO),
+        after=after_log(logger, logging.WARNING),
+):
+    with attempt:
+        from sqlalchemy.sql import text
+        from app.db.session import engine_admin
+
+        from app.models import *  # noqa: F401,F403
 
 oracle_user_username = os.environ.get("ORACLE_USER_USERNAME", default="user1")
 oracle_user_password = os.environ.get("ORACLE_USER_USERNAME", default="user1")
@@ -24,7 +28,7 @@ oracle_user_password = os.environ.get("ORACLE_USER_USERNAME", default="user1")
     stop=stop_after_attempt(max_tries),
     wait=wait_fixed(wait_seconds),
     before=before_log(logger, logging.INFO),
-    after=after_log(logger, logging.ERROR),
+    after=after_log(logger, logging.WARNING),
 )
 def init() -> None:
     try:
