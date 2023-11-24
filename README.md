@@ -32,7 +32,8 @@ poetry lock --no-update  # ensure lock file is valid
 ```
 
 #### Run
-- `docker compose up` is recommended, but if you really want to, use:
+- Starting the backend as a submodule in the main repo with **`docker compose up` is highly recommended!!!**
+- If you _really_ want to, you can start the backend outside the container (bear in mind you will need to take care of all env variables, as they are normally managed by docker compose):
 ```shell
 chmod +x start.sh
 export $(grep -v '^#' ../.env | xargs) && ./start.sh
@@ -41,7 +42,7 @@ export $(grep -v '^#' ../.env | xargs) && ./start.sh
 #### Run `flake8`, `mypy` and `pytest`
 These need to pass for you PR to be accepted
 ```shell
-cd app
+cd app/app
 flake8
 mypy .
 ```
@@ -54,16 +55,16 @@ docker exec fastapi-backend "pytest"
 #### Create migrations
 Check if a migration can be generated:
 ```shell
-alembic check
-# or, if running in docker container:
 docker exec fastapi-backend bash -c "alembic check"
+# standalone alternative:
+alembic check
 ```
 If any model was changed, migration will be needed (CI will also fail if there are pending migrations). Generate a 
 new migration:
 ```shell
+cd scripts
+./create_migration <MIGRATION_NAME>  # will be placed in `migrations` directory
+# standalone alternative:
 python -m alembic revision --autogenerate -m "<MIGRATION_NAME>"
-# docker alternative:
-docker exec fastapi-backend bash -c "python3 -m alembic revision --autogenerate -m \"<MIGRATION_NAME>\""
-docker cp fastapi-backend:$(docker exec fastapi-backend bash -c "ls -rt /app/migrations/versions/*.py | tail -1") migrations/versions/
 ```
-Migrations are applied automatically on backend startup.
+Migrations are applied automatically on backend startup. NOTE: always check if the generated miggration includes all changes and correct if necessary. Alembic's auto-generation is usually far from perfect.
