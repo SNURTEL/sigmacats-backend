@@ -5,6 +5,11 @@ from sqlalchemy.engine import URL, Engine
 import sys
 import oracledb
 
+# But wait, what is this import doing in `core.config`? All models
+# have to be imported before doing ANYTHING with ORM, putting the import
+# here ensures all ORM relationships will be resolved properly by the mapper
+from app.models import *  # noqa: F401,F403
+
 oracledb.version = "23.0.0.0"
 sys.modules["cx_Oracle"] = oracledb
 
@@ -18,13 +23,13 @@ db_url = URL.create(
 )
 
 db_url_admin = URL.create(
-        drivername="oracle",
-        username=os.environ.get("ORACLE_ADMIN_USERNAME"),
-        password=os.environ.get("ORACLE_ADMIN_PASSWORD"),
-        host=os.environ.get("ORACLE_HOST"),
-        database=os.environ.get("ORACLE_DATABASE"),
-        port=int(os.environ.get("ORACLE_PORT", default="1521")),
-    )
+    drivername="oracle",
+    username=os.environ.get("ORACLE_ADMIN_USERNAME"),
+    password=os.environ.get("ORACLE_ADMIN_PASSWORD"),
+    host=os.environ.get("ORACLE_HOST"),
+    database=os.environ.get("ORACLE_DATABASE"),
+    port=int(os.environ.get("ORACLE_PORT", default="1521")),
+)
 
 
 # TODO disable echo if not in devel / test mode
