@@ -2,12 +2,11 @@ from typing import Optional, TYPE_CHECKING
 from datetime import datetime
 from enum import Enum
 
-import json
 import jsonschema
 
 from pydantic import validator
 
-from sqlmodel import Field, SQLModel, Relationship, CheckConstraint, Column, String
+from sqlmodel import Field, SQLModel, Relationship, CheckConstraint
 from sqlalchemy.orm import validates
 
 from .race_bonus_race_link import RaceBonusRaceLink

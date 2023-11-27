@@ -1332,6 +1332,20 @@ files = [
 ]
 
 [[package]]
+name = "types-jsonschema"
+version = "4.20.0.0"
+description = "Typing stubs for jsonschema"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "types-jsonschema-4.20.0.0.tar.gz", hash = "sha256:0de1032d243f1d3dba8b745ad84efe8c1af71665a9deb1827636ac535dcb79c1"},
+    {file = "types_jsonschema-4.20.0.0-py3-none-any.whl", hash = "sha256:e6d5df18aaca4412f0aae246a294761a92040e93d7bc840f002b7329a8b72d26"},
+]
+
+[package.dependencies]
+referencing = "*"
+
+[[package]]
 name = "typing-extensions"
 version = "4.8.0"
 description = "Backported and Experimental Type Hints for Python 3.8+"
@@ -1397,4 +1411,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "b65033a77a838fc74f22e971c9c0f4fe9dbafeb5864d61a18fa055479d6450db"
+content-hash = "d979775e7ab753234df0356a2899951a5c60dbfdd65138d34239ec9873b67288"
