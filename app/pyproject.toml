@@ -17,6 +17,8 @@ redis = "^5.0.1"
 flower = "^2.0.1"
 tenacity = "^8.2.3"
 alembic = "^1.12.1"
+jsonschema = "^4.20.0"
+types-jsonschema = "^4.20.0.0"
 
 [tool.poetry.group.test]
 optional = true
