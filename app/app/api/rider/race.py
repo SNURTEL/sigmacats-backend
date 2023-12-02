@@ -19,6 +19,7 @@ async def read_races(
         select(Race)
         .offset(offset)
         .limit(limit)
+        .order_by(Race.id)
     )
     races = db.exec(stmt).all()
 

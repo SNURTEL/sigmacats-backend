@@ -1,12 +1,10 @@
 from datetime import datetime
 
 from app.models.account import Account
-from app.models.admin import Admin
-from app.models.coordinator import Coordinator
 from app.models.rider import Rider
 from app.models.bike import Bike, BikeType
 from app.models.season import Season
-from app.models.race import Race, RaceStatus, RaceTemperature, RaceRain, RaceWind
+from app.models.race import Race, RaceStatus, RaceTemperature, RaceRain
 from app.models.race_bonus import RaceBonus
 
 bike_road = Bike(
@@ -136,7 +134,6 @@ race2 = Race(
     season=season,
     bonuses=[race_bonus_snow],
     race_participations=[]
-
 )
 
 race3 = Race(

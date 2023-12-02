@@ -6,6 +6,8 @@ from enum import Enum
 
 import jsonschema
 
+from pydantic import validator
+
 from sqlmodel import Field, SQLModel, Relationship, CheckConstraint
 from sqlalchemy.orm import validates
 
@@ -103,24 +105,21 @@ class Race(SQLModel, table=True):
     )
     race_participations: list["RaceParticipation"] = Relationship(back_populates="race")
 
+    @validator("sponsor_banners_uuids_json")
+    def validate_sponsor_banners_uuids_json_pydantic(cls, v):
+        try:
+            jsonschema.validate(json.loads(v), sponsor_banners_uuids_json_schema)
+        except jsonschema.exceptions.ValidationError as e:
+            raise ValueError("[pydantic] sponsor_banners_uuids_json_schema has wrong JSON schema", e)
+        return v
 
-# TODO move this somewhere else. Current implementation causes FastApi to crash on response validation
-# SQLAlchemy validators
-# @validates("sponsor_banners_uuids_json")
-# def validate_sponsor_banners_uuids_json(self, key, value):
-#     try:
-#         jsonschema.validate(json.loads(value), sponsor_banners_uuids_json_schema)
-#     except jsonschema.exceptions.ValidationError as e:
-#         raise ValueError("[orm] sponsor_banners_uuids_json validation error", e)
-#     return value
-#
-# @validates("place_to_points_mapping_json")
-# def validate_place_to_points_mapping_json(self, key, value):
-#     try:
-#         jsonschema.validate(json.loads(value), place_to_points_mapping_json_schema)
-#     except jsonschema.exceptions.ValidationError as e:
-#         raise ValueError("[orm] place_to_points_mapping_json validation error", e)
-#     return value
+    @validator("place_to_points_mapping_json")
+    def validate_place_to_points_mapping_json_pydantic(cls, v):
+        try:
+            jsonschema.validate(json.loads(v), place_to_points_mapping_json_schema)
+        except jsonschema.exceptions.ValidationError as e:
+            raise ValueError("[pydantic] place_to_points_mapping_json has wrong JSON schema", e)
+        return v
 
 
 class RaceCreate(SQLModel):

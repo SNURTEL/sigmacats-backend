@@ -28,7 +28,7 @@ def test_key_increment(db) -> None:  # type: ignore[no-untyped-def]
     db.commit()
     with db:
         statement = select(Bike).where(Bike.id > 10000)
-        result = db.execute(statement)
+        result = db.exec(statement)
         bikes = result.all()
-        assert bikes[0][0].id == 10001
-        assert bikes[1][0].id == 10002
+        assert bikes[0].id == 10001
+        assert bikes[1].id == 10002

@@ -20,6 +20,7 @@ async def read_races(
         select(Race)
         .offset(offset)
         .limit(limit)
+        .order_by(Race.id)
     )
     races = db.exec(stmt).all()
 
@@ -47,6 +48,9 @@ async def create_race(
         race_create: RaceCreate,
         db: Session = Depends(get_db),
 ) -> Race:
+    if db.exec(select(Race).where(Race.name == RaceCreate.name, Race.season_id == RaceCreate.season_id)).first():
+        raise HTTPException(400, "Race with given name already exists in current season")
+
     race = Race.from_orm(race_create, update={
         "status": RaceStatus.pending,
         "checkpoints_gpx_file": f"NOT_IMPLEMENTED{randint(0, 9999999999)}",

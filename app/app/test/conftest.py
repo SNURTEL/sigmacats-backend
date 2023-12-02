@@ -2,12 +2,14 @@ from typing import Generator, Any
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
+from sqlmodel import Session
 from sqlalchemy.engine import Engine
 from sqlalchemy.sql import text
 
-from app.db.session import engine, get_db
+from app.db.session import create_db_engine, get_db
 from app.main import app
+
+from .fixtures import *
 
 
 class TestIdSequences:
@@ -40,7 +42,7 @@ class TestIdSequences:
 
 @pytest.fixture(scope="session")
 def db_engine() -> Generator[Engine, Any, None]:
-    test_engine = engine
+    test_engine = create_db_engine(echo=False)
 
     yield test_engine
 
