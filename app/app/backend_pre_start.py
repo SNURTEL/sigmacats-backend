@@ -15,10 +15,14 @@ for attempt in Retrying(
         after=after_log(logger, logging.WARNING),
 ):
     with attempt:
-        from sqlalchemy.sql import text
-        from app.db.session import engine_admin
+        try:
+            from sqlalchemy.sql import text
+            from app.db.session import engine_admin
 
-        from app.models import *  # noqa: F401,F403
+            from app.models import *  # noqa: F401,F403
+        except Exception as e:
+            logger.error(e)
+            raise e
 
 oracle_user_username = os.environ.get("ORACLE_USER_USERNAME", default="user1")
 oracle_user_password = os.environ.get("ORACLE_USER_USERNAME", default="user1")
@@ -34,7 +38,7 @@ def init() -> None:
     try:
         with engine_admin.connect() as connection:
             # ping the DB
-            connection.execute("SELECT 1")
+            connection.execute(text("SELECT 1"))
     except Exception as e:
         logger.warning(f"DB is offline: {e}")
         raise e
@@ -43,16 +47,14 @@ def init() -> None:
 def create_users() -> None:
     with engine_admin.connect() as connection:
         with connection.begin():
-            connection.execute(
-                """
-                alter session set \"_ORACLE_SCRIPT\"=true
-                """
+            sql = text(
+                "alter session set \"_ORACLE_SCRIPT\"=true"
             )
-            connection.execute(
-                """
-                CREATE TABLESPACE IF NOT EXISTS data_ts DATAFILE '/opt/oracle/oradata/FREE/data_ts.dbf' SIZE 512m
-                """
+            connection.execute(sql)
+            sql = text(
+                "CREATE TABLESPACE IF NOT EXISTS data_ts DATAFILE '/opt/oracle/oradata/FREE/data_ts.dbf' SIZE 512m"
             )
+            connection.execute(sql)
             sql = text(
                 f"CREATE USER IF NOT EXISTS {oracle_user_password} IDENTIFIED BY {oracle_user_password} \
                 DEFAULT TABLESPACE data_ts QUOTA UNLIMITED ON data_ts"

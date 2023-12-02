@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI, Depends
 from sqlmodel import Session
 from sqlmodel import select
@@ -5,12 +7,20 @@ from sqlmodel import select
 from app.util.log import get_logger
 from app.db.session import get_db
 from app.tasks import basic_tasks
+from app.api.api import api_router
 
 from app.models.account import Account
 
-app = FastAPI()
-
 logger = get_logger()
+
+app_name = os.getenv("FASTAPI_APP_NAME", "NAME NOT SET")
+api_prefix = os.getenv("FASTAPI_API_PREFIX")
+
+app = FastAPI(
+    title=app_name, openapi_url=f"{api_prefix}/openapi.json"
+)
+
+app.include_router(api_router, prefix=api_prefix)
 
 
 @app.get("/")

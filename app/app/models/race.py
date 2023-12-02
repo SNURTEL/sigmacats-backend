@@ -1,10 +1,10 @@
+import json
+
 from typing import Optional, TYPE_CHECKING
 from datetime import datetime
 from enum import Enum
 
 import jsonschema
-
-from pydantic import validator
 
 from sqlmodel import Field, SQLModel, Relationship, CheckConstraint
 from sqlalchemy.orm import validates
@@ -21,6 +21,7 @@ class RaceStatus(Enum):
     pending = "pending"
     in_progress = "in_progress"
     ended = "ended"
+    cancelled = "cancelled"
 
 
 class RaceTemperature(Enum):
@@ -46,7 +47,6 @@ sponsor_banners_uuids_json_schema = {
     "items": {"type": "string"}
 }
 
-
 place_to_points_mapping_json_schema = {
     "type": "array",
     "items": {
@@ -55,19 +55,22 @@ place_to_points_mapping_json_schema = {
             "place": {"type": "number"},
             "points": {"type": "number"},
         }
-    }
+    },
 }
 
 
 class Race(SQLModel, table=True):
     id: Optional[int] = Field(primary_key=True, default=None)
     status: RaceStatus = Field(sa_column_args=(
-        CheckConstraint("status in ('pending', 'in_progress', 'ended')", name="race_status_enum"),
+        CheckConstraint("status in ('pending', 'in_progress', 'ended', 'cancelled')", name="race_status_enum"),
     ), index=True)
     name: str = Field(max_length=80)
-    description: str = Field(max_length=512)
+    description: str = Field(max_length=2048)
     requirements: Optional[str] = Field(default=None, max_length=512)
     checkpoints_gpx_file: str = Field(max_length=256, unique=True)
+    no_laps: int = Field(sa_column_args=(
+        CheckConstraint("no_laps > 0", name="no_laps_positive"),
+    ))
     meetup_timestamp: Optional[datetime] = Field(default=None)
     start_timestamp: datetime
     end_timestamp: datetime = Field(sa_column_args=(
@@ -100,28 +103,66 @@ class Race(SQLModel, table=True):
     )
     race_participations: list["RaceParticipation"] = Relationship(back_populates="race")
 
-    # SQLAlchemy validators
-    @validates("sponsor_banners_uuids_json")
-    def validate_sponsor_banners_uuids_json(self, key, race):
-        if not jsonschema.validate(race.sponsor_banners_uuids_json, sponsor_banners_uuids_json_schema):
-            raise ValueError("[orm] sponsor_banners_uuids_json_schema has wrong JSON schema")
-        return race
 
-    @validates("place_to_points_mapping_json")
-    def validate_place_to_points_mapping_json(self, key, race):
-        if not jsonschema.validate(race.place_to_points_mapping_json, place_to_points_mapping_json_schema):
-            raise ValueError("[orm] place_to_points_mapping_json has wrong JSON schema")
-        return race
+# TODO move this somewhere else. Current implementation causes FastApi to crash on response validation
+# SQLAlchemy validators
+# @validates("sponsor_banners_uuids_json")
+# def validate_sponsor_banners_uuids_json(self, key, value):
+#     try:
+#         jsonschema.validate(json.loads(value), sponsor_banners_uuids_json_schema)
+#     except jsonschema.exceptions.ValidationError as e:
+#         raise ValueError("[orm] sponsor_banners_uuids_json validation error", e)
+#     return value
+#
+# @validates("place_to_points_mapping_json")
+# def validate_place_to_points_mapping_json(self, key, value):
+#     try:
+#         jsonschema.validate(json.loads(value), place_to_points_mapping_json_schema)
+#     except jsonschema.exceptions.ValidationError as e:
+#         raise ValueError("[orm] place_to_points_mapping_json validation error", e)
+#     return value
 
-    # Pydantic validators
-    @validator("sponsor_banners_uuids_json")
-    def validate_sponsor_banners_uuids_json_pydantic(cls, v):
-        if not jsonschema.validate(v, sponsor_banners_uuids_json_schema):
-            raise ValueError("[pydantic] sponsor_banners_uuids_json_schema has wrong JSON schema")
-        return v
 
-    @validator("place_to_points_mapping_json")
-    def validate_place_to_points_mapping_json_pydantic(cls, v):
-        if not jsonschema.validate(v, place_to_points_mapping_json_schema):
-            raise ValueError("[pydantic] place_to_points_mapping_json has wrong JSON schema")
-        return v
+class RaceCreate(SQLModel):
+    name: str
+    description: str
+    requirements: str
+    meetup_timestamp: datetime
+    start_timestamp: datetime
+    end_timestamp: datetime
+    entry_fee_gr: int
+    # TODO gpx
+    no_laps: int
+    place_to_points_mapping_json: str
+    sponsor_banners_uuids_json: str
+    season_id: int
+
+
+class RaceUpdate(SQLModel):
+    name: str = Field(default=None)
+    description: str = Field(default=None)
+    requirements: str = Field(default=None)
+    meetup_timestamp: datetime = Field(default=None)
+    start_timestamp: datetime = Field(default=None)
+    end_timestamp: datetime = Field(default=None)
+    entry_fee_gr: int = Field(default=None)
+    # TODO gpx
+    no_laps: int = Field(default=None)
+    place_to_points_mapping_json: str = Field(default=None)
+    sponsor_banners_uuids_json: str = Field(default=None)
+
+
+class RaceReadListRider(SQLModel):
+    id: int
+    status: RaceStatus
+    name: str
+    meetup_timestamp: Optional[datetime] = Field(default=None)
+    start_timestamp: datetime
+    end_timestamp: datetime
+    event_graphic_file: str
+
+    season_id: int = Field(foreign_key="season.id")
+
+
+class RaceReadDetailRider(Race):
+    pass
