@@ -41,3 +41,11 @@ class RaceParticipation(SQLModel, table=True):
     race: "Race" = Relationship(back_populates="race_participations")
     bike_id: int = Field(foreign_key="bike.id")
     bike: "Bike" = Relationship(back_populates="race_participations")
+
+
+class RaceParticipationCreated(SQLModel):
+    id: int
+    status: RaceParticipationStatus
+    rider_id: int
+    race_id: int
+    bike_id: int

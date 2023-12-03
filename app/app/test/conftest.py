@@ -1,13 +1,16 @@
-from typing import Generator, Any
+from typing import Any, Generator
 
 import pytest
+
 from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
+from sqlmodel import Session
 from sqlalchemy.engine import Engine
 from sqlalchemy.sql import text
 
-from app.db.session import engine, get_db
+from app.db.session import create_db_engine, get_db
 from app.main import app
+
+from .fixtures import *  # noqa: F401,F403
 
 
 class TestIdSequences:
@@ -19,6 +22,7 @@ class TestIdSequences:
      - Performing COMMIT or ROLLBACK creates a gap equal to cache size in a sequence - each test session would create
      massive gaps (20 for every test ran)
     """
+
     def __init__(self, engine: Engine):
         self._engine = engine
 
@@ -40,7 +44,7 @@ class TestIdSequences:
 
 @pytest.fixture(scope="session")
 def db_engine() -> Generator[Engine, Any, None]:
-    test_engine = engine
+    test_engine = create_db_engine(echo=False)
 
     yield test_engine
 
