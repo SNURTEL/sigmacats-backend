@@ -25,11 +25,11 @@ async def read_races(
         select(Race)
         .offset(offset)
         .limit(limit)
-        .order_by(Race.id)
+        .order_by(Race.id)  # type: ignore[arg-type]
     )
     races = db.exec(stmt).all()
 
-    return races
+    return races  # type: ignore[return-value]
 
 
 @router.get("/{id}")

@@ -38,4 +38,4 @@ async def celery_test() -> dict[str, str]:
 async def db_test(db: Session = Depends(get_db)) -> list[Account]:
     accounts = db.exec(select(Account)).all()
     logger.info(accounts)
-    return accounts
+    return accounts  # type: ignore[return-value]
