@@ -27,7 +27,7 @@ def upgrade() -> None:
     op.alter_column('race', 'status',
                     type_=sa.Enum('rending', 'in_progress', 'ended', 'cancelled', name='racestatus')
                     )
-    op.add_column("race", sa.Column("no_laps", sa.Integer()))
+    op.add_column("race", sa.Column("no_laps", sa.Integer(), nullable=False))
     op.create_check_constraint("race_no_laps_positive", "race", "no_laps > 0")
     op.drop_constraint("race_status_enum", "race")
     op.create_check_constraint("race_status_enum", "race", "status in ('pending', 'in_progress', 'ended', 'cancelled')")
