@@ -15,6 +15,9 @@ router = APIRouter()
 async def read_races(
         db: Session = Depends(get_db), limit: int = 30, offset: int = 0
 ) -> list[RaceReadListRider]:
+    """
+    List all races.
+    """
     stmt = (
         select(Race)
         .offset(offset)
@@ -30,6 +33,9 @@ async def read_races(
 async def read_race(
         id: int, db: Session = Depends(get_db),
 ) -> RaceReadDetailRider:
+    """
+    Get details about a specific race.
+    """
     stmt = (
         select(Race)
         .where(Race.id == id)
@@ -49,6 +55,9 @@ async def join_race(
         bike_id: int,
         db: Session = Depends(get_db),
 ) -> RaceParticipationCreated:
+    """
+    Create a race participation.
+    """
     stmt = (
         select(Race)
         .where(Race.id == id)
@@ -87,6 +96,9 @@ async def withdraw_race(
         rider_id: int,  # TODO deduce from session
         db: Session = Depends(get_db),
 ):
+    """
+    Withdraw from a race (delete race participation).
+    """
     stmt = (
         select(Race)
         .where(Race.id == id)

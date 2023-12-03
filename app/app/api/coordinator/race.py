@@ -18,6 +18,9 @@ router = APIRouter()
 async def read_races(
         db: Session = Depends(get_db), limit: int = 30, offset: int = 0
 ) -> list[Race]:
+    """
+    List all races.
+    """
     stmt = (
         select(Race)
         .offset(offset)
@@ -33,6 +36,9 @@ async def read_races(
 async def read_race(
         id: int, db: Session = Depends(get_db),
 ) -> Race:
+    """
+    Get details about a specific race.
+    """
     stmt = (
         select(Race)
         .where(Race.id == id)
@@ -50,6 +56,9 @@ async def create_race(
         race_create: RaceCreate,
         db: Session = Depends(get_db),
 ) -> Race:
+    """
+    Create a new race.
+    """
     if db.exec(select(Race).where(Race.name == race_create.name, Race.season_id == race_create.season_id)).first():
         raise HTTPException(400, "Race with given name already exists in current season")
 
@@ -76,6 +85,9 @@ async def update_race(
         race_update: RaceUpdate,
         db: Session = Depends(get_db)
 ) -> Race:
+    """
+    Update race details.
+    """
     race = db.get(Race, id)
     if not race:
         raise HTTPException(404)
@@ -97,6 +109,9 @@ async def cancel_race(
         id: int,
         db: Session = Depends(get_db)
 ) -> Race:
+    """
+    Cancel race event.
+    """
     race = db.get(Race, id)
     if not race:
         raise HTTPException(404)
