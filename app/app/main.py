@@ -14,7 +14,7 @@ from app.models.account import Account
 logger = get_logger()
 
 app_name = os.getenv("FASTAPI_APP_NAME", "NAME NOT SET")
-api_prefix = os.getenv("FASTAPI_API_PREFIX")
+api_prefix = os.getenv("FASTAPI_API_PREFIX", "/api")
 
 app = FastAPI(
     title=app_name, openapi_url=f"{api_prefix}/openapi.json"

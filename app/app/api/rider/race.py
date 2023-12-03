@@ -3,7 +3,7 @@ from sqlmodel import Session, select
 
 from app.db.session import get_db
 
-from app.models.race import Race, RaceReadListRider, RaceReadDetailRider, RaceCreate, RaceStatus
+from app.models.race import Race, RaceReadListRider, RaceReadDetailRider, RaceStatus
 from app.models.bike import Bike
 from app.models.rider import Rider
 from app.models.race_participation import RaceParticipation, RaceParticipationStatus, RaceParticipationCreated
@@ -61,7 +61,7 @@ async def join_race(
         raise HTTPException(404)
 
     if race.status != RaceStatus.pending:
-        raise HTTPException(400, f"Race already {race.status.name}")
+        raise HTTPException(403, f"Race already {race.status.name}")
 
     ongoing_participation = db.exec(select(RaceParticipation).where(
             RaceParticipation.race == race and RaceParticipation.rider == rider)).first()
@@ -100,7 +100,7 @@ async def withdraw_race(
         raise HTTPException(404)
 
     if race.status in (RaceStatus.cancelled, RaceStatus.ended):
-        raise HTTPException(400, f"Race already {race.status.name}")
+        raise HTTPException(403, f"Race already {race.status.name}")
 
     if not participation:
         return

@@ -5,22 +5,41 @@ import pytest
 from datetime import datetime
 
 from app.models.account import Account
-from app.models.admin import Admin
-from app.models.coordinator import Coordinator
 from app.models.rider import Rider
 from app.models.bike import Bike, BikeType
 from app.models.season import Season
-from app.models.race import Race, RaceStatus, RaceTemperature, RaceRain, RaceWind
+from app.models.race import Race, RaceStatus, RaceTemperature, RaceRain
 from app.models.race_bonus import RaceBonus
 
 
 @pytest.fixture(scope="function")
-def bike_road(db) -> Generator[Bike, Any, None]:
+def rider(db) -> Generator[Rider, Any, None]:
+    rider_account = Account(
+        type="rider",
+        username="balbinka123",
+        name="Test",
+        surname="Rider",
+        email="t.rider@sigma.org",
+        password_hash="JSDHFGKIUSDFHBKGSBHDFKGS",
+    )
+
+    rider = Rider(
+        account=rider_account
+    )
+
+    db.add(rider)
+    db.commit()
+    yield rider
+
+
+@pytest.fixture(scope="function")
+def bike_road(db, rider) -> Generator[Bike, Any, None]:
     bike = Bike(
         name="Rakieta",
         type=BikeType.road,
         brand="Canyon",
         model="Ultimate CFR eTap",
+        rider=rider
     )
     db.add(bike)
     db.commit()
@@ -28,12 +47,13 @@ def bike_road(db) -> Generator[Bike, Any, None]:
 
 
 @pytest.fixture(scope="function")
-def bike_fixie(db) -> Generator[Bike, Any, None]:
+def bike_fixie(db, rider) -> Generator[Bike, Any, None]:
     bike = Bike(
         name="Czarna strzała",
         type=BikeType.fixie,
         brand="FIXIE inc.",
         model="Floater Race",
+        rider=rider
     )
     db.add(bike)
     db.commit()

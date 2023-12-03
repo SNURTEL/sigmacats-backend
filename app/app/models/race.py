@@ -9,7 +9,6 @@ import jsonschema
 from pydantic import validator
 
 from sqlmodel import Field, SQLModel, Relationship, CheckConstraint
-from sqlalchemy.orm import validates
 
 from .race_bonus_race_link import RaceBonusRaceLink
 
@@ -126,7 +125,7 @@ class RaceCreate(SQLModel):
     name: str
     description: str
     requirements: str
-    meetup_timestamp: datetime
+    meetup_timestamp: Optional[datetime] = Field(default=None)
     start_timestamp: datetime
     end_timestamp: datetime
     entry_fee_gr: int
