@@ -127,6 +127,7 @@ async def withdraw_race(
         return
 
     db.delete(participation)
+    db.refresh(race)
     db.commit()
 
     return
