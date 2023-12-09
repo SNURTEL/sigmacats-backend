@@ -3,13 +3,12 @@ from typing import Optional, TYPE_CHECKING
 from sqlmodel import Field, SQLModel, Relationship
 
 # from .season import Season
-from .access_limiter_classification_link import AccessLimiterClassificationLink
 from .rider_classification_link import RiderClassificationLink
 
 if TYPE_CHECKING:
     from .rider import Rider
-    from .classification_access_limiter import ClassificationAccessLimiter
     from .season import Season
+    from .ride_participation_classification_place import RiderParticipationClassificationPlace
 
 
 class Classification(SQLModel, table=True):
@@ -20,12 +19,10 @@ class Classification(SQLModel, table=True):
     season_id: int = Field(foreign_key="season.id")
     season: "Season" = Relationship(back_populates="classifications")
 
-    access_limiters: list["ClassificationAccessLimiter"] = Relationship(
-        back_populates="classifications",
-        link_model=AccessLimiterClassificationLink
-    )
-
     riders: list["Rider"] = Relationship(
         back_populates="classifications",
         link_model=RiderClassificationLink,
     )
+
+    race_participation_places: list["RiderParticipationClassificationPlace"] = Relationship(
+        back_populates="classification")
