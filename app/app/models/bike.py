@@ -22,6 +22,7 @@ class Bike(SQLModel, table=True):
     ))
     brand: Optional[str] = Field(max_length=80, default=None)
     model: Optional[str] = Field(max_length=80, default=None)
+    is_retired: bool = Field(default=False)
 
     rider_id: int = Field(foreign_key="rider.id")
     rider: "Rider" = Relationship(back_populates="bikes")
@@ -42,3 +43,4 @@ class BikeUpdate(SQLModel):
     type: BikeType = Field(default=None)
     brand: Optional[str] = Field(max_length=80, default=None)
     model: Optional[str] = Field(max_length=80, default=None)
+    is_retired: bool = Field(default=False)

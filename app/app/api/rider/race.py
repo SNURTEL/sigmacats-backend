@@ -74,12 +74,15 @@ async def join_race(
     if not race or not bike or not rider:
         raise HTTPException(404)
 
+    if bike.is_retired:
+        raise HTTPException(403, "Cannot join race on a retired bike")
+
     if race.status != RaceStatus.pending:
         raise HTTPException(403, f"Race already {race.status.name}")
 
     ongoing_participation = db.exec(select(RaceParticipation).where(
             RaceParticipation.race == race and RaceParticipation.rider == rider)).first()
-    if ongoing_participation:
+    if ongoing_participation and ongoing_participation.bike_id == bike_id:
         return RaceParticipationCreated.from_orm(ongoing_participation)
 
     participation = RaceParticipation(
@@ -91,6 +94,7 @@ async def join_race(
 
     db.add(participation)
     db.commit()
+    db.refresh(participation)
 
     return RaceParticipationCreated.from_orm(participation)
 

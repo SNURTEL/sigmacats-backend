@@ -178,7 +178,6 @@ class RaceReadDetailRider(SQLModel):
     event_graphic_file: str
     checkpoints_gpx_file: str
     entry_fee_gr: int
-    participation_status: Optional["RaceParticipationStatus"] = Field(default=None)
     season: "SeasonListRead"
     bonuses: list["RaceBonusListRead"]
     race_participations: list["RaceParticipationListRead"] = Field(default=None)

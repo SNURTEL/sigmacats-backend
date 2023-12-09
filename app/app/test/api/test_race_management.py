@@ -103,6 +103,19 @@ def test_rider_race_join_race_404(client, db, rider, bike_road):
     assert response.status_code == 404
 
 
+def test_rider_race_join_bike_retired_403(client, db, race_pending, rider, bike_road):
+    bike_road.is_retired = True
+    db.add(bike_road)
+    db.commit()
+    db.refresh(bike_road)
+    response = client.post(f"/api/rider/race/{race_pending.id}/join",
+                           params={
+                               "rider_id": rider.id,
+                               "bike_id": bike_road.id
+                           })
+    assert response.status_code == 403
+
+
 def test_rider_race_withdraw(client, db, race_pending, rider, bike_road):
     response = client.post(f"/api/rider/race/{race_pending.id}/join",
                            params={
