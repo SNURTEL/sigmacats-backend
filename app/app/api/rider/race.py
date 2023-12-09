@@ -13,6 +13,7 @@ router = APIRouter()
 
 @router.get("/")
 async def read_races(
+        rider_id: int,  # TODO deduce from session
         db: Session = Depends(get_db), limit: int = 30, offset: int = 0
 ) -> list[RaceReadListRider]:
     """
@@ -26,7 +27,11 @@ async def read_races(
     )
     races = db.exec(stmt).all()
 
-    return [RaceReadListRider.from_orm(r) for r in races]
+    return [RaceReadListRider.from_orm(r, update={
+        'participation_status': getattr(
+            next((p for p in r.race_participations if p.rider_id == rider_id), None),
+            'status', None)
+    }) for r in races]
 
 
 @router.get("/{id}")
@@ -48,7 +53,7 @@ async def read_race(
     return RaceReadDetailRider.from_orm(race)
 
 
-@router.put("/{id}/join")
+@router.post("/{id}/join")
 async def join_race(
         id: int,
         rider_id: int,  # TODO deduce from session
@@ -90,7 +95,7 @@ async def join_race(
     return RaceParticipationCreated.from_orm(participation)
 
 
-@router.put("/{id}/withdraw")
+@router.post("/{id}/withdraw")
 async def withdraw_race(
         id: int,
         rider_id: int,  # TODO deduce from session

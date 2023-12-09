@@ -8,7 +8,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.db.session import get_db
 
-from app.models.race import Race, RaceStatus, RaceCreate, RaceUpdate
+from app.models.race import Race, RaceStatus, RaceCreate, RaceUpdate, RaceReadDetailCoordinator, RaceReadListCoordinator
 from app.models.season import Season
 
 router = APIRouter()
@@ -17,7 +17,7 @@ router = APIRouter()
 @router.get("/")
 async def read_races(
         db: Session = Depends(get_db), limit: int = 30, offset: int = 0
-) -> list[Race]:
+) -> list[RaceReadListCoordinator]:
     """
     List all races.
     """
@@ -35,7 +35,7 @@ async def read_races(
 @router.get("/{id}")
 async def read_race(
         id: int, db: Session = Depends(get_db),
-) -> Race:
+) -> RaceReadDetailCoordinator:
     """
     Get details about a specific race.
     """
@@ -48,14 +48,14 @@ async def read_race(
     if not race:
         raise HTTPException(404)
 
-    return race
+    return RaceReadDetailCoordinator.from_orm(race)
 
 
-@router.put("/create")
+@router.post("/create")
 async def create_race(
         race_create: RaceCreate,
         db: Session = Depends(get_db),
-) -> Race:
+) -> RaceReadDetailCoordinator:
     """
     Create a new race.
     """
@@ -76,7 +76,7 @@ async def create_race(
     except (IntegrityError, ValidationError):
         raise HTTPException(400)
 
-    return race
+    return RaceReadDetailCoordinator.from_orm(race)
 
 
 @router.patch("/{id}")
@@ -84,7 +84,7 @@ async def update_race(
         id: int,
         race_update: RaceUpdate,
         db: Session = Depends(get_db)
-) -> Race:
+) -> RaceReadDetailCoordinator:
     """
     Update race details.
     """
@@ -101,14 +101,14 @@ async def update_race(
     except (IntegrityError, ValidationError):
         raise HTTPException(400)
 
-    return race
+    return RaceReadDetailCoordinator.from_orm(race)
 
 
-@router.patch("/{id}/cancel")
+@router.post("/{id}/cancel")
 async def cancel_race(
         id: int,
         db: Session = Depends(get_db)
-) -> Race:
+) -> RaceReadDetailCoordinator:
     """
     Cancel race event.
     """
@@ -121,4 +121,4 @@ async def cancel_race(
     db.add(race)
     db.commit()
     db.refresh(race)
-    return race
+    return RaceReadDetailCoordinator.from_orm(race)
