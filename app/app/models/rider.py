@@ -25,3 +25,12 @@ class Rider(SQLModel, table=True):
         "backref": "riderclassificationlink",
         "viewonly": True
     })
+
+
+class RiderRead(SQLModel):
+    id: int
+    account: "Account"
+    bikes: list["Bike"]
+    classifications: list["Classification"]
+    race_participations: list["RaceParticipation"]
+    classification_links: list["RiderClassificationLink"]

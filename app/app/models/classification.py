@@ -26,3 +26,13 @@ class Classification(SQLModel, table=True):
 
     race_participation_places: list["RiderParticipationClassificationPlace"] = Relationship(
         back_populates="classification")
+
+
+class ClassificationRead(SQLModel):
+    id: int
+    name: str
+    description: str
+    season_id: int = Field(foreign_key="season.id")
+    season: "Season"
+    riders: list["Rider"]
+    race_participation_places: list["RiderParticipationClassificationPlace"]
