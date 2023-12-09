@@ -2,6 +2,7 @@ import logging
 import os
 from app.util.log import get_logger
 from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixed, Retrying
+from sqlalchemy import text
 
 logger = get_logger()
 
@@ -18,7 +19,6 @@ for attempt in Retrying(
         try:
             from sqlalchemy.sql import text
             from app.db.session import engine_admin
-
             from app.models import *  # noqa: F401,F403
         except Exception as e:
             logger.error(e)
@@ -47,14 +47,20 @@ def init() -> None:
 def create_users() -> None:
     with engine_admin.connect() as connection:
         with connection.begin():
-            sql = text(
-                "alter session set \"_ORACLE_SCRIPT\"=true"
+            connection.execute(
+                text(
+                    """
+                    alter session set \"_ORACLE_SCRIPT\"=true
+                    """
+                )
             )
-            connection.execute(sql)
-            sql = text(
-                "CREATE TABLESPACE IF NOT EXISTS data_ts DATAFILE '/opt/oracle/oradata/FREE/data_ts.dbf' SIZE 512m"
+            connection.execute(
+                text(
+                    """
+                    CREATE TABLESPACE IF NOT EXISTS data_ts DATAFILE '/opt/oracle/oradata/FREE/data_ts.dbf' SIZE 512m
+                    """
+                )
             )
-            connection.execute(sql)
             sql = text(
                 f"CREATE USER IF NOT EXISTS {oracle_user_password} IDENTIFIED BY {oracle_user_password} \
                 DEFAULT TABLESPACE data_ts QUOTA UNLIMITED ON data_ts"

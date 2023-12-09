@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "pzsp2"
+name = "pzsp2-test"
 version = "0.1.0"
 description = ""
 authors = ["Tomasz Owienko <tomasz.owienko.stud@pw.edu.pl>"]
@@ -19,6 +19,8 @@ tenacity = "^8.2.3"
 alembic = "^1.12.1"
 jsonschema = "^4.20.0"
 types-jsonschema = "^4.20.0.0"
+fastapi-users = {extras = ["sqlmodel"], version = "^12.1.2"}
+fastapi-users-db-sqlmodel = "^0.3.0"
 
 [tool.poetry.group.test]
 optional = true
