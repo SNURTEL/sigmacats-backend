@@ -179,6 +179,7 @@ class RaceReadDetailRider(SQLModel):
     entry_fee_gr: int
     season: "SeasonListRead"
     bonuses: list["RaceBonusListRead"]
+    participation_status: Optional["RaceParticipationStatus"] = Field(default=None)
     race_participations: list["RaceParticipationListRead"] = Field(default=None)
     place_to_points_mapping_json: str
     sponsor_banners_uuids_json: Optional[str] = Field(max_length=4000)
@@ -212,7 +213,6 @@ class RaceReadDetailCoordinator(SQLModel):
     entry_fee_gr: int
     season: "SeasonListRead"
     bonuses: list["RaceBonusListRead"]
-    participation_status: Optional["RaceParticipationStatus"] = Field(default=None)
     race_participations: list["RaceParticipationListRead"] = Field(default=None)
     temperature: Optional[RaceTemperature]
     rain: Optional[RaceRain]
