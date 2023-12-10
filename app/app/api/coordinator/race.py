@@ -14,6 +14,9 @@ from app.models.season import Season
 router = APIRouter()
 
 
+# mypy: disable-error-code=var-annotated
+
+
 @router.get("/")
 async def read_races(
         db: Session = Depends(get_db), limit: int = 30, offset: int = 0

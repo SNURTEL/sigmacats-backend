@@ -14,12 +14,12 @@ def update_forward_refs():
     RaceReadDetailRider.update_forward_refs(
         RaceBonusListRead=RaceBonusListRead,
         SeasonListRead=SeasonListRead,
-        RaceParticipationListRead=RaceParticipationListRead)
+        RaceParticipationListRead=RaceParticipationListRead,
+        RaceParticipationStatus=RaceParticipationStatus)
     RaceReadListRider.update_forward_refs(
         RaceParticipationStatus=RaceParticipationStatus
     )
     RaceReadDetailCoordinator.update_forward_refs(
-        RaceParticipationStatus=RaceParticipationStatus,
         RaceBonusListRead=RaceBonusListRead,
         SeasonListRead=SeasonListRead,
         RaceParticipationListRead=RaceParticipationListRead)

@@ -19,8 +19,8 @@ def test_coordinator_list_races(client, db, race_pending, race_ended):
                                     (race_pending, race_ended)]
 
 
-def test_rider_race_detail(client, db, race_pending):
-    response = client.get(f"/api/rider/race/{race_pending.id}")
+def test_rider_race_detail(client, db, rider, race_pending):
+    response = client.get(f"/api/rider/race/{race_pending.id}", params={"rider_id": rider.id})
     assert response.status_code == 200
     assert response.json() == jsonable_encoder(RaceReadDetailRider.from_orm(race_pending))
 
@@ -31,8 +31,8 @@ def test_coordinator_race_detail(client, db, race_pending):
     assert response.json() == jsonable_encoder(RaceReadDetailCoordinator.from_orm(race_pending))
 
 
-def test_rider_race_detail_404(client, db):
-    response = client.get("/api/rider/race/54654246")
+def test_rider_race_detail_404(client, db, rider):
+    response = client.get("/api/rider/race/54654246", params={"rider_id": rider.id})
     assert response.status_code == 404
 
 
@@ -78,6 +78,19 @@ def test_rider_race_participant_after_join(client, db, race_pending, rider, bike
     response = client.get(f"/api/rider/race/{response.json().get('race_id')}", params={"rider_id": rider.id})
     assert response.status_code == 200
     assert any(p.get('rider_id') == rider.id for p in response.json().get('race_participations'))
+
+
+def test_rider_race_detail_status_after_join(client, db, race_pending, rider, bike_road):
+    response = client.post(f"/api/rider/race/{race_pending.id}/join",
+                           params={
+                               "rider_id": rider.id,
+                               "bike_id": bike_road.id
+                           })
+    assert response.status_code == 200
+
+    response = client.get(f"/api/rider/race/{response.json().get('race_id')}", params={"rider_id": rider.id})
+    assert response.status_code == 200
+    assert response.json().get("participation_status") == RaceParticipationStatus.pending.value
 
 
 def test_rider_race_join_multiple(client, db, race_pending, rider, bike_road):
@@ -227,6 +240,26 @@ def test_rider_race_participant_after_withdraw(client, db, race_pending, rider, 
     response = client.get(f"/api/rider/race/{race_id}", params={"rider_id": rider.id})
     assert response.status_code == 200
     assert not any(p.get('rider_id') == rider.id for p in response.json().get('race_participations') if p)
+
+
+def test_rider_race_detail_status_withdraw(client, db, race_pending, rider, bike_road):
+    response = client.post(f"/api/rider/race/{race_pending.id}/join",
+                           params={
+                               "rider_id": rider.id,
+                               "bike_id": bike_road.id
+                           })
+    assert response.status_code == 200
+    race_id = response.json().get('race_id')
+
+    response = client.post(f"/api/rider/race/{race_pending.id}/withdraw",
+                           params={
+                               "rider_id": rider.id,
+                           })
+    assert response.status_code == 200
+
+    response = client.get(f"/api/rider/race/{race_id}", params={"rider_id": rider.id})
+    assert response.status_code == 200
+    assert response.json().get('participation_status') is None
 
 
 def test_rider_race_withdraw_race_ended(client, db, race_ended, rider):

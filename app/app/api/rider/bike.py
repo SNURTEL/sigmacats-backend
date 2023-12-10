@@ -11,6 +11,8 @@ from app.models.rider import Rider
 router = APIRouter()
 
 
+# mypy: disable-error-code=var-annotated
+
 @router.get("/")
 async def read_bikes(
         rider_id: int,  # TODO deduce from session,

@@ -11,6 +11,8 @@ from app.models.race_participation import RaceParticipation, RaceParticipationSt
 router = APIRouter()
 
 
+# mypy: disable-error-code=var-annotated
+
 @router.get("/")
 async def read_races(
         rider_id: int,  # TODO deduce from session
@@ -36,7 +38,9 @@ async def read_races(
 
 @router.get("/{id}")
 async def read_race(
-        id: int, db: Session = Depends(get_db),
+        id: int,
+        rider_id: int,
+        db: Session = Depends(get_db),
 ) -> RaceReadDetailRider:
     """
     Get details about a specific race.
@@ -50,7 +54,11 @@ async def read_race(
     if not race:
         raise HTTPException(404)
 
-    return RaceReadDetailRider.from_orm(race)
+    return RaceReadDetailRider.from_orm(race, update={
+        'participation_status': getattr(
+            next((p for p in race.race_participations if p.rider_id == rider_id), None),
+            'status', None)
+    })
 
 
 @router.post("/{id}/join")
