@@ -1,6 +1,6 @@
 from fastapi.encoders import jsonable_encoder
 
-from app.models.race import RaceReadListRider, Race, RaceStatus, RaceReadDetailCoordinator, RaceReadListCoordinator, \
+from app.models.race import RaceReadListRider, RaceStatus, RaceReadDetailCoordinator, RaceReadListCoordinator, \
     RaceReadDetailRider
 from app.models.race_participation import RaceParticipationStatus
 

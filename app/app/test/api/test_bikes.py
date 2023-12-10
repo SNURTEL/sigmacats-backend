@@ -1,6 +1,6 @@
 from fastapi.encoders import jsonable_encoder
 
-from app.models.bike import Bike, BikeCreate, BikeUpdate, BikeType
+from app.models.bike import Bike, BikeType
 
 
 def test_read_bikes(client, rider, db, bike_road, bike_fixie):

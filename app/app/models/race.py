@@ -11,7 +11,6 @@ from pydantic import validator
 from sqlmodel import Field, SQLModel, Relationship, CheckConstraint
 
 from .race_bonus_race_link import RaceBonusRaceLink
-from .race_participation import RaceParticipationStatus
 
 if TYPE_CHECKING:
     from .season import Season, SeasonListRead
