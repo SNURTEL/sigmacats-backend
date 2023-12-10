@@ -8,11 +8,8 @@ from app.models.bike import Bike
 from app.models.rider import Rider
 from app.models.race_participation import RaceParticipation, RaceParticipationStatus, RaceParticipationCreated
 
-from app.util.log import get_logger
-
 router = APIRouter()
 
-logger = get_logger()
 
 @router.get("/")
 async def read_races(
@@ -84,7 +81,7 @@ async def join_race(
         raise HTTPException(403, f"Race already {race.status.name}")
 
     ongoing_participation = db.exec(select(RaceParticipation).where(
-            RaceParticipation.race == race and RaceParticipation.rider == rider)).first()
+        RaceParticipation.race == race and RaceParticipation.rider == rider)).first()
     if ongoing_participation and ongoing_participation.bike_id == bike_id:
         return RaceParticipationCreated.from_orm(ongoing_participation)
 

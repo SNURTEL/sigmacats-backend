@@ -66,7 +66,7 @@ async def create_bike(
             Bike.type == bike_create.type,
             Bike.brand == bike_create.brand,
             Bike.model == bike_create.model)).first():
-        raise HTTPException(400, "Identical bike already exists")
+        raise HTTPException(403, "Identical bike already exists")
 
     if not db.get(Rider, bike_create.rider_id):
         raise HTTPException(404, "Rider not found")
@@ -111,6 +111,3 @@ async def update_bike(
         raise HTTPException(400)
 
     return bike
-
-
-# TODO delete / retire bike

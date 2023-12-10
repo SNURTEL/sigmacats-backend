@@ -2,7 +2,7 @@ from fastapi.encoders import jsonable_encoder
 
 from app.models.race import RaceReadListRider, Race, RaceStatus, RaceReadDetailCoordinator, RaceReadListCoordinator, \
     RaceReadDetailRider
-from app.models.race_participation import RaceParticipationStatus, RaceParticipationListRead
+from app.models.race_participation import RaceParticipationStatus
 
 
 def test_rider_list_races(client, rider, db, race_pending, race_ended):
