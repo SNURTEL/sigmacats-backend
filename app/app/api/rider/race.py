@@ -8,8 +8,11 @@ from app.models.bike import Bike
 from app.models.rider import Rider
 from app.models.race_participation import RaceParticipation, RaceParticipationStatus, RaceParticipationCreated
 
+from app.util.log import get_logger
+
 router = APIRouter()
 
+logger = get_logger()
 
 @router.get("/")
 async def read_races(

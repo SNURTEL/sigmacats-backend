@@ -1,6 +1,7 @@
 from fastapi.encoders import jsonable_encoder
 
-from app.models.race import RaceReadListRider, Race, RaceStatus, RaceReadDetailCoordinator, RaceReadListCoordinator, RaceReadDetailRider
+from app.models.race import RaceReadListRider, Race, RaceStatus, RaceReadDetailCoordinator, RaceReadListCoordinator, \
+    RaceReadDetailRider
 from app.models.race_participation import RaceParticipationStatus, RaceParticipationListRead
 
 
@@ -63,8 +64,7 @@ def test_rider_race_status_after_join(client, db, race_pending, rider, bike_road
 
     response = client.get("/api/rider/race", params={"rider_id": rider.id})
     assert response.status_code == 200
-    print(response.json())
-    assert response.json()[0].get('participation_status') == RaceParticipationStatus.pending.value
+    assert response.json()[-1].get('participation_status') == RaceParticipationStatus.pending.value
 
 
 def test_rider_race_participant_after_join(client, db, race_pending, rider, bike_road):
@@ -206,7 +206,7 @@ def test_rider_race_status_after_withdraw(client, db, race_pending, rider, bike_
 
     response = client.get("/api/rider/race", params={"rider_id": rider.id})
     assert response.status_code == 200
-    assert response.json()[0].get('participation_status') is None
+    assert response.json()[-1].get('participation_status') is None
 
 
 def test_rider_race_participant_after_withdraw(client, db, race_pending, rider, bike_road):
