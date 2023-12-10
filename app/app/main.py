@@ -1,7 +1,7 @@
 import os
 
 from fastapi import FastAPI, Depends, Request
-from starlette.datastructures import FormData
+from starlette.datastructures import FormData, UploadFile
 from sqlmodel import Session
 from sqlmodel import select
 
@@ -43,10 +43,16 @@ async def db_test(db: Session = Depends(get_db)) -> list[Account]:
 
 
 @app.post("/upload-test/")
-async def upload_test(request: Request) -> dict[str, str]:
+async def upload_test(request: Request) -> dict[str, UploadFile | str | None]:
     logger.info(request.headers)
     form: FormData = await request.form()
     logger.info(form)
     return {
-        k: form.get(k) for k in ('fileobj.name', 'fileobj.content_type', 'fileobj.path', 'fileobj.md5', 'fileobj.size', 'name')
+        k: form.get(k) for k in (
+            'fileobj.name',
+            'fileobj.content_type',
+            'fileobj.path',
+            'fileobj.md5',
+            'fileobj.size',
+            'name')
     }
