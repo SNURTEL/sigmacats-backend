@@ -31,7 +31,7 @@ async def read_bikes(
     )
     bikes = db.exec(stmt).all()
 
-    return bikes
+    return bikes  # type: ignore[return-value]
 
 
 @router.get("/{id}")
