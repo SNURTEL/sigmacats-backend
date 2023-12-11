@@ -23,6 +23,10 @@ jobs:
       run: |
         chmod +x setup.sh
         ./setup.sh
+    - name: Switch to feature branch if exists
+      run: |
+        git fetch origin
+        git checkout ${{ steps.extract_branch.outputs.branch }} || true
     - name: Checkout backend
       uses: actions/checkout@v3
       with:
@@ -50,4 +54,15 @@ jobs:
         docker exec fastapi-backend bash -c "alembic check"
     - name: Run pytest
       run: |
-        docker exec fastapi-backend "pytest"
+        docker exec fastapi-backend bash -c "pytest -vv"
+    - name: Dump container logs
+      if: always()
+      run: |
+        docker compose logs >> container-logs.txt
+    - name: Archive container logs
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: container-logs
+        path: container-logs.txt
+        retention-days: 7
