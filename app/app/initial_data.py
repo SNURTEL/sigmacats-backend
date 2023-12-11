@@ -12,6 +12,7 @@ from app.models.race import Race, RaceStatus, RaceTemperature, RaceRain
 from app.models.race_bonus import RaceBonus
 
 bike_road = Bike(
+    id=1,
     name="Rakieta",
     type=BikeType.road,
     brand="Canyon",
@@ -19,6 +20,7 @@ bike_road = Bike(
 )
 
 bike_fixie = Bike(
+    id=2,
     name="Czarna strzała",
     type=BikeType.fixie,
     brand="FIXIE inc.",
@@ -53,6 +55,7 @@ bike_fixie = Bike(
 # )
 
 dummy_rider_account = Account(
+    id=1,
     type="rider",
     username="dummy_rider",
     name="John",
@@ -61,25 +64,39 @@ dummy_rider_account = Account(
     password_hash="JSDHFGKIUSDFHBKGSBHDFKGS",
 )
 
-dummy_rider_classification_link = RiderClassificationLink(
-    score=10
-)
-
-dummy_rider = Rider(
-    account=dummy_rider_account,
-    bikes=[bike_road, bike_fixie],
-    classification_link=[dummy_rider_classification_link]
-)
-
 season = Season(
+    id=1,
     name="23Z :d",
     start_timestamp=datetime(day=2, month=10, year=2023),
     end_timestamp=datetime(day=19, month=2, year=2024)
 )
 
+dummy_rider = Rider(
+    id=1,
+    account=dummy_rider_account,
+    bikes=[bike_road, bike_fixie],
+)
+
+dummy_classification = Classification(
+    id=1,
+    name="Dorośli",
+    description="18 lat i więcej",
+    season=season,
+    season_id=season.id,
+    riders=[dummy_rider],
+)
+
+
+dummy_rider_classification_link = RiderClassificationLink(
+    id=1,
+    score=10,
+    rider_id=dummy_rider.id,
+    classification_id=dummy_classification.id
+)
 
 
 race1 = Race(
+    id=1,
     status=RaceStatus.pending,
     name="Dookoła bloku",
     description="Plan działania:\n"
@@ -106,18 +123,21 @@ race1 = Race(
                                  ']',
     sponsor_banners_uuids_json='["NOT_IMPLEMENTED"]',
     season=season,
+    season_id=season.id,
     bonuses=[],
     race_participations=[]
 
 )
 
 race_bonus_snow = RaceBonus(
+    id=1,
     name="Śnieg na trasie",
     rule="NOT_IMPLEMENTED",
     points_multiplier=2.0
 )
 
 race2 = Race(
+    id=2,
     status=RaceStatus.pending,
     name="Jazda w śniegu",
     description="Jak w tytule. Każdy bierze rower z najgrubszymi oponami jakie ma i "
@@ -148,6 +168,7 @@ race2 = Race(
 )
 
 race3 = Race(
+    id=3,
     status=RaceStatus.ended,
     name="Coffe ride: Pożegnanie lata",
     description="Zgodnie z tradycją 1 października żegnamy sezon letni i wybieramy się do Góry Kawiarni na kawę i "
@@ -173,19 +194,15 @@ race3 = Race(
 
 )
 
-dummy_classification = Classification(
-    name="Dorośli",
-    description="18 lat i więcej",
-    season=season,
-    riders=[dummy_rider],
-)
-
 dummy_ride_participation_classification_place = RiderParticipationClassificationPlace(
+    id=1,
     place=1,
-    classification=dummy_classification
+    classification=dummy_classification,
+    # race_participation_id = dummy_race_participation.id
 )
 
 dummy_race_participation = RaceParticipation(
+    id=1,
     status="approved",
     rider=dummy_rider,
     race=race1,
@@ -201,14 +218,14 @@ initial_data = [
     # dummy_coordinator_account,
     # dummy_coordinator,
     dummy_rider_account,
-    dummy_rider_classification_link,
-    dummy_rider,
     season,
+    dummy_rider,
+    dummy_classification,
+    dummy_rider_classification_link,
     race1,
     race_bonus_snow,
     race2,
     race3,
-    dummy_classification,
     dummy_ride_participation_classification_place,
     dummy_race_participation
 ]
