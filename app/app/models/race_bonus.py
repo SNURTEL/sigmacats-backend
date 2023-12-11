@@ -18,3 +18,10 @@ class RaceBonus(SQLModel, table=True):
         back_populates="bonuses",
         link_model=RaceBonusRaceLink
     )
+
+
+class RaceBonusListRead(SQLModel):
+    id: int
+    name: str
+    rule: str
+    points_multiplier: float

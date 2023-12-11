@@ -53,3 +53,10 @@ class RaceParticipationCreated(SQLModel):
     rider_id: int
     race_id: int
     bike_id: int
+
+
+class RaceParticipationListRead(SQLModel):
+    id: int
+    rider_id: int
+    bike_id: int
+    status: RaceParticipationStatus

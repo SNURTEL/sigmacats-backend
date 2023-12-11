@@ -18,3 +18,10 @@ class Season(SQLModel, table=True):
     ))
     classifications: list["Classification"] = Relationship(back_populates="season")
     races: list["Race"] = Relationship(back_populates="season")
+
+
+class SeasonListRead(SQLModel):
+    id: int
+    name: str
+    start_timestamp: datetime
+    end_timestamp: datetime
