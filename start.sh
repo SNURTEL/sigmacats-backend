@@ -17,5 +17,5 @@ cp app/prepare_tables.py .
 python3 prepare_tables.py
 
 # start the app
-uvicorn app.main:app --proxy-headers --host 0.0.0.0 --port 80
+uvicorn app.main:app --proxy-headers --host 0.0.0.0 --port 8000
 
