@@ -194,13 +194,18 @@ dummy_race_participation = RaceParticipation(
 )
 
 initial_data = [
+    bike_road,
+    bike_fixie,
     # dummy_admin_account,
-    # dummy_coordinator_account,
-    dummy_rider_account,
     # dummy_admin,
+    # dummy_coordinator_account,
     # dummy_coordinator,
+    dummy_rider_account,
+    dummy_rider_classification_link,
     dummy_rider,
+    season,
     race1,
+    race_bonus_snow,
     race2,
     race3,
     dummy_classification,
