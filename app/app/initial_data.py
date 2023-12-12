@@ -6,6 +6,10 @@ from app.models.bike import Bike, BikeType
 from app.models.season import Season
 from app.models.race import Race, RaceStatus, RaceTemperature, RaceRain
 from app.models.race_bonus import RaceBonus
+from app.models.race_participation import RaceParticipation, RaceParticipationStatus
+from app.models.classification import Classification
+from app.models.ride_participation_classification_place import RiderParticipationClassificationPlace
+from app.models.rider_classification_link import RiderClassificationLink
 
 bike_road = Bike(
     name="Rakieta",
@@ -162,12 +166,40 @@ race3 = Race(
 
 )
 
+dummy_classification = Classification(
+    name="Dorośli",
+    description=">=18 lat",
+    season=season,
+)
+
+dummy_rider_classification_link = RiderClassificationLink(
+    score=420,
+    rider=dummy_rider,
+    classification=dummy_classification
+)
+
+
+dummy_race_participation = RaceParticipation(
+    status = RaceParticipationStatus.approved.value,
+    rider=dummy_rider,
+    race=race1,
+    bike=bike_road
+)
+
+dummy_race_participation_classification_place = RiderParticipationClassificationPlace(
+    place=1,
+    race_participation=dummy_race_participation,
+    classification=dummy_classification
+)
+
+
 initial_data = [
     # dummy_admin_account,
     # dummy_coordinator_account,
     dummy_rider_account,
     # dummy_admin,
     # dummy_coordinator,
+    dummy_classification,
     dummy_rider,
     race1,
     race2,

@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from .rider import Rider
     from .season import Season
     from .ride_participation_classification_place import RiderParticipationClassificationPlace
+    from .rider_classification_link import RiderClassificationLink
 
 
 class Classification(SQLModel, table=True):
@@ -26,3 +27,5 @@ class Classification(SQLModel, table=True):
 
     race_participation_places: list["RiderParticipationClassificationPlace"] = Relationship(
         back_populates="classification")
+
+    rider_links: list["RiderClassificationLink"] = Relationship(back_populates="classification")

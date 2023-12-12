@@ -21,7 +21,5 @@ class Rider(SQLModel, table=True):
         link_model=RiderClassificationLink,
     )
     race_participations: list["RaceParticipation"] = Relationship(back_populates="rider")
-    classification_links: list["RiderClassificationLink"] = Relationship(sa_relationship_kwargs={
-        "backref": "riderclassificationlink",
-        "viewonly": True
-    })
+    classification_links: list["RiderClassificationLink"] = Relationship(back_populates="rider")
+
