@@ -21,9 +21,11 @@ class Classification(SQLModel, table=True):
     season: "Season" = Relationship(back_populates="classifications")
 
     riders: list["Rider"] = Relationship(
-        back_populates="classifications",
         link_model=RiderClassificationLink,
-    )
+        back_populates='classifications',
+        sa_relationship_kwargs={
+            "viewonly": True
+        })
 
     race_participation_places: list["RiderParticipationClassificationPlace"] = Relationship(
         back_populates="classification")
