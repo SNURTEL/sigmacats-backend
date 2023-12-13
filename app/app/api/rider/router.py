@@ -9,4 +9,4 @@ router = APIRouter()
 
 router.include_router(races_router, prefix="/race")
 router.include_router(season_router, prefix="/season")
-router.include_router(season_router, prefix="/classification")
+router.include_router(classification_router, prefix="/classification")

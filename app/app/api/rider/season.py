@@ -18,8 +18,11 @@ async def read_classifications(
     """
     stmt = (
         select(Classification)
-        .where(Classification.season.id == id)
+        .where(Classification.season_id == id)
     )
     classifications = db.exec(stmt).all()
+
+    if not classifications or len(classifications) <= 0:
+        raise HTTPException(404)
 
     return [ClassificationRead.from_orm(c) for c in classifications]

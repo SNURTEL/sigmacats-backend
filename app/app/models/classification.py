@@ -1,14 +1,13 @@
 from typing import Optional, TYPE_CHECKING
-
 from sqlmodel import Field, SQLModel, Relationship
 
-# from .season import Season
-from .rider_classification_link import RiderClassificationLink
+from .rider_classification_link import RiderClassificationLink  # noqa: F811,
 
 if TYPE_CHECKING:
     from .rider import Rider
     from .season import Season
     from .ride_participation_classification_place import RiderParticipationClassificationPlace
+    from .rider_classification_link import RiderClassificationLink
 
 
 class Classification(SQLModel, table=True):
@@ -27,12 +26,10 @@ class Classification(SQLModel, table=True):
     race_participation_places: list["RiderParticipationClassificationPlace"] = Relationship(
         back_populates="classification")
 
+    rider_links: list["RiderClassificationLink"] = Relationship(back_populates="classification")
+
 
 class ClassificationRead(SQLModel):
     id: int
     name: str
     description: str
-    season_id: int = Field(foreign_key="season.id")
-    season: "Season"
-    riders: list["Rider"]
-    race_participation_places: list["RiderParticipationClassificationPlace"]

@@ -3,7 +3,8 @@ from sqlmodel import Session, select
 
 from app.db.session import get_db
 
-from app.models.rider import Rider, RiderRead
+from app.models.rider import RiderRead
+from app.models.classification import Classification
 
 router = APIRouter()
 
@@ -17,13 +18,16 @@ async def read_riders(
     List all riders for a given classification.
     """
     stmt = (
-        select(Rider)
-        .where(id in [classification.id for classification in Rider.classifications])
+        select(Classification)
+        .where(Classification.id == id)
     )
 
-    riders = db.exec(stmt).all()
+    classification = db.exec(stmt).first()
 
-    if not riders or len(riders) == 0:
+    if not classification:
         raise HTTPException(404)
 
-    return [RiderRead.from_orm(r) for r in riders]
+    if not classification.riders or len(classification.riders) == 0:
+        raise HTTPException(404)
+
+    return [RiderRead.from_orm(r) for r in classification.riders]

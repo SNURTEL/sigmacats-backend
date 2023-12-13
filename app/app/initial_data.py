@@ -3,7 +3,7 @@ from datetime import datetime
 from app.models.account import Account
 from app.models.rider import Rider
 from app.models.classification import Classification
-from app.models.race_participation import RaceParticipation
+from app.models.race_participation import RaceParticipation, RaceParticipationStatus
 from app.models.ride_participation_classification_place import RiderParticipationClassificationPlace
 from app.models.rider_classification_link import RiderClassificationLink
 from app.models.bike import Bike, BikeType
@@ -54,46 +54,12 @@ bike_fixie = Bike(
 #     phone_number="123456789"
 # )
 
-dummy_rider_account = Account(
-    id=1,
-    type="rider",
-    username="dummy_rider",
-    name="John",
-    surname="Doe",
-    email="jo.doe@sigma.org",
-    password_hash="JSDHFGKIUSDFHBKGSBHDFKGS",
-)
-
 season = Season(
     id=1,
     name="23Z :d",
     start_timestamp=datetime(day=2, month=10, year=2023),
     end_timestamp=datetime(day=19, month=2, year=2024)
 )
-
-dummy_rider = Rider(
-    id=1,
-    account=dummy_rider_account,
-    bikes=[bike_road, bike_fixie],
-)
-
-dummy_classification = Classification(
-    id=1,
-    name="Dorośli",
-    description="18 lat i więcej",
-    season=season,
-    season_id=season.id,
-    riders=[dummy_rider],
-)
-
-
-dummy_rider_classification_link = RiderClassificationLink(
-    id=1,
-    score=10,
-    rider_id=dummy_rider.id,
-    classification_id=dummy_classification.id
-)
-
 
 race1 = Race(
     id=1,
@@ -123,10 +89,25 @@ race1 = Race(
                                  ']',
     sponsor_banners_uuids_json='["NOT_IMPLEMENTED"]',
     season=season,
-    season_id=season.id,
     bonuses=[],
     race_participations=[]
 
+)
+
+dummy_rider_account = Account(
+    id=1,
+    type="rider",
+    username="dummy_rider",
+    name="John",
+    surname="Doe",
+    email="jo.doe@sigma.org",
+    password_hash="JSDHFGKIUSDFHBKGSBHDFKGS",
+)
+
+dummy_rider = Rider(
+    id=1,
+    account=dummy_rider_account,
+    bikes=[bike_road, bike_fixie],
 )
 
 race_bonus_snow = RaceBonus(
@@ -194,38 +175,40 @@ race3 = Race(
 
 )
 
-dummy_ride_participation_classification_place = RiderParticipationClassificationPlace(
-    id=1,
-    place=1,
-    classification=dummy_classification,
-    # race_participation_id = dummy_race_participation.id
+dummy_classification = Classification(
+    name="Dorośli",
+    description=">=18 lat",
+    season=season,
+)
+
+dummy_rider_classification_link = RiderClassificationLink(
+    score=420,
+    rider=dummy_rider,
+    classification=dummy_classification
 )
 
 dummy_race_participation = RaceParticipation(
-    id=1,
-    status="approved",
+    status=RaceParticipationStatus.approved.value,
     rider=dummy_rider,
     race=race1,
-    bike=bike_road,
-    classification_places=[dummy_ride_participation_classification_place]
+    bike=bike_road
+)
+
+dummy_race_participation_classification_place = RiderParticipationClassificationPlace(
+    place=1,
+    race_participation=dummy_race_participation,
+    classification=dummy_classification
 )
 
 initial_data = [
-    bike_road,
-    bike_fixie,
     # dummy_admin_account,
-    # dummy_admin,
     # dummy_coordinator_account,
-    # dummy_coordinator,
     dummy_rider_account,
-    season,
-    dummy_rider,
+    # dummy_admin,
+    # dummy_coordinator,
     dummy_classification,
-    dummy_rider_classification_link,
+    dummy_rider,
     race1,
-    race_bonus_snow,
     race2,
-    race3,
-    dummy_ride_participation_classification_place,
-    dummy_race_participation
+    race3
 ]
