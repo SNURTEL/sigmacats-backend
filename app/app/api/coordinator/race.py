@@ -28,7 +28,7 @@ async def read_races(
         select(Race)
         .offset(offset)
         .limit(limit)
-        .order_by(Race.id)  # type: ignore[arg-type]
+        .order_by(Race.start_timestamp.desc())  # type: ignore[arg-type]
     )
     races = db.exec(stmt).all()
 
