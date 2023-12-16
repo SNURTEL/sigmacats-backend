@@ -1,6 +1,6 @@
 from fastapi import Depends, Request, APIRouter
 
-from starlette.datastructures import FormData, UploadFile
+from starlette.datastructures import FormData
 from sqlmodel import Session
 from sqlmodel import select
 

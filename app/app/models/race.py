@@ -129,7 +129,8 @@ class RaceCreate(SQLModel):
     start_timestamp: datetime
     end_timestamp: datetime
     entry_fee_gr: int
-    # TODO gpx
+    checkpoints_gpx_file: str
+    event_graphic_file: str
     no_laps: int
     place_to_points_mapping_json: str
     sponsor_banners_uuids_json: str

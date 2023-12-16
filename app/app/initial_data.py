@@ -180,7 +180,7 @@ dummy_rider_classification_link = RiderClassificationLink(
 
 
 dummy_race_participation = RaceParticipation(
-    status = RaceParticipationStatus.approved.value,
+    status=RaceParticipationStatus.approved.value,
     rider=dummy_rider,
     race=race1,
     bike=bike_road
