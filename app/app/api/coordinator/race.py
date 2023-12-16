@@ -1,5 +1,3 @@
-from random import randint
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from pydantic import ValidationError
@@ -71,8 +69,6 @@ async def create_race(
     try:
         race = Race.from_orm(race_create, update={
             "status": RaceStatus.pending,
-            "checkpoints_gpx_file": f"NOT_IMPLEMENTED{randint(0, 9999999999)}",
-            "event_graphic_file": f"NOT_IMPLEMENTED{randint(0, 9999999999)}"
         })
         db.add(race)
         db.commit()
