@@ -297,6 +297,8 @@ def test_coordinator_create_race(client, db, season):
                                "end_timestamp": "2023-12-02T23:48:36.620Z",
                                "entry_fee_gr": 10000,
                                "no_laps": 3,
+                               "checkpoints_gpx_file": "/tmp/nginx_upload/0027983891",
+                               "event_graphic_file": "/tmp/nginx_upload/0027983891",
                                "place_to_points_mapping_json": '[{"place": 1,"points": 20}, {"place": 2,"points": 16}]',
                                "sponsor_banners_uuids_json": "[]",
                                "season_id": season.id
@@ -315,6 +317,8 @@ def test_coordinator_create_race_timestamp_order(client, db, season):
                                "end_timestamp": "2023-12-02T21:48:36.620Z",
                                "entry_fee_gr": 10000,
                                "no_laps": 3,
+                               "checkpoints_gpx_file": "/tmp/nginx_upload/0027983891",
+                               "event_graphic_file": "/tmp/nginx_upload/0027983891",
                                "place_to_points_mapping_json": '[{"place": 1,"points": 20}, {"place": 2,"points": 16}]',
                                "sponsor_banners_uuids_json": "[]]",
                                "season_id": season.id
@@ -333,6 +337,8 @@ def test_coordinator_create_race_zero_laps(client, db, season):
                                "end_timestamp": "2023-12-02T21:48:36.620Z",
                                "entry_fee_gr": 10000,
                                "no_laps": 0,
+                               "checkpoints_gpx_file": "/tmp/nginx_upload/0027983891",
+                               "event_graphic_file": "/tmp/nginx_upload/0027983891",
                                "place_to_points_mapping_json": '[{"place": 1,"points": 20}, {"place": 2,"points": 16}]',
                                "sponsor_banners_uuids_json": "[]",
                                "season_id": season.id
@@ -351,6 +357,8 @@ def test_coordinator_create_race_negative_entry_fee(client, db, season):
                                "end_timestamp": "2023-12-02T21:48:36.620Z",
                                "entry_fee_gr": -10000,
                                "no_laps": 1,
+                               "checkpoints_gpx_file": "/tmp/nginx_upload/0027983891",
+                               "event_graphic_file": "/tmp/nginx_upload/0027983891",
                                "place_to_points_mapping_json": '[{"place": 1,"points": 20}, {"place": 2,"points": 16}]',
                                "sponsor_banners_uuids_json": "[]",
                                "season_id": season.id
@@ -369,6 +377,8 @@ def test_coordinator_create_race_season_404(client, db, season):
                                "end_timestamp": "2023-12-02T21:48:36.620Z",
                                "entry_fee_gr": 10000,
                                "no_laps": 1,
+                               "checkpoints_gpx_file": "/tmp/nginx_upload/0027983891",
+                               "event_graphic_file": "/tmp/nginx_upload/0027983891",
                                "place_to_points_mapping_json": '[{"place": 1,"points": 20}, {"place": 2,"points": 16}]',
                                "sponsor_banners_uuids_json": "[]",
                                "season_id": 45645645
@@ -387,6 +397,8 @@ def test_coordinator_create_race_invalid_score_json(client, db, season):
                                "end_timestamp": "2023-12-02T23:48:36.620Z",
                                "entry_fee_gr": 10000,
                                "no_laps": 3,
+                               "checkpoints_gpx_file": "/tmp/nginx_upload/0027983891",
+                               "event_graphic_file": "/tmp/nginx_upload/0027983891",
                                "place_to_points_mapping_json": "[{\"place\": 1, \"score\": \"sdfgs\"\"}, "
                                                                "{\"place\": 2, \"score\": 0\"}]",
                                "sponsor_banners_uuids_json": "[]",
@@ -406,6 +418,8 @@ def test_coordinator_create_race_invalid_sponsors_json(client, db, season):
                                "end_timestamp": "2023-12-02T23:48:36.620Z",
                                "entry_fee_gr": 10000,
                                "no_laps": 3,
+                               "checkpoints_gpx_file": "/tmp/nginx_upload/0027983891",
+                               "event_graphic_file": "/tmp/nginx_upload/0027983891",
                                "place_to_points_mapping_json": '[{"place": 1,"points": 20}, {"place": 2,"points": 16}]',
                                "sponsor_banners_uuids_json": "[1]",
                                "season_id": season.id
