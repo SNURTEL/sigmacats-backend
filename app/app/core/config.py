@@ -14,10 +14,10 @@ from app.db.forward_refs import update_forward_refs
 update_forward_refs()
 
 oracledb.version = "23.0.0.0"
-sys.modules["cx_Oracle"] = oracledb
+sys.modules["python-oracledb"] = oracledb
 
 db_url = URL.create(
-    drivername="oracle",
+    drivername="oracle+oracledb",
     username=os.environ.get("ORACLE_USER_USERNAME"),
     password=os.environ.get("ORACLE_USER_PASSWORD"),
     host=os.environ.get("ORACLE_HOST"),
@@ -26,7 +26,7 @@ db_url = URL.create(
 )
 
 db_url_admin = URL.create(
-    drivername="oracle",
+    drivername="oracle+oracledb",
     username=os.environ.get("ORACLE_ADMIN_USERNAME"),
     password=os.environ.get("ORACLE_ADMIN_PASSWORD"),
     host=os.environ.get("ORACLE_HOST"),

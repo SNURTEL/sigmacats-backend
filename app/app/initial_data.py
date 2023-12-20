@@ -58,7 +58,7 @@ dummy_rider_account = Account(
     name="John",
     surname="Doe",
     email="jo.doe@sigma.org",
-    password_hash="JSDHFGKIUSDFHBKGSBHDFKGS",
+    hashed_password="JSDHFGKIUSDFHBKGSBHDFKGS",
 )
 
 dummy_rider = Rider(
