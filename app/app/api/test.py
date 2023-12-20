@@ -33,12 +33,12 @@ async def db_test(db: Session = Depends(get_db)) -> list[Account]:
 @router.post("/upload-test/")
 async def upload_test(request: Request) -> dict[str, str]:
     form: FormData = await request.form()
-    filename = form.get('fileobj.path')
+    filename = str(form.get('fileobj.path'))
     with open(filename, mode='r', encoding='utf-8') as fp:
         print(fp.read(512))
     shutil.copy2(filename, '/attachments/' + filename.split('/')[-1])
 
-    return {
+    return {  # type: ignore[return-value]
         k: form.get(k) for k in (  # type: ignore[misc]
             'fileobj.name',
             'fileobj.content_type',

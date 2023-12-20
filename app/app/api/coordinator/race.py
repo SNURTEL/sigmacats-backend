@@ -1,8 +1,6 @@
 import shutil
 import uuid
 import imghdr
-from io import BytesIO
-
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from starlette.datastructures import FormData
@@ -89,7 +87,7 @@ async def create_race(
 @router.post("/create/upload-route/")
 async def create_upload_route(request: Request) -> dict[str, str]:
     form: FormData = await request.form()
-    tmp_path = form.get('fileobj.path')
+    tmp_path = str(form.get('fileobj.path'))
 
     with open(tmp_path, 'r') as f:
         content = f.read(43)
@@ -100,10 +98,10 @@ async def create_upload_route(request: Request) -> dict[str, str]:
             raise HTTPException(400)
 
     new_name = f"{str(uuid.uuid4())}.gpx"
-    new_path =  f'/attachments/{new_name}'
+    new_path = f'/attachments/{new_name}'
     shutil.move(tmp_path, new_path)
 
-    return {
+    return {  # type: ignore[return-value]
         k: form.get(k) for k in (  # type: ignore[misc]
             'fileobj.content_type',
             'fileobj.md5',
@@ -118,7 +116,7 @@ async def create_upload_route(request: Request) -> dict[str, str]:
 @router.post("/create/upload-graphic/")
 async def create_upload_graphic(request: Request) -> dict[str, str]:
     form: FormData = await request.form()
-    tmp_path = form.get('fileobj.path')
+    tmp_path = str(form.get('fileobj.path'))
 
     extension = imghdr.what(tmp_path)
     if extension in ('jpeg', 'png'):
@@ -128,10 +126,10 @@ async def create_upload_graphic(request: Request) -> dict[str, str]:
         raise HTTPException(400)
 
     new_name = f"{str(uuid.uuid4())}.{extension}"
-    new_path =  f'/attachments/{new_name}'
+    new_path = f'/attachments/{new_name}'
     shutil.move(tmp_path, new_path)
 
-    return {
+    return {  # type: ignore[return-value]
         k: form.get(k) for k in (  # type: ignore[misc]
             'fileobj.content_type',
             'fileobj.md5',
@@ -141,6 +139,7 @@ async def create_upload_graphic(request: Request) -> dict[str, str]:
         'fileobj.name': new_name,
         'fileobj.path': new_path
     }
+
 
 @router.patch("/{id}")
 async def update_race(
