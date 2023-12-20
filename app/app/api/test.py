@@ -11,6 +11,7 @@ from app.db.session import get_db
 from app.tasks import basic_tasks
 
 from app.models.account import Account
+from app.core.users import current_active_user, current_rider_user, current_coordinator_user
 
 logger = get_logger()
 
@@ -47,3 +48,18 @@ async def upload_test(request: Request) -> dict[str, str]:
             'fileobj.size',
             'name')
     }
+
+
+@router.get("/protected")
+async def protected(user: Account = Depends(current_active_user)) -> dict[str, str]:
+    return {'message': 'you have successfully accessed a protected endpoint'}  # type: ignore[return-value]
+
+
+@router.get("/protected-rider")
+async def protected_rider(user: Account = Depends(current_rider_user)) -> dict[str, str]:
+    return {'message': 'this is a rider-only endpoint'}  # type: ignore[return-value]
+
+
+@router.get("/protected-coordinator")
+async def protected_rider(user: Account = Depends(current_coordinator_user)) -> dict[str, str]:
+    return {'message': 'this is a coordinator-only endpoint'}  # type: ignore[return-value]
