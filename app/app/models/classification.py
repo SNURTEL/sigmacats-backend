@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from .rider import Rider
     from .season import Season
     from .ride_participation_classification_place import RiderParticipationClassificationPlace
-    from .rider_classification_link import RiderClassificationLink
+    from .rider_classification_link import RiderClassificationLink # noqa F811
 
 
 class Classification(SQLModel, table=True):
@@ -21,6 +21,9 @@ class Classification(SQLModel, table=True):
     riders: list["Rider"] = Relationship(
         back_populates="classifications",
         link_model=RiderClassificationLink,
+        sa_relationship_kwargs={
+            "viewonly": True
+        }
     )
 
     race_participation_places: list["RiderParticipationClassificationPlace"] = Relationship(

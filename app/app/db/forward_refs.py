@@ -8,9 +8,6 @@ from app.models.race_bonus import RaceBonus
 from app.models.account import Account, Gender, AccountType
 from app.models.ride_participation_classification_place import RiderParticipationClassificationPlace
 from app.models.rider_classification_link import RiderClassificationLink
-from app.util.log import get_logger
-
-logger = get_logger()
 
 # if you are getting "TypeError: issubclass() arg 1 must be a class" from pydantic, models forward refs need to be
 # updated
@@ -18,8 +15,7 @@ logger = get_logger()
 # If you have multiple refs to update in one model, update all of them in one call
 
 
-def update_forward_refs():
-    logger.info("Setting up forward refs...")
+def update_forward_refs() -> None:
 
     Account.update_forward_refs(
         Rider=Rider,
@@ -96,5 +92,3 @@ def update_forward_refs():
         Season=Season,
         Rider=Rider
     )
-
-    logger.info("Forward refs done!")

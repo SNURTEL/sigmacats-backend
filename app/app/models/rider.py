@@ -2,14 +2,14 @@ from typing import TYPE_CHECKING
 
 from sqlmodel import Field, SQLModel, Relationship
 
-from .rider_classification_link import RiderClassificationLink  # noqa: F811
+from .rider_classification_link import RiderClassificationLink
 
 if TYPE_CHECKING:
     from .race_participation import RaceParticipation
     from .account import Account
     from .classification import Classification
     from .bike import Bike
-    from .rider_classification_link import RiderClassificationLink
+    from .rider_classification_link import RiderClassificationLink  # noqa: F811
 
 
 class Rider(SQLModel, table=True):
@@ -20,6 +20,9 @@ class Rider(SQLModel, table=True):
     classifications: list["Classification"] = Relationship(
         back_populates="riders",
         link_model=RiderClassificationLink,
+        sa_relationship_kwargs={
+            "viewonly": True
+        }
     )
     race_participations: list["RaceParticipation"] = Relationship(back_populates="rider")
     classification_links: list["RiderClassificationLink"] = Relationship(back_populates="rider")
