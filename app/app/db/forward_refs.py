@@ -1,4 +1,4 @@
-from app.models.race_participation import RaceParticipation, RaceParticipationStatus
+from app.models.race_participation import RaceParticipation, RaceParticipationStatus, RaceParticipationListRead
 from app.models.bike import Bike, BikeType
 from app.models.rider import Rider, RiderRead
 from app.models.season import Season
@@ -9,7 +9,6 @@ from app.models.account import Account, Gender, AccountType
 from app.models.ride_participation_classification_place import RiderParticipationClassificationPlace
 from app.models.rider_classification_link import RiderClassificationLink
 from app.models.race import RaceReadDetailRider, RaceReadDetailCoordinator, RaceReadListRider
-from app.models.race_participation import RaceParticipationStatus, RaceParticipationListRead
 from app.models.season import SeasonListRead
 from app.models.race_bonus import RaceBonusListRead
 
