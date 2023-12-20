@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "pzsp2-test"
+name = "pzsp2"
 version = "0.1.0"
 description = ""
 authors = ["Tomasz Owienko <tomasz.owienko.stud@pw.edu.pl>"]
@@ -21,6 +21,7 @@ jsonschema = "^4.20.0"
 types-jsonschema = "^4.20.0.0"
 fastapi-users = {extras = ["sqlmodel"], version = "^12.1.2"}
 fastapi-users-db-sqlmodel = "^0.3.0"
+python-multipart = "^0.0.6"
 
 [tool.poetry.group.test]
 optional = true

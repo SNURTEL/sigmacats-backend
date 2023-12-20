@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from .rider import Rider
     from .race import Race
     from .bike import Bike
+    from .ride_participation_classification_place import RiderParticipationClassificationPlace
 
 
 class RaceParticipationStatus(Enum):
@@ -21,10 +22,10 @@ class RaceParticipation(SQLModel, table=True):
     status: RaceParticipationStatus = Field(sa_column_args=(
         CheckConstraint("status in ('pending', 'approved', 'rejected')", name="race_participation_status_enum"),
     ), index=True)
-    place_generated: Optional[int] = Field(default=None, sa_column_args=(
+    place_generated_overall: Optional[int] = Field(default=None, sa_column_args=(
         CheckConstraint("place_generated > 0", name="race_participation_place_generated_positive"),
     ))
-    place_assigned: Optional[int] = Field(default=None, sa_column_args=(
+    place_assigned_overall: Optional[int] = Field(default=None, sa_column_args=(
         CheckConstraint("place_assigned > 0", name="race_participation_place_assigned_positive"),
     ))
     ride_start_timestamp: Optional[datetime] = Field(default=None)
@@ -41,3 +42,21 @@ class RaceParticipation(SQLModel, table=True):
     race: "Race" = Relationship(back_populates="race_participations")
     bike_id: int = Field(foreign_key="bike.id")
     bike: "Bike" = Relationship(back_populates="race_participations")
+
+    classification_places: list["RiderParticipationClassificationPlace"] = Relationship(
+        back_populates="race_participation")
+
+
+class RaceParticipationCreated(SQLModel):
+    id: int
+    status: RaceParticipationStatus
+    rider_id: int
+    race_id: int
+    bike_id: int
+
+
+class RaceParticipationListRead(SQLModel):
+    id: int
+    rider_id: int
+    bike_id: int
+    status: RaceParticipationStatus

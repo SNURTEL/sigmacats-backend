@@ -1,9 +1,14 @@
+import os
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Depends
 from sqlmodel import Session
 from sqlmodel import select
 from fastapi_users import FastAPIUsers
 from app.db.user_methods import get_user_manager
 
+from app.api.api import api_router
 from app.util.log import get_logger
 from app.db.session import get_db
 from app.tasks import basic_tasks
@@ -15,10 +20,18 @@ fastapi_users = FastAPIUsers[AccountInternal, int](
     [auth_backend],
 )
 
-app = FastAPI()
-
 logger = get_logger()
 
+app_name = os.getenv("FASTAPI_APP_NAME", "NAME NOT SET")
+api_prefix = os.getenv("FASTAPI_API_PREFIX", "/api")
+
+
+app = FastAPI(
+    title=app_name,
+    openapi_url=f"{api_prefix}/openapi.json",
+    docs_url=f"{api_prefix}/docs",
+    redoc_url=f"{api_prefix}/redoc"
+)
 app.include_router(
     fastapi_users.get_auth_router(auth_backend),
     prefix="/auth/jwt",
@@ -38,7 +51,18 @@ app.include_router(
     fastapi_users.get_verify_router(AccountRead),
     prefix="/auth",
     tags=["auth"],
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
+
+
+app.include_router(api_router, prefix=api_prefix)
+
 app.include_router(
     fastapi_users.get_users_router(AccountRead, AccountUpdate),
     prefix="/users",
@@ -48,16 +72,3 @@ app.include_router(
 @app.get("/")
 async def read_root() -> dict[str, str]:
     return {"Hello": "World"}
-
-
-@app.get("/celery")
-async def celery_test() -> dict[str, str]:
-    r = basic_tasks.test_celery.delay()
-    return {"Queued task": f"{r}"}
-
-
-@app.get("/db")
-async def db_test(db: Session = Depends(get_db)) -> list[Account]:
-    accounts = db.exec(select(Account)).all()
-    logger.info(accounts)
-    return accounts

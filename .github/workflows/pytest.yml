@@ -9,16 +9,67 @@ jobs:
     name: pytest
     runs-on: ubuntu-latest
     steps:
+    - name: Extract branch name
+      run: echo "branch=$(echo ${GITHUB_HEAD_REF})" >> $GITHUB_OUTPUT
+      id: extract-branch
+
+      # Checkout feature branch in main repo if exists
+    - name: Check for feature branch in main repo
+      uses: octokit/request-action@v2.x
+      id: get_branch_main_repo
+      with:
+        route: GET /repos/SNURTEL/23z-pzsp2-sigmacats/branches/${{ steps.extract-branch.outputs.branch }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.CLONE_TOKEN }}
+      continue-on-error: true
+    - name: Determine main repo branch
+      run: |
+        if [[ '${{ steps.get_branch_main_repo.outputs.status }}' = '200' ]]; then
+          MAIN_REPO_BRANCH="${{ steps.extract-branch.outputs.branch }}"
+        else
+          MAIN_REPO_BRANCH=main
+        fi
+        echo "Main repo branch for checkout: $MAIN_REPO_BRANCH"
+        echo "MAIN_REPO_BRANCH=$MAIN_REPO_BRANCH" >> $GITHUB_ENV
     - name: Checkout main project repo
       uses: actions/checkout@v3
       with:
         repository: SNURTEL/23z-pzsp2-sigmacats
-        submodules: true
         token: ${{ secrets.CLONE_TOKEN }}
-    - name: Extract branch name
-      shell: bash
-      run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-      id: extract_branch
+        ref: ${{ env.MAIN_REPO_BRANCH }}
+
+    - name: Setup project
+      run: |
+        chmod +x setup.sh
+        ./setup.sh
+
+      # Checkout feature branch in frontend if exists
+    - name: Check for feature branch in frontend
+      uses: octokit/request-action@v2.x
+      id: get_branch_frontend
+      with:
+        route: GET /repos/SNURTEL/sigmacats-web/branches/${{ steps.extract-branch.outputs.branch }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.CLONE_TOKEN }}
+      continue-on-error: true
+    - name: Determine frontend branch
+      run: |
+        if [[ '${{ steps.get_branch_frontend.outputs.status }}' = '200' ]]; then
+          FRONTEND_BRANCH="${{ steps.extract-branch.outputs.branch }}"
+        else
+          FRONTEND_BRANCH=main
+        fi
+        echo "Frontend branch for checkout: $FRONTEND_BRANCH"
+        echo "FRONTEND_BRANCH=$FRONTEND_BRANCH" >> $GITHUB_ENV
+    - name: Checkout frontend
+      uses: actions/checkout@v3
+      with:
+        repository: SNURTEL/sigmacats-web
+        token: ${{ secrets.CLONE_TOKEN }}
+        path: web
+        ref: ${{ env.FRONTEND_BRANCH }}
+
+    # backend defaults to feature branch
     - name: Checkout backend
       uses: actions/checkout@v3
       with:
@@ -26,10 +77,6 @@ jobs:
         token: ${{ secrets.CLONE_TOKEN }}
         path: backend
         ref: ${{ steps.extract_branch.outputs.branch }}
-    - name: Setup project
-      run: |
-        chmod +x setup.sh
-        ./setup.sh
     - name: Login to Oracle container image registry
       uses: docker/login-action@v3
       with:
@@ -41,7 +88,7 @@ jobs:
         docker compose build --build-arg "BUILD_ENV=test"
     - name: Run containers in detached mode
       run: |
-        docker compose up --detach
+        docker compose -f "docker-compose.yml" up --detach
     - name: Wait for startup   # todo not too elegant
       run: |
         sleep 30
@@ -50,4 +97,18 @@ jobs:
         docker exec fastapi-backend bash -c "alembic check"
     - name: Run pytest
       run: |
-        docker exec fastapi-backend "pytest"
+        docker exec fastapi-backend bash -c "pytest -vv"
+    - name: Stop containers
+      if: always()
+      run: docker compose -f "docker-compose.yml" down
+    - name: Dump container logs
+      if: always()
+      run: |
+        docker compose logs >> container-logs.txt
+    - name: Archive container logs
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: container-logs
+        path: container-logs.txt
+        retention-days: 7

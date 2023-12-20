@@ -9,6 +9,9 @@ import oracledb
 # have to be imported before doing ANYTHING with ORM, putting the import
 # here ensures all ORM relationships will be resolved properly by the mapper
 from app.models import *  # noqa: F401,F403
+from app.db.forward_refs import update_forward_refs
+
+update_forward_refs()
 
 oracledb.version = "23.0.0.0"
 sys.modules["cx_Oracle"] = oracledb
