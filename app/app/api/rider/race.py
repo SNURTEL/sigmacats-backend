@@ -11,8 +11,11 @@ from app.models.race_participation import RaceParticipation, RaceParticipationSt
 router = APIRouter()
 
 
+# mypy: disable-error-code=var-annotated
+
 @router.get("/")
 async def read_races(
+        rider_id: int,  # TODO deduce from session
         db: Session = Depends(get_db), limit: int = 30, offset: int = 0
 ) -> list[RaceReadListRider]:
     """
@@ -22,16 +25,22 @@ async def read_races(
         select(Race)
         .offset(offset)
         .limit(limit)
-        .order_by(Race.id)  # type: ignore[arg-type]
+        .order_by(Race.start_timestamp.desc())  # type: ignore[arg-type, attr-defined]
     )
     races = db.exec(stmt).all()
 
-    return [RaceReadListRider.from_orm(r) for r in races]
+    return [RaceReadListRider.from_orm(r, update={
+        'participation_status': getattr(
+            next((p for p in r.race_participations if p.rider_id == rider_id), None),
+            'status', None)
+    }) for r in races]
 
 
 @router.get("/{id}")
 async def read_race(
-        id: int, db: Session = Depends(get_db),
+        id: int,
+        rider_id: int,
+        db: Session = Depends(get_db),
 ) -> RaceReadDetailRider:
     """
     Get details about a specific race.
@@ -45,10 +54,14 @@ async def read_race(
     if not race:
         raise HTTPException(404)
 
-    return RaceReadDetailRider.from_orm(race)
+    return RaceReadDetailRider.from_orm(race, update={
+        'participation_status': getattr(
+            next((p for p in race.race_participations if p.rider_id == rider_id), None),
+            'status', None)
+    })
 
 
-@router.put("/{id}/join")
+@router.post("/{id}/join")
 async def join_race(
         id: int,
         rider_id: int,  # TODO deduce from session
@@ -69,12 +82,15 @@ async def join_race(
     if not race or not bike or not rider:
         raise HTTPException(404)
 
+    if bike.is_retired:
+        raise HTTPException(403, "Cannot join race on a retired bike")
+
     if race.status != RaceStatus.pending:
         raise HTTPException(403, f"Race already {race.status.name}")
 
     ongoing_participation = db.exec(select(RaceParticipation).where(
-            RaceParticipation.race == race and RaceParticipation.rider == rider)).first()
-    if ongoing_participation:
+        RaceParticipation.race == race and RaceParticipation.rider == rider)).first()
+    if ongoing_participation and ongoing_participation.bike_id == bike_id:
         return RaceParticipationCreated.from_orm(ongoing_participation)
 
     participation = RaceParticipation(
@@ -86,11 +102,12 @@ async def join_race(
 
     db.add(participation)
     db.commit()
+    db.refresh(participation)
 
     return RaceParticipationCreated.from_orm(participation)
 
 
-@router.put("/{id}/withdraw")
+@router.post("/{id}/withdraw")
 async def withdraw_race(
         id: int,
         rider_id: int,  # TODO deduce from session
@@ -118,6 +135,7 @@ async def withdraw_race(
         return
 
     db.delete(participation)
+    db.refresh(race)
     db.commit()
 
     return

@@ -8,6 +8,11 @@ from app.models.race_bonus import RaceBonus
 from app.models.account import Account, Gender, AccountType
 from app.models.ride_participation_classification_place import RiderParticipationClassificationPlace
 from app.models.rider_classification_link import RiderClassificationLink
+from app.models.race import RaceReadDetailRider, RaceReadDetailCoordinator, RaceReadListRider
+from app.models.race_participation import RaceParticipationStatus, RaceParticipationListRead
+from app.models.season import SeasonListRead
+from app.models.race_bonus import RaceBonusListRead
+
 
 # if you are getting "TypeError: issubclass() arg 1 must be a class" from pydantic, models forward refs need to be
 # updated
@@ -87,8 +92,24 @@ def update_forward_refs() -> None:
         # RaceParticipation=RaceParticipation,
         # Bike=Bike
     )
+
     ClassificationRead.update_forward_refs(
         RiderParticipationClassificationPlace=RiderParticipationClassificationPlace,
         Season=Season,
         Rider=Rider
     )
+
+    RaceReadDetailRider.update_forward_refs(
+        RaceBonusListRead=RaceBonusListRead,
+        SeasonListRead=SeasonListRead,
+        RaceParticipationListRead=RaceParticipationListRead,
+        RaceParticipationStatus=RaceParticipationStatus)
+
+    RaceReadListRider.update_forward_refs(
+        RaceParticipationStatus=RaceParticipationStatus
+    )
+
+    RaceReadDetailCoordinator.update_forward_refs(
+        RaceBonusListRead=RaceBonusListRead,
+        SeasonListRead=SeasonListRead,
+        RaceParticipationListRead=RaceParticipationListRead)

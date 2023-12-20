@@ -1,4 +1,5 @@
 from typing import Optional, TYPE_CHECKING
+
 from sqlmodel import Field, SQLModel, Relationship
 
 from .rider_classification_link import RiderClassificationLink  # noqa: F811,

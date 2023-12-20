@@ -22,7 +22,25 @@ class Bike(SQLModel, table=True):
     ))
     brand: Optional[str] = Field(max_length=80, default=None)
     model: Optional[str] = Field(max_length=80, default=None)
+    is_retired: bool = Field(default=False)
 
     rider_id: int = Field(foreign_key="rider.id")
     rider: "Rider" = Relationship(back_populates="bikes")
     race_participations: list["RaceParticipation"] = Relationship(back_populates="bike")
+
+
+class BikeCreate(SQLModel):
+    name: str = Field(max_length=80)
+    type: BikeType
+    brand: Optional[str] = Field(max_length=80, default=None)
+    model: Optional[str] = Field(max_length=80, default=None)
+
+    rider_id: int = Field(foreign_key="rider.id")  # TODO deduce from session
+
+
+class BikeUpdate(SQLModel):
+    name: str = Field(max_length=80, default=None)
+    type: BikeType = Field(default=None)
+    brand: Optional[str] = Field(max_length=80, default=None)
+    model: Optional[str] = Field(max_length=80, default=None)
+    is_retired: bool = Field(default=False)
