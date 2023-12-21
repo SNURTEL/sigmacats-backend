@@ -2,16 +2,17 @@ from datetime import datetime
 
 from app.models.account import Account
 from app.models.rider import Rider
+from app.models.classification import Classification
+from app.models.race_participation import RaceParticipation, RaceParticipationStatus
+from app.models.ride_participation_classification_place import RiderParticipationClassificationPlace
+from app.models.rider_classification_link import RiderClassificationLink
 from app.models.bike import Bike, BikeType
 from app.models.season import Season
 from app.models.race import Race, RaceStatus, RaceTemperature, RaceRain
 from app.models.race_bonus import RaceBonus
-from app.models.race_participation import RaceParticipation, RaceParticipationStatus
-from app.models.classification import Classification
-from app.models.ride_participation_classification_place import RiderParticipationClassificationPlace
-from app.models.rider_classification_link import RiderClassificationLink
 
 bike_road = Bike(
+    id=1,
     name="Rakieta",
     type=BikeType.road,
     brand="Canyon",
@@ -19,6 +20,7 @@ bike_road = Bike(
 )
 
 bike_fixie = Bike(
+    id=2,
     name="Czarna strzała",
     type=BikeType.fixie,
     brand="FIXIE inc.",
@@ -52,27 +54,15 @@ bike_fixie = Bike(
 #     phone_number="123456789"
 # )
 
-dummy_rider_account = Account(
-    type="rider",
-    username="dummy_rider",
-    name="John",
-    surname="Doe",
-    email="jo.doe@sigma.org",
-    password_hash="JSDHFGKIUSDFHBKGSBHDFKGS",
-)
-
-dummy_rider = Rider(
-    account=dummy_rider_account,
-    bikes=[bike_road, bike_fixie]
-)
-
 season = Season(
+    id=1,
     name="23Z :d",
     start_timestamp=datetime(day=2, month=10, year=2023),
     end_timestamp=datetime(day=19, month=2, year=2024)
 )
 
 race1 = Race(
+    id=1,
     status=RaceStatus.pending,
     name="Dookoła bloku",
     description="Plan działania:\n"
@@ -104,13 +94,31 @@ race1 = Race(
 
 )
 
+dummy_rider_account = Account(
+    id=1,
+    type="rider",
+    username="dummy_rider",
+    name="John",
+    surname="Doe",
+    email="jo.doe@sigma.org",
+    password_hash="JSDHFGKIUSDFHBKGSBHDFKGS",
+)
+
+dummy_rider = Rider(
+    id=1,
+    account=dummy_rider_account,
+    bikes=[bike_road, bike_fixie],
+)
+
 race_bonus_snow = RaceBonus(
+    id=1,
     name="Śnieg na trasie",
     rule="NOT_IMPLEMENTED",
     points_multiplier=2.0
 )
 
 race2 = Race(
+    id=2,
     status=RaceStatus.pending,
     name="Jazda w śniegu",
     description="Jak w tytule. Każdy bierze rower z najgrubszymi oponami jakie ma i "
@@ -141,6 +149,7 @@ race2 = Race(
 )
 
 race3 = Race(
+    id=3,
     status=RaceStatus.ended,
     name="Coffe ride: Pożegnanie lata",
     description="Zgodnie z tradycją 1 października żegnamy sezon letni i wybieramy się do Góry Kawiarni na kawę i "
@@ -178,7 +187,6 @@ dummy_rider_classification_link = RiderClassificationLink(
     classification=dummy_classification
 )
 
-
 dummy_race_participation = RaceParticipation(
     status=RaceParticipationStatus.approved.value,
     rider=dummy_rider,
@@ -191,7 +199,6 @@ dummy_race_participation_classification_place = RiderParticipationClassification
     race_participation=dummy_race_participation,
     classification=dummy_classification
 )
-
 
 initial_data = [
     # dummy_admin_account,
