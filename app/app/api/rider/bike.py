@@ -88,8 +88,8 @@ async def create_bike(
 @router.patch("/{id}")
 async def update_bike(
         id: int,
-        rider_id: int,  # TODO deduce from session
         bike_update: BikeUpdate,
+        rider: Rider = Depends(current_rider_user),
         db: Session = Depends(get_db)
 ) -> Bike:
     """
@@ -97,7 +97,7 @@ async def update_bike(
     """
     stmt = (
         select(Bike)
-        .where(Bike.id == id, Bike.rider_id == rider_id)
+        .where(Bike.id == id, Bike.rider_id == rider.id)
     )
     bike = db.exec(stmt).first()
 
