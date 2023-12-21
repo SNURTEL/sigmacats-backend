@@ -8,6 +8,7 @@ from app.core.authentication import jwt_auth_backend, cookie_auth_backend
 from app.db.session import get_db
 from app.core.user_manager import UserManager
 from app.models.account import Account, AccountType
+from app.models.rider import Rider
 
 
 def get_user_db(session: Session = Depends(get_db)):
@@ -28,10 +29,10 @@ current_superuser = fastapi_users.current_user(active=True, superuser=True)
 
 async def current_rider_user(
         user: Account = Depends(current_active_user)
-) -> Account:
+) -> Rider:
     if not user.type == AccountType.rider:
         raise HTTPException(403)
-    return user
+    return user.rider
 
 
 async def current_coordinator_user(
