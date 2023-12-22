@@ -3,11 +3,14 @@ from enum import Enum
 from datetime import datetime
 from fastapi_users import schemas
 from fastapi_users_db_sqlmodel import SQLModelBaseUserDB
+from pydantic import validator
 
 from sqlmodel import Field, Relationship, CheckConstraint, SQLModel
 
 if TYPE_CHECKING:
     from .rider import Rider
+    from .coordinator import Coordinator
+    from .admin import Admin
 
 
 class Gender(Enum):
@@ -40,7 +43,9 @@ class Account(SQLModelBaseUserDB, table=True):
     ))
     birth_date: Optional[datetime] = Field(default=None)
 
-    rider: "Rider" = Relationship(back_populates="account")
+    rider: Optional["Rider"] = Relationship(back_populates="account")
+    coordinator: Optional["Coordinator"] = Relationship(back_populates="account")
+    admin: Optional["Admin"] = Relationship(back_populates="account")
 
 
 class AccountCreate(schemas.BaseUserCreate):
@@ -50,6 +55,21 @@ class AccountCreate(schemas.BaseUserCreate):
     surname: str = Field(max_length=80)
     gender: Optional[Gender] = Field(default=None)
     birth_date: Optional[datetime] = Field(default=None)
+    phone_number: Optional[str] = Field(default=None)  # used only by coordinator
+
+    @validator("phone_number")
+    def validate_phone_number(cls, v):
+        try:
+            if (v is not None
+                    and (
+                            (v[0] == "+" and (not v[1:].isalnum() or not int(v[1:])))
+                            or (v[0] != "+" and (not v.isalnum() or not int(v)))
+                    )):
+                raise ValueError("Invalid phone number")
+        except (ValueError, IndexError):
+            raise ValueError("Invalid phone number")
+
+        return v
 
 
 class AccountRead(schemas.BaseUser[int]):

@@ -1,13 +1,17 @@
 import os
 from typing import Optional, Union
 
-from fastapi_users import BaseUserManager, InvalidPasswordException, IntegerIDMixin
-from fastapi import Request, Response, Depends, HTTPException
-from sqlmodel import Session
+from fastapi_users import BaseUserManager, InvalidPasswordException, IntegerIDMixin, schemas, models
+from fastapi import Request, Response, HTTPException
 
-from app.db.session import SessionLocal, get_db
+from pydantic import ValidationError
+from sqlalchemy.exc import IntegrityError
+
+from app.db.session import get_db
 from app.models.account import Account, AccountCreate, AccountType
 from app.models.rider import Rider
+from app.models.coordinator import Coordinator
+from app.models.admin import Admin
 from app.util.log import get_logger
 
 logger = get_logger()
@@ -16,33 +20,50 @@ class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
     reset_password_token_secret = str(os.environ.get("FASTAPI_RESET_PASSWORD_TOKEN_SECRET"))
     verification_token_secret = str(os.environ.get("FASTAPI_VERIFICATION_TOKEN_SECRET"))
 
-    async def on_after_register(
-            self, account: Account,
-            request: Optional[Request] = None,
-    ):
-        db = next(get_db())
-        logger.info(account)
-
-
-        if account.type == AccountType.rider:
-            rider = Rider(
-                account=account,
-                bikes=[],
-                classifications=[],  # TODO defaults
-                race_participations=[],
-                classification_links=[]
-            )
-            account.rider = rider
-            a = db.merge(account)
-            db.add(a)
-            db.commit()
-            db.refresh(a)
-        else:
-            db.delete(account)
-            db.commit()
+    async def create(
+        self,
+        user_create: schemas.UC,
+        safe: bool = False,
+        request: Optional[Request] = None,
+    ) -> models.UP:
+        if user_create.type not in set(i for i in AccountType):
             raise HTTPException(400)
 
-        print(f"User {account.id} has registered as {account.type.name}.")
+        try:
+            session = next(get_db())
+            with session.begin():
+                account = await super().create(user_create, safe, request)
+                if account.type == AccountType.rider:
+                    rider = Rider(
+                        account=account,
+                        bikes=[],
+                        classifications=[],  # TODO defaults
+                        race_participations=[],
+                        classification_links=[]
+                    )
+                    account.rider = rider
+                elif account.type == AccountType.coordinator:
+                    logger.info(await request.body())
+                    coordinator = Coordinator(
+                        account=account,
+                        phone_number=user_create.phone_number
+                    )
+                    account.coordinator = coordinator
+                elif account.type == AccountType.admin:
+                    admin = Admin(
+                        account=account,
+                    )
+                    account.admin = admin
+
+                a = session.merge(account)
+                session.add(a)
+                session.commit()
+                print(f"User {account.id} has registered as {account.type.name}.")
+                return account
+        except (ValidationError, IntegrityError)  as e:
+            logger.exception(e)
+            raise HTTPException(400)
+
 
     async def on_after_forgot_password(
             self, user: Account, token: str, request: Optional[Request] = None
