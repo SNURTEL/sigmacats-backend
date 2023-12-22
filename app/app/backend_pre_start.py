@@ -44,7 +44,7 @@ def init() -> None:
         raise e
 
 
-def create_users() -> None:
+def create_db_users() -> None:
     with engine_admin.connect() as connection:
         with connection.begin():
             connection.execute(
@@ -91,7 +91,7 @@ def main() -> None:
     logger.info("Attempting connection to DB")
     init()
     logger.info("DB up & running! Creating users and granting permissions")
-    create_users()
+    create_db_users()
 
 
 if __name__ == "__main__":

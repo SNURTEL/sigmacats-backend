@@ -43,7 +43,6 @@ class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
                     )
                     account.rider = rider
                 elif account.type == AccountType.coordinator:
-                    logger.info(await request.body())
                     coordinator = Coordinator(
                         account=account,
                         phone_number=user_create.phone_number

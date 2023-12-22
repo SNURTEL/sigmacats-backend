@@ -43,9 +43,18 @@ class Account(SQLModelBaseUserDB, table=True):
     ))
     birth_date: Optional[datetime] = Field(default=None)
 
-    rider: Optional["Rider"] = Relationship(back_populates="account")
-    coordinator: Optional["Coordinator"] = Relationship(back_populates="account")
-    admin: Optional["Admin"] = Relationship(back_populates="account")
+    rider: Optional["Rider"] = Relationship(back_populates="account",
+                                            sa_relationship_kwargs={
+                                                'single_parent': True,
+                                            })
+    coordinator: Optional["Coordinator"] = Relationship(back_populates="account",
+                                            sa_relationship_kwargs={
+                                                'single_parent': True,
+                                            })
+    admin: Optional["Admin"] = Relationship(back_populates="account",
+                                            sa_relationship_kwargs={
+                                                'single_parent': True,
+                                            })
 
 
 class AccountCreate(schemas.BaseUserCreate):

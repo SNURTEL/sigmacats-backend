@@ -8,7 +8,11 @@ if TYPE_CHECKING:
 
 class Coordinator(SQLModel, table=True):
     id: int = Field(foreign_key="account.id", primary_key=True)
-    account: "Account" = Relationship(back_populates="coordinator")
+    account: "Account" = Relationship(back_populates="coordinator",
+                                      sa_relationship_kwargs={
+                                                'single_parent': True,
+                                          'cascade': "save-update, merge, delete, delete-orphan"
+                                      })
     phone_number: str = Field(max_length=20)
 
     @validator("phone_number")

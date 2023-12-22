@@ -13,7 +13,11 @@ if TYPE_CHECKING:
 
 class Rider(SQLModel, table=True):
     id: int = Field(foreign_key="account.id", primary_key=True)
-    account: "Account" = Relationship(back_populates="rider")
+    account: "Account" = Relationship(back_populates="rider",
+                                      sa_relationship_kwargs={
+                                        'single_parent': True,
+                                          'cascade': "save-update, merge, delete, delete-orphan"
+                                      })
 
     bikes: list["Bike"] = Relationship(back_populates="rider")
     classifications: list["Classification"] = Relationship(
