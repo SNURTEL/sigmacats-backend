@@ -21,8 +21,7 @@ def create_initial_data(
         name="Rakieta",
         type=BikeType.road,
         brand="Canyon",
-        model="Ultimate CFR eTap",
-        rider=rider_account.rider
+        model="Ultimate CFR eTap"
     )
 
     bike_fixie = Bike(
@@ -30,7 +29,6 @@ def create_initial_data(
         type=BikeType.fixie,
         brand="FIXIE inc.",
         model="Floater Race",
-        rider=rider_account.rider
     )
 
     # dummy_rider_account = Account(
@@ -47,7 +45,7 @@ def create_initial_data(
     #     bikes=[bike_road, bike_fixie]
     # )
 
-    # rider_account.rider.bikes = [bike_road, bike_fixie]
+    rider_account.rider.bikes = [bike_road, bike_fixie]
 
     season = Season(
         name="23Z :d",
@@ -186,7 +184,7 @@ def create_initial_data(
         race3,
         dummy_race_participation_classification_place,
 
-        # rider_account,
-        # coordinator_account,
-        # admin_account,
+        rider_account,
+        coordinator_account,
+        admin_account,
     ]

@@ -15,8 +15,8 @@ class Rider(SQLModel, table=True):
     id: int = Field(foreign_key="account.id", primary_key=True)
     account: "Account" = Relationship(back_populates="rider",
                                       sa_relationship_kwargs={
-                                        'single_parent': True,
-                                          'cascade': "save-update, merge, delete, delete-orphan"
+                                          'single_parent': True,
+                                          'cascade': "all, delete-orphan"
                                       })
 
     bikes: list["Bike"] = Relationship(back_populates="rider")

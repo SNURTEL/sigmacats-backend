@@ -46,14 +46,17 @@ class Account(SQLModelBaseUserDB, table=True):
     rider: Optional["Rider"] = Relationship(back_populates="account",
                                             sa_relationship_kwargs={
                                                 'single_parent': True,
+                                                'cascade': "all, delete-orphan"
                                             })
     coordinator: Optional["Coordinator"] = Relationship(back_populates="account",
-                                            sa_relationship_kwargs={
-                                                'single_parent': True,
-                                            })
+                                                        sa_relationship_kwargs={
+                                                            'single_parent': True,
+                                                            'cascade': "all, delete-orphan"
+                                                        })
     admin: Optional["Admin"] = Relationship(back_populates="account",
                                             sa_relationship_kwargs={
                                                 'single_parent': True,
+                                                'cascade': "all, delete-orphan"
                                             })
 
 

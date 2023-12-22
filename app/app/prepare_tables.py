@@ -4,6 +4,7 @@ import asyncio
 
 from sqlalchemy.sql import text
 from sqlalchemy.orm import Session
+from sqlmodel import select
 
 from app.db.session import engine
 from app.util.log import get_logger
@@ -12,6 +13,7 @@ from app.util.log import get_logger
 from app.models import *  # noqa: F401,F403
 from app.initial_data import create_initial_data
 from app.core.users import get_user_manager, get_user_db, get_db
+from app.db.session import SessionLocal
 from app.models.account import AccountCreate, AccountType, Account
 
 logger = get_logger()
@@ -81,7 +83,7 @@ def insert_initial_users() -> list[Account, Account, Account] | None:
         password=os.environ.get("FASTAPI_DEFAULT_ADMIN_PASSWORD", "admin123")
     )
 
-    async def create_account(account_create: AccountCreate) -> Account:
+    async def create_account(account_create: AccountCreate):
         with get_session_context() as session:
             with get_user_db_context(session) as user_db:
                 with get_user_manager_context(user_db) as user_manager:
@@ -89,14 +91,10 @@ def insert_initial_users() -> list[Account, Account, Account] | None:
                         account_create
                     )
 
-    return [asyncio.run(create_account(ac)) for ac in (rider_create, coordinator_create, admin_create)]
+    [asyncio.run(create_account(ac)) for ac in (rider_create, coordinator_create, admin_create)]
 
 
-def insert_initial_data(
-        rider_account: Account,
-        coordinator_account: Account,
-        admin_account: Account,
-) -> None:
+def insert_initial_data() -> None:
     with engine.connect() as connection:
         with connection.begin():
             if connection.execute(text(
@@ -114,18 +112,17 @@ def insert_initial_data(
                 logger.info("SKIPPING inserting initial data - DB not empty")
                 return
 
-    initial_data = create_initial_data(
-        rider_account,
-        coordinator_account,
-        admin_account
-    )
+    db = SessionLocal()
+    with db.begin():
+        stmt = (
+            select(Account)
+            .order_by(Account.id)  # type: ignore[arg-type]
+        )
+        accounts = db.exec(stmt).all()
 
-    with engine.connect() as connection:
-        for item in initial_data:
-            with connection.begin():
-                db = Session(bind=connection)
-                db.add(item)
-                db.commit()
+        initial_data = create_initial_data(*accounts)
+        db.add_all(initial_data)
+        db.commit()
 
 
 def main() -> None:
@@ -137,9 +134,9 @@ def main() -> None:
     logger.info("Creating triggers")
     create_triggers()
     logger.info("Inserting initial users")
-    users = insert_initial_users()
+    insert_initial_users()
     logger.info("Inserting initial data")
-    insert_initial_data(*users)
+    insert_initial_data()
     logger.info("Done setting up backend!")
 
 
