@@ -13,6 +13,7 @@ from app.models.rider import Rider
 from app.models.coordinator import Coordinator
 from app.models.admin import Admin
 from app.util.log import get_logger
+from app.util.mail.mail_client import send_reset_password
 
 logger = get_logger()
 
@@ -57,7 +58,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
                 a = session.merge(account)
                 session.add(a)
                 session.commit()
-                print(f"User {account.id} has registered as {account.type.name}.")
+                logger.info(f"User {account.id} has registered as {account.type.name}.")
                 return account
         except (ValidationError, IntegrityError)  as e:
             logger.exception(e)
@@ -67,12 +68,16 @@ class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
     async def on_after_forgot_password(
             self, user: Account, token: str, request: Optional[Request] = None
     ):
-        print(f"User {user.id} has forgot their password. Reset token: {token}")
+        logger.info(f"User {user.id} has forgot their password.")
+        send_reset_password(
+            receiver_email=user.email,
+            token=token
+        )
 
     async def on_after_request_verify(
             self, user: Account, token: str, request: Optional[Request] = None
     ):
-        print(f"Verification requested for user {user.id}. Verification token: {token}")
+        logger.info(f"Verification requested for user {user.id}. Verification token: {token}")
 
     async def on_after_login(
             self,
@@ -80,7 +85,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
             request: Optional[Request] = None,
             response: Optional[Response] = None,
     ):
-        print(f"User {user.id} logged in.")
+        logger.info(f"User {user.id} logged in.")
 
     async def validate_password(
             self,
