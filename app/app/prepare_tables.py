@@ -88,7 +88,8 @@ def insert_initial_users() -> list[Account, Account, Account] | None:
             with get_user_db_context(session) as user_db:
                 with get_user_manager_context(user_db) as user_manager:
                     return await user_manager.create(
-                        account_create
+                        account_create,
+                        safe=False  # allow to set is_superuser and is_verified
                     )
 
     [asyncio.run(create_account(ac)) for ac in (rider_create, coordinator_create, admin_create)]

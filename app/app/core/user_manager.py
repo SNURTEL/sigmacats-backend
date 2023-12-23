@@ -23,7 +23,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
     async def create(
         self,
         user_create: schemas.UC,
-        safe: bool = False,
+        safe: bool = True,
         request: Optional[Request] = None,
     ) -> models.UP:
         if user_create.type not in set(i for i in AccountType):

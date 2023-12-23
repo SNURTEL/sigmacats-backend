@@ -1,4 +1,3 @@
-
 from fastapi import Depends, HTTPException
 from fastapi_users_db_sqlmodel import SQLModelUserDatabase
 from fastapi_users import FastAPIUsers
@@ -9,6 +8,10 @@ from app.db.session import get_db
 from app.core.user_manager import UserManager
 from app.models.account import Account, AccountType
 from app.models.rider import Rider
+
+from app.util.log import get_logger
+
+logger = get_logger()
 
 
 def get_user_db(session: Session = Depends(get_db)):
