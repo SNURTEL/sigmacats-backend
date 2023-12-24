@@ -22,6 +22,7 @@ types-jsonschema = "^4.20.0.0"
 fastapi-users = {extras = ["sqlmodel"], version = "^12.1.2"}
 fastapi-users-db-sqlmodel = "^0.3.0"
 python-multipart = "^0.0.6"
+sqlalchemy = "^2.0.23"
 
 [tool.poetry.group.test]
 optional = true

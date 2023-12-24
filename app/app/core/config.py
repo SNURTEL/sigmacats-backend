@@ -36,9 +36,9 @@ db_url_admin = URL.create(
 
 
 # TODO disable echo if not in devel / test mode
-def create_db_engine() -> Engine:
-    return create_engine(db_url, echo=True)
+def create_db_engine(echo: bool = True) -> Engine:
+    return create_engine(db_url, echo=echo)
 
 
-def create_db_engine_admin() -> Engine:
-    return create_engine(db_url_admin, echo=True)
+def create_db_engine_admin(echo: bool = True) -> Engine:
+    return create_engine(db_url_admin, echo=echo)

@@ -8,5 +8,5 @@ router = APIRouter()
 
 
 router.include_router(
-    fastapi_users.get_users_router(AccountRead, AccountUpdate, requires_verification=True)
+    fastapi_users.get_users_router(AccountRead, AccountUpdate)
 )

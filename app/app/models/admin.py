@@ -11,5 +11,5 @@ class Admin(SQLModel, table=True):
     account: "Account" = Relationship(back_populates="admin",
                                       sa_relationship_kwargs={
                                           'single_parent': True,
-                                          'cascade': "all, delete-orphan"
+                                          'cascade': "all, delete-orphan",
                                       })

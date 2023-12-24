@@ -17,53 +17,77 @@ from app.util.mail.mail_client import send_reset_password
 
 logger = get_logger()
 
+
 class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
     reset_password_token_secret = str(os.environ.get("FASTAPI_RESET_PASSWORD_TOKEN_SECRET"))
     verification_token_secret = str(os.environ.get("FASTAPI_VERIFICATION_TOKEN_SECRET"))
 
     async def create(
-        self,
-        user_create: schemas.UC,
-        safe: bool = True,
-        request: Optional[Request] = None,
+            self,
+            user_create: schemas.UC,
+            safe: bool = True,
+            request: Optional[Request] = None,
     ) -> models.UP:
         if user_create.type not in set(i for i in AccountType):
             raise HTTPException(400)
 
         try:
-            session = next(get_db())
-            with session.begin():
-                account = await super().create(user_create, safe, request)
-                if account.type == AccountType.rider:
-                    rider = Rider(
-                        account=account,
-                        bikes=[],
-                        classifications=[],  # TODO defaults
-                        race_participations=[],
-                        classification_links=[]
-                    )
-                    account.rider = rider
-                elif account.type == AccountType.coordinator:
-                    coordinator = Coordinator(
-                        account=account,
-                        phone_number=user_create.phone_number
-                    )
-                    account.coordinator = coordinator
-                elif account.type == AccountType.admin:
-                    admin = Admin(
-                        account=account,
-                    )
-                    account.admin = admin
+            session = self.user_db.session
 
-                a = session.merge(account)
-                session.add(a)
-                session.commit()
-                logger.info(f"User {account.id} has registered as {account.type.name}.")
-                return account
-        except (ValidationError, IntegrityError)  as e:
+            # FIXME NOTE - when something breaks when creating a Rider/Coordinator/Admin table row, a dangling account
+            #  remains in Account table
+            #  This can be prevented by either:
+            #   - running the entire thing in a transaction - unfortunately, super().create(...) calls session.commit()
+            #    internally, which closes the transaction immediately (even though this behaviour has apperantly been
+            #     fixed long time ago - https://github.com/sqlalchemy/sqlalchemy/issues/6288
+            #   - running super().create(...) in a nested transaction - unfortunately, SQLModel does not support them :)
+            #  that being said, all potential points of failure should be placed before super().create(...) call - either
+            #  in AccountCreate validators, or physically on the beginning of the function
+
+            # with session.begin():
+            account = await super().create(user_create, safe, request)
+            if account.type == AccountType.rider:
+                rider = Rider(
+                    account=account,
+                    bikes=[],
+                    classifications=[],  # TODO defaults
+                    race_participations=[],
+                    classification_links=[]
+                )
+                account.rider = rider
+            elif account.type == AccountType.coordinator:
+                coordinator = Coordinator(
+                    account=account,
+                    phone_number=user_create.phone_number
+                )
+                account.coordinator = coordinator
+            elif account.type == AccountType.admin:
+                admin = Admin(
+                    account=account,
+                )
+                account.admin = admin
+
+            session.add(account)
+            session.commit()
+            logger.info(f"User {account.id} has registered as {account.type.name}.")
+            return account
+        except (ValidationError, IntegrityError) as e:
             logger.exception(e)
             raise HTTPException(400)
 
+    async def update(
+        self,
+        user_update: schemas.UU,
+        user: models.UP,
+        safe: bool = False,
+        request: Optional[Request] = None,
+    ) -> models.UP:
+        return await super().update(
+            user_update=user_update,
+            user=user,
+            safe=True,
+            request=request
+        )
 
     async def on_after_forgot_password(
             self, user: Account, token: str, request: Optional[Request] = None
