@@ -8,7 +8,7 @@ from fastapi_users.manager import BaseUserManager, UserManagerDependency
 from fastapi_users.router.common import ErrorCode, ErrorModel
 
 from app.core.users import current_admin_user
-from app.models.account import AccountType, Account
+from app.models.account import AccountType, Account, AccountCreate
 from app.util.log import get_logger
 
 logger = get_logger()
@@ -59,9 +59,9 @@ def get_register_router(
     )
     async def register(
             request: Request,
-            user_create: user_create_schema,  # type: ignore
-            user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
-    ):
+            user_create: AccountCreate,  # type: ignore
+            user_manager: BaseUserManager[Account, models.ID] = Depends(get_user_manager),
+    ) -> schemas.U | RedirectResponse:
         """
         NOTE: Swagger will not include the authorization header by default. Redirects may be broken. You can test
         redirects manually with curl.
@@ -106,16 +106,16 @@ def get_register_router(
     async def register_staff(
             request: Request,
             user_create: user_create_schema,  # type: ignore
-            user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
+            user_manager: BaseUserManager[Account, models.ID] = Depends(get_user_manager),
             admin_user: Account = Depends(current_admin_user)  # fastapi-users needs this for authentication
-    ):
+    ) -> schemas.U | RedirectResponse:
         return await _register(request, user_create, user_manager)
 
     async def _register(
             request: Request,
-            user_create: user_create_schema,  # type: ignore
-            user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
-    ):
+            user_create: AccountCreate,  # type: ignore
+            user_manager: BaseUserManager[Account, models.ID] = Depends(get_user_manager),
+    ) -> schemas.U:
         try:
             created_user = await user_manager.create(
                 user_create, safe=True, request=request

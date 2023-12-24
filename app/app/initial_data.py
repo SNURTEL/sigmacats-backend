@@ -1,7 +1,8 @@
 from datetime import datetime
 
+from sqlmodel import SQLModel
+
 from app.models.account import Account
-from app.models.rider import Rider
 from app.models.bike import Bike, BikeType
 from app.models.season import Season
 from app.models.race import Race, RaceStatus, RaceTemperature, RaceRain
@@ -10,13 +11,14 @@ from app.models.race_participation import RaceParticipation, RaceParticipationSt
 from app.models.classification import Classification
 from app.models.ride_participation_classification_place import RiderParticipationClassificationPlace
 from app.models.rider_classification_link import RiderClassificationLink
+from app.models.rider import Rider
 
 
 def create_initial_data(
         rider_account: Account,
         coordinator_account: Account,
         admin_account: Account,
-):
+) -> list[SQLModel]:
     bike_road = Bike(
         name="Rakieta",
         type=BikeType.road,
@@ -45,6 +47,7 @@ def create_initial_data(
     #     bikes=[bike_road, bike_fixie]
     # )
 
+    assert isinstance(rider_account.rider, Rider)
     rider_account.rider.bikes = [bike_road, bike_fixie]
 
     season = Season(
@@ -125,8 +128,8 @@ def create_initial_data(
         status=RaceStatus.ended,
         name="Coffe ride: Pożegnanie lata",
         description="Zgodnie z tradycją 1 października żegnamy sezon letni i wybieramy się do Góry Kawiarni na kawę i "
-                    "ciacho. Startujemy spod Bikeway na Wilanowie o 12, traska z 60km, po powrocie pizzerka od Sponsora "
-                    ":)). Charakter trasy raczej będzie sprzyjać rowerom szosowym, ale wytrwałych nie zniechęcamy do "
+                    "ciacho. Startujemy spod Bikeway na Wilanowie o 12, traska z 60km, po powrocie pizzerka od Sponsora"
+                    " :)). Charakter trasy raczej będzie sprzyjać rowerom szosowym, ale wytrwałych nie zniechęcamy do "
                     "zabrania dowolnego innego sprzętu ;).\nCoffe ride: jedziemy w formule no-drop - nie ścigamy się, "
                     "cenne punkty dostajecie za samo wzięcie udziału :D.",
         requirements="Kask!!! Poruszamy się w ruchu drogowym",

@@ -4,7 +4,7 @@ from datetime import datetime
 
 from fastapi.encoders import jsonable_encoder
 
-from app.models.account import Account, AccountRead, AccountType, AccountCreate, Gender
+from app.models.account import Account, AccountType, AccountCreate, Gender
 
 
 # most account-management logic exists in the library, we are going to test only a small subset of overall functionality

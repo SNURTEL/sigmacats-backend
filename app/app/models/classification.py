@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from .rider import Rider
     from .season import Season
     from .ride_participation_classification_place import RiderParticipationClassificationPlace
-    from .rider_classification_link import RiderClassificationLink # noqa F811
+    from .rider_classification_link import RiderClassificationLink  # noqa F811
 
 
 class Classification(SQLModel, table=True):

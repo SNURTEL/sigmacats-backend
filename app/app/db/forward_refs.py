@@ -20,7 +20,6 @@ from app.models.race_bonus import RaceBonusListRead
 
 
 def update_forward_refs() -> None:
-
     Account.update_forward_refs(
         Rider=Rider,
         Gender=Gender,

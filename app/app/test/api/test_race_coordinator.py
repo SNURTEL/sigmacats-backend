@@ -1,8 +1,6 @@
 from fastapi.encoders import jsonable_encoder
 
-from app.models.race import RaceReadListRider, RaceStatus, RaceReadDetailCoordinator, RaceReadListCoordinator, \
-    RaceReadDetailRider
-from app.models.race_participation import RaceParticipationStatus
+from app.models.race import RaceStatus, RaceReadDetailCoordinator, RaceReadListCoordinator
 
 
 def test_coordinator_list_races(coordinator_client, db, race_pending, race_ended):
@@ -25,20 +23,21 @@ def test_coordinator_race_detail_404(coordinator_client, db):
 
 def test_coordinator_create_race(coordinator_client, db, season):
     response = coordinator_client.post("/api/coordinator/race/create",
-                                  json={
-                                      "name": "test",
-                                      "description": "test",
-                                      "requirements": "test",
-                                      "start_timestamp": "2023-12-02T21:48:36.620Z",
-                                      "end_timestamp": "2023-12-02T23:48:36.620Z",
-                                      "entry_fee_gr": 10000,
-                                      "no_laps": 3,
-                                      "checkpoints_gpx_file": "/tmp/nginx_upload/0027983891",
-                                      "event_graphic_file": "/tmp/nginx_upload/0027983891",
-                                      "place_to_points_mapping_json": '[{"place": 1,"points": 20}, {"place": 2,"points": 16}]',
-                                      "sponsor_banners_uuids_json": "[]",
-                                      "season_id": season.id
-                                  })
+                                       json={
+                                           "name": "test",
+                                           "description": "test",
+                                           "requirements": "test",
+                                           "start_timestamp": "2023-12-02T21:48:36.620Z",
+                                           "end_timestamp": "2023-12-02T23:48:36.620Z",
+                                           "entry_fee_gr": 10000,
+                                           "no_laps": 3,
+                                           "checkpoints_gpx_file": "/tmp/nginx_upload/0027983891",
+                                           "event_graphic_file": "/tmp/nginx_upload/0027983891",
+                                           "place_to_points_mapping_json": '[{"place": 1,"points": 20}, '
+                                                                           '{"place": 2,"points": 16}]',
+                                           "sponsor_banners_uuids_json": "[]",
+                                           "season_id": season.id
+                                       })
 
     assert response.status_code == 200
 
@@ -55,7 +54,8 @@ def test_coordinator_create_race_timestamp_order(coordinator_client, db, season)
                                            "no_laps": 3,
                                            "checkpoints_gpx_file": "/tmp/nginx_upload/0027983891",
                                            "event_graphic_file": "/tmp/nginx_upload/0027983891",
-                                           "place_to_points_mapping_json": '[{"place": 1,"points": 20}, {"place": 2,"points": 16}]',
+                                           "place_to_points_mapping_json": '[{"place": 1,"points": 20}, '
+                                                                           '{"place": 2,"points": 16}]',
                                            "sponsor_banners_uuids_json": "[]]",
                                            "season_id": season.id
                                        })
@@ -75,7 +75,8 @@ def test_coordinator_create_race_zero_laps(coordinator_client, db, season):
                                            "no_laps": 0,
                                            "checkpoints_gpx_file": "/tmp/nginx_upload/0027983891",
                                            "event_graphic_file": "/tmp/nginx_upload/0027983891",
-                                           "place_to_points_mapping_json": '[{"place": 1,"points": 20}, {"place": 2,"points": 16}]',
+                                           "place_to_points_mapping_json": '[{"place": 1,"points": 20}, '
+                                                                           '{"place": 2,"points": 16}]',
                                            "sponsor_banners_uuids_json": "[]",
                                            "season_id": season.id
                                        })
@@ -95,7 +96,8 @@ def test_coordinator_create_race_negative_entry_fee(coordinator_client, db, seas
                                            "no_laps": 1,
                                            "checkpoints_gpx_file": "/tmp/nginx_upload/0027983891",
                                            "event_graphic_file": "/tmp/nginx_upload/0027983891",
-                                           "place_to_points_mapping_json": '[{"place": 1,"points": 20}, {"place": 2,"points": 16}]',
+                                           "place_to_points_mapping_json": '[{"place": 1,"points": 20}, '
+                                                                           '{"place": 2,"points": 16}]',
                                            "sponsor_banners_uuids_json": "[]",
                                            "season_id": season.id
                                        })
@@ -115,7 +117,8 @@ def test_coordinator_create_race_season_404(coordinator_client, db, season):
                                            "no_laps": 1,
                                            "checkpoints_gpx_file": "/tmp/nginx_upload/0027983891",
                                            "event_graphic_file": "/tmp/nginx_upload/0027983891",
-                                           "place_to_points_mapping_json": '[{"place": 1,"points": 20}, {"place": 2,"points": 16}]',
+                                           "place_to_points_mapping_json": '[{"place": 1,"points": 20}, '
+                                                                           '{"place": 2,"points": 16}]',
                                            "sponsor_banners_uuids_json": "[]",
                                            "season_id": 45645645
                                        })
@@ -156,7 +159,8 @@ def test_coordinator_create_race_invalid_sponsors_json(coordinator_client, db, s
                                            "no_laps": 3,
                                            "checkpoints_gpx_file": "/tmp/nginx_upload/0027983891",
                                            "event_graphic_file": "/tmp/nginx_upload/0027983891",
-                                           "place_to_points_mapping_json": '[{"place": 1,"points": 20}, {"place": 2,"points": 16}]',
+                                           "place_to_points_mapping_json": '[{"place": 1,"points": 20}, '
+                                                                           '{"place": 2,"points": 16}]',
                                            "sponsor_banners_uuids_json": "[1]",
                                            "season_id": season.id
                                        })

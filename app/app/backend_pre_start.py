@@ -2,7 +2,6 @@ import logging
 import os
 from app.util.log import get_logger
 from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixed, Retrying
-from sqlalchemy import text
 
 logger = get_logger()
 

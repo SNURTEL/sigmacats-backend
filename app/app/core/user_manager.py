@@ -1,14 +1,13 @@
 import os
 from typing import Optional, Union
 
-from fastapi_users import BaseUserManager, InvalidPasswordException, IntegerIDMixin, schemas, models
+from fastapi_users import BaseUserManager, InvalidPasswordException, IntegerIDMixin, models
 from fastapi import Request, Response, HTTPException
 
 from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError
 
-from app.db.session import get_db
-from app.models.account import Account, AccountCreate, AccountType
+from app.models.account import Account, AccountCreate, AccountType, AccountUpdate
 from app.models.rider import Rider
 from app.models.coordinator import Coordinator
 from app.models.admin import Admin
@@ -24,15 +23,15 @@ class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
 
     async def create(
             self,
-            user_create: schemas.UC,
+            user_create: AccountCreate,  # type: ignore[override]
             safe: bool = True,
             request: Optional[Request] = None,
-    ) -> models.UP:
+    ) -> Account:
         if user_create.type not in set(i for i in AccountType):
             raise HTTPException(400)
 
         try:
-            session = self.user_db.session
+            session = self.user_db.session  # type: ignore[attr-defined]
 
             # FIXME NOTE - when something breaks when creating a Rider/Coordinator/Admin table row, a dangling account
             #  remains in Account table
@@ -41,8 +40,8 @@ class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
             #    internally, which closes the transaction immediately (even though this behaviour has apperantly been
             #     fixed long time ago - https://github.com/sqlalchemy/sqlalchemy/issues/6288
             #   - running super().create(...) in a nested transaction - unfortunately, SQLModel does not support them :)
-            #  that being said, all potential points of failure should be placed before super().create(...) call - either
-            #  in AccountCreate validators, or physically on the beginning of the function
+            #  that being said, all potential points of failure should be placed before super().create(...) call -
+            #  - either in AccountCreate validators, or physically on the beginning of the function
 
             # with session.begin():
             account = await super().create(user_create, safe, request)
@@ -76,13 +75,13 @@ class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
             raise HTTPException(400)
 
     async def update(
-        self,
-        user_update: schemas.UU,
-        user: models.UP,
-        safe: bool = False,
-        request: Optional[Request] = None,
+            self,
+            user_update: AccountUpdate,  # type: ignore[override]
+            user: Account,
+            safe: bool = False,
+            request: Optional[Request] = None,
     ) -> models.UP:
-        return await super().update(
+        return await super().update(  # type: ignore[return-value]
             user_update=user_update,
             user=user,
             safe=True,
@@ -91,7 +90,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
 
     async def on_after_forgot_password(
             self, user: Account, token: str, request: Optional[Request] = None
-    ):
+    ) -> None:
         logger.info(f"User {user.id} has forgot their password.")
         send_reset_password(
             receiver_email=user.email,
@@ -100,7 +99,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
 
     async def on_after_request_verify(
             self, user: Account, token: str, request: Optional[Request] = None
-    ):
+    ) -> None:
         logger.info(f"Verification requested for user {user.id}. Verification token: {token}")
 
     async def on_after_login(
@@ -108,13 +107,13 @@ class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
             user: Account,
             request: Optional[Request] = None,
             response: Optional[Response] = None,
-    ):
+    ) -> None:
         logger.info(f"User {user.id} logged in.")
 
     async def validate_password(
             self,
             password: str,
-            user: Union[AccountCreate, Account],
+            user: Union[AccountCreate, Account],  # type: ignore[override]
     ) -> None:
         if len(password) < 8:
             raise InvalidPasswordException(

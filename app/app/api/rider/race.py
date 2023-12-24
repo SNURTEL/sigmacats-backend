@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
+from sqlmodel.sql.expression import SelectOfScalar
 
 from app.core.users import current_rider_user
 from app.db.session import get_db
@@ -111,20 +112,20 @@ async def withdraw_race(
         id: int,
         rider: Rider = Depends(current_rider_user),
         db: Session = Depends(get_db),
-):
+) -> None:
     """
     Withdraw from a race (delete race participation).
     """
-    stmt = (
+    stmt: SelectOfScalar = (
         select(Race)
         .where(Race.id == id)
     )
     race = db.exec(stmt).first()
-    rider = db.get(Rider, rider.id)
+    db_rider = db.get(Rider, rider.id)
     participation = db.exec(
-        select(RaceParticipation).where(RaceParticipation.race == race, RaceParticipation.rider == rider)).first()
+        select(RaceParticipation).where(RaceParticipation.race == race, RaceParticipation.rider == db_rider)).first()
 
-    if not race or not rider:
+    if not race or not db_rider:
         raise HTTPException(404)
 
     if race.status in (RaceStatus.cancelled, RaceStatus.ended):

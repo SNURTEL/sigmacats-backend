@@ -1,14 +1,13 @@
 import asyncio
 from typing import Generator, Any
-import contextlib
 from datetime import datetime
 
 import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import select, Session
+from sqlmodel.sql.expression import SelectOfScalar
 
-from app.core.users import get_user_manager, get_user_db, get_db, current_rider_user, current_active_user, \
-    current_coordinator_user, current_admin_user
+from app.core.users import get_user_manager, get_user_db, current_active_user
 from app.models.account import Account, AccountCreate, AccountType
 from app.models.rider import Rider
 from app.models.bike import Bike, BikeType
@@ -50,10 +49,10 @@ def rider1(db) -> Generator[Rider, Any, None]:
         rider_create
     ))
 
-    stmt = (
+    stmt: SelectOfScalar = (
         select(Account)
         .where(Account.type == AccountType.rider)
-        .order_by(Account.id.desc())
+        .order_by(Account.id.desc())  # type: ignore[union-attr]
     )
     rider_account = db.exec(stmt).first()
 

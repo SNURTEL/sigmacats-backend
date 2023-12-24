@@ -16,15 +16,15 @@ class MailError(Exception):
 def _send_mail(
         receiver_email: str,
         message: str
-):
+) -> None:
     try:
         password = os.environ.get("FASTAPI_SMTP_PASSWORD", "")
         sender_email = os.environ.get("FASTAPI_SMTP_ADDRESS", "")
-        server = os.environ.get("FASTAPI_SMTP_HOST", "")
+        host = os.environ.get("FASTAPI_SMTP_HOST", "")
 
         context = ssl.create_default_context()
 
-        with smtplib.SMTP_SSL(server, SMTP_PORT, context=context) as server:
+        with smtplib.SMTP_SSL(host, SMTP_PORT, context=context) as server:
             server.login(sender_email, password)
             server.sendmail(sender_email, receiver_email, message)
     except smtplib.SMTPException as e:
@@ -34,13 +34,13 @@ def _send_mail(
 def send_reset_password(
         receiver_email: str,
         token: str
-):
+) -> None:
     base_url = os.environ.get("APP_URL", "<NO URL SET>")
 
     plain = f"""\
     A password reset request was received for your account. Please click the link below to proceed:
     {base_url}/reset-password?token={token}
-    
+
     If you did not request a password reset, you can safely ignore this email.
     """
 
@@ -56,7 +56,6 @@ def send_reset_password(
       </body>
     </html>
     """
-
 
     message = MIMEMultipart("alternative")
     message["Subject"] = "Password reset"

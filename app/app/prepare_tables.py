@@ -3,8 +3,8 @@ import os
 import asyncio
 
 from sqlalchemy.sql import text
-from sqlalchemy.orm import Session
 from sqlmodel import select
+from sqlmodel.sql.expression import SelectOfScalar
 
 from app.db.session import engine
 from app.util.log import get_logger
@@ -43,7 +43,7 @@ def create_triggers() -> None:
                                             .replace(":", "\\:")))
 
 
-def insert_initial_users() -> list[Account, Account, Account] | None:
+def insert_initial_users() -> None:
     with engine.connect() as connection:
         with connection.begin():
             if connection.execute(text(
@@ -83,7 +83,7 @@ def insert_initial_users() -> list[Account, Account, Account] | None:
         password=os.environ.get("FASTAPI_DEFAULT_ADMIN_PASSWORD", "admin123")
     )
 
-    async def create_account(account_create: AccountCreate):
+    async def create_account(account_create: AccountCreate) -> Account:
         with get_session_context() as session:
             with get_user_db_context(session) as user_db:
                 with get_user_manager_context(user_db) as user_manager:
@@ -107,7 +107,6 @@ def insert_initial_data() -> None:
                     and TABLE_NAME NOT LIKE 'RIDER'
                     and TABLE_NAME NOT LIKE 'COORDINATOR'
                     and TABLE_NAME NOT LIKE 'ADMIN'
-                    
                     """
             )).first()[0]:  # type: ignore[index]
                 logger.info("SKIPPING inserting initial data - DB not empty")
@@ -115,7 +114,7 @@ def insert_initial_data() -> None:
 
     db = SessionLocal()
     with db.begin():
-        stmt = (
+        stmt: SelectOfScalar = (
             select(Account)
             .order_by(Account.id)  # type: ignore[arg-type]
         )

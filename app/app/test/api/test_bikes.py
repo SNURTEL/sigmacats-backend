@@ -1,6 +1,6 @@
 from fastapi.encoders import jsonable_encoder
 
-from app.models.bike import Bike, BikeType
+from app.models.bike import BikeType
 
 
 def test_read_bikes(rider1_client, rider1, db, bike_road, bike_fixie):
@@ -14,6 +14,7 @@ def test_read_bikes_different_rider(rider2_client, rider1, db, bike_road, bike_f
     response = rider2_client.get("/api/rider/bike")
     assert response.status_code == 200
     assert response.json() == []
+
 
 def test_read_bike(rider1_client, rider1, db, bike_road, bike_fixie):
     response = rider1_client.get(f"/api/rider/bike/{bike_road.id}")

@@ -7,7 +7,6 @@ from app.api.auth.router import router as auth_router
 from app.api.users import router as users_router
 from app.api.test import router as test_router
 
-
 api_router = APIRouter()
 api_router.include_router(rider_router, prefix="/rider", tags=["rider"])
 api_router.include_router(coordinator_router, prefix="/coordinator", tags=["coordinator"])

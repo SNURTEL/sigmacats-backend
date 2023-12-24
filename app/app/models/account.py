@@ -1,3 +1,4 @@
+
 from typing import Optional, TYPE_CHECKING
 from enum import Enum
 from datetime import datetime
@@ -26,7 +27,7 @@ class AccountType(Enum):
 
 class Account(SQLModelBaseUserDB, table=True):
     __tablename__ = 'account'
-    id: Optional[int] = Field(primary_key=True, default=None)
+    id: Optional[int] = Field(primary_key=True, default=None)  # type: ignore[assignment] # override is intentional
     type: AccountType = Field(sa_column_args=(
         CheckConstraint("type in ('rider', 'coordinator', 'admin')", name="account_type_enum"),
     ))
@@ -66,7 +67,7 @@ class AccountCreate(schemas.BaseUserCreate):
     phone_number: Optional[str] = Field(default=None)  # used only by coordinator
 
     @validator("phone_number")
-    def validate_phone_number(cls, v):
+    def validate_phone_number(cls, v: str) -> str:
         try:
             if (v is not None
                     and (

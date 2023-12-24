@@ -17,7 +17,7 @@ class Coordinator(SQLModel, table=True):
     phone_number: str = Field(max_length=20)
 
     @validator("phone_number")
-    def validate_phone_number(cls, v):
+    def validate_phone_number(cls, v: str) -> str:
         if (v[0] == "+" and not int(v[1:])) or (v[0] != "+" and not int(v)):
             raise ValueError("Invalid phone number")
 

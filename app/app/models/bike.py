@@ -36,7 +36,6 @@ class BikeCreate(SQLModel):
     model: Optional[str] = Field(max_length=80, default=None)
 
 
-
 class BikeUpdate(SQLModel):
     name: str = Field(max_length=80, default=None)
     type: BikeType = Field(default=None)
