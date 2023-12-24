@@ -25,7 +25,6 @@ def get_register_router(
         "/register",
         response_model=user_schema,
         status_code=status.HTTP_201_CREATED,
-        name="register:register",
         responses={
             status.HTTP_307_TEMPORARY_REDIRECT: {
                 "description": "Attempted to create a coordinator or admin account.",
@@ -72,7 +71,38 @@ def get_register_router(
             return RedirectResponse(redirect_url)
         return await _register(request, user_create, user_manager)
 
-    @router.post("/register/staff")
+    @router.post(
+        "/register/staff",
+        response_model=user_schema,
+        status_code=status.HTTP_201_CREATED,
+        responses={
+            status.HTTP_400_BAD_REQUEST: {
+                "model": ErrorModel,
+                "content": {
+                    "application/json": {
+                        "examples": {
+                            ErrorCode.REGISTER_USER_ALREADY_EXISTS: {
+                                "summary": "A user with this email already exists.",
+                                "value": {
+                                    "detail": ErrorCode.REGISTER_USER_ALREADY_EXISTS
+                                },
+                            },
+                            ErrorCode.REGISTER_INVALID_PASSWORD: {
+                                "summary": "Password validation failed.",
+                                "value": {
+                                    "detail": {
+                                        "code": ErrorCode.REGISTER_INVALID_PASSWORD,
+                                        "reason": "Password should be"
+                                                  "at least 3 characters",
+                                    }
+                                },
+                            },
+                        }
+                    }
+                },
+            },
+        },
+    )
     async def register_staff(
             request: Request,
             user_create: user_create_schema,  # type: ignore

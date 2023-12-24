@@ -42,11 +42,11 @@ async def read_bike(
         db: Session = Depends(get_db),
 ) -> Bike:
     """
-    Get details about a specific bike.
+    Get details about a specific bike. Not restricted to bikes owned by current rider.
     """
     stmt = (
         select(Bike)
-        .where(Bike.id == id, Bike.rider_id == rider.id)
+        .where(Bike.id == id)
     )
     bike = db.exec(stmt).first()
 
@@ -97,12 +97,15 @@ async def update_bike(
     """
     stmt = (
         select(Bike)
-        .where(Bike.id == id, Bike.rider_id == rider.id)
+        .where(Bike.id == id)
     )
     bike = db.exec(stmt).first()
 
     if not bike:
         raise HTTPException(404)
+
+    if bike.rider_id != rider.id:
+        raise HTTPException(403)
 
     try:
         bike_data = bike_update.dict(exclude_unset=True, exclude_defaults=True)

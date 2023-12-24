@@ -5,7 +5,7 @@ from fastapi_users import schemas
 from fastapi_users_db_sqlmodel import SQLModelBaseUserDB
 from pydantic import validator
 
-from sqlmodel import Field, Relationship, CheckConstraint, SQLModel
+from sqlmodel import Field, Relationship, CheckConstraint
 
 if TYPE_CHECKING:
     from .rider import Rider
@@ -22,10 +22,6 @@ class AccountType(Enum):
     rider = "rider"
     coordinator = "coordinator"
     admin = "admin"
-
-
-class TestAccount(SQLModelBaseUserDB):
-    pass
 
 
 class Account(SQLModelBaseUserDB, table=True):
@@ -95,43 +91,3 @@ class AccountRead(schemas.BaseUser[int]):
 
 class AccountUpdate(schemas.BaseUserUpdate):
     pass
-
-
-'''class AccountRead(schemas.BaseUser[int]):
-    type: AccountType = Field(sa_column_args=(
-        CheckConstraint("type in ('rider', 'coordinator', 'admin')", name="account_type_enum"),
-    ))
-    username: str = Field(max_length=24, unique=True)
-    name: str = Field(max_length=80)
-    surname: str = Field(max_length=80)
-    gender: Optional[Gender] = Field(default=None, sa_column_args=(
-        CheckConstraint("gender in ('male', 'female')", name="account_gender_enum"),
-    ))
-    birth_date: Optional[datetime] = Field(default=None)
-
-    rider: "Rider" = Relationship(back_populates="account")
-
-
-class AccountCreate(schemas.BaseUserCreate):
-    type: AccountType = Field(sa_column_args=(
-        CheckConstraint("type in ('rider', 'coordinator', 'admin')", name="account_type_enum"),
-    ))
-    username: str = Field(max_length=24, unique=True)
-    name: str = Field(max_length=80)
-    surname: str = Field(max_length=80)
-    password: str = Field(max_length=256)
-
-
-class AccountUpdate(schemas.BaseUserUpdate):
-    type: AccountType = Field(sa_column_args=(
-        CheckConstraint("type in ('rider', 'coordinator', 'admin')", name="account_type_enum"),
-    ))
-    username: str = Field(max_length=24, unique=True)
-    name: str = Field(max_length=80)
-    surname: str = Field(max_length=80)
-    email: str = Field(max_length=80, unique=True)
-    password: str = Field(max_length=256)
-    gender: Optional[Gender] = Field(default=None, sa_column_args=(
-        CheckConstraint("gender in ('male', 'female')", name="account_gender_enum"),
-    ))
-    birth_date: Optional[datetime] = Field(default=None)'''

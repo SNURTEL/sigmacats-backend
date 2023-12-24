@@ -242,12 +242,16 @@ def rider1_client(rider1, db):
     with TestClient(app) as c:
         yield c
 
+    del app.dependency_overrides[current_active_user]
+
 
 @pytest.fixture(scope="function")
 def rider2_client(rider2):
     app.dependency_overrides[current_active_user] = lambda: rider2.account
     with TestClient(app) as c:
         yield c
+
+    del app.dependency_overrides[current_active_user]
 
 
 @pytest.fixture(scope="function")
@@ -256,12 +260,16 @@ def coordinator_client(coordinator):
     with TestClient(app) as c:
         yield c
 
+    del app.dependency_overrides[current_active_user]
+
 
 @pytest.fixture(scope="function")
 def admin_client(admin):
     app.dependency_overrides[current_active_user] = lambda: admin.account
     with TestClient(app) as c:
         yield c
+
+    del app.dependency_overrides[current_active_user]
 
 
 @pytest.fixture(scope="function")
