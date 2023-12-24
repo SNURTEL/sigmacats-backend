@@ -15,6 +15,8 @@ from app.models.bike import Bike, BikeType
 from app.models.season import Season
 from app.models.race import Race, RaceStatus, RaceTemperature, RaceRain
 from app.models.race_bonus import RaceBonus
+from app.models.classification import Classification
+from app.models.rider_classification_link import RiderClassificationLink
 
 from app.main import app
 
@@ -47,7 +49,6 @@ def rider1(db) -> Generator[Rider, Any, None]:
         db,
         rider_create
     ))
-
 
     stmt = (
         select(Account)
@@ -114,7 +115,6 @@ def admin(db) -> Generator[Rider, Any, None]:
         db,
         admin_create
     ))
-
 
     yield admin_account.admin
 
@@ -262,3 +262,36 @@ def admin_client(admin):
     app.dependency_overrides[current_active_user] = lambda: admin.account
     with TestClient(app) as c:
         yield c
+
+
+@pytest.fixture(scope="function")
+def classification_with_rider(db, season, rider1) -> Generator[Classification, Any, None]:
+    classification = Classification(
+        name="Dzieci",
+        description="<18 lat",
+        season=season,
+    )
+
+    riderClassificationLink = RiderClassificationLink(  # noqa: F841
+        score=10,
+        rider=rider1,
+        classification=classification
+    )
+
+    db.add(classification)
+    db.commit()
+    yield classification
+
+
+@pytest.fixture(scope="function")
+def classification_without_rider(db, season) -> Generator[Classification, Any, None]:
+    classification = Classification(
+        name="Dorośli",
+        description=">=18 lat",
+        season=season,
+        riders=[]
+    )
+
+    db.add(classification)
+    db.commit()
+    yield classification
