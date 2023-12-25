@@ -35,7 +35,7 @@ def send_reset_password(
         receiver_email: str,
         token: str
 ) -> None:
-    base_url = os.environ.get("APP_URL", "<NO URL SET>")
+    base_url = os.environ.get("FRONTEND_URL", "localhost")
 
     plain = f"""\
     A password reset request was received for your account. Please click the link below to proceed:
