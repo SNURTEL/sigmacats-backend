@@ -105,7 +105,7 @@ class Race(SQLModel, table=True):
     race_participations: list["RaceParticipation"] = Relationship(back_populates="race")
 
     @validator("sponsor_banners_uuids_json")
-    def validate_sponsor_banners_uuids_json_pydantic(cls, v):
+    def validate_sponsor_banners_uuids_json_pydantic(cls, v: str) -> str:
         try:
             jsonschema.validate(json.loads(v), sponsor_banners_uuids_json_schema)
         except jsonschema.exceptions.ValidationError as e:
@@ -113,7 +113,7 @@ class Race(SQLModel, table=True):
         return v
 
     @validator("place_to_points_mapping_json")
-    def validate_place_to_points_mapping_json_pydantic(cls, v):
+    def validate_place_to_points_mapping_json_pydantic(cls, v: str) -> str:
         try:
             jsonschema.validate(json.loads(v), place_to_points_mapping_json_schema)
         except jsonschema.exceptions.ValidationError as e:

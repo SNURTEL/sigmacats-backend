@@ -3,6 +3,7 @@ from sqlmodel import Session, select
 from sqlalchemy.exc import IntegrityError
 from pydantic import ValidationError
 
+from app.core.users import current_rider_user
 from app.db.session import get_db
 
 from app.models.bike import Bike, BikeCreate, BikeUpdate
@@ -15,8 +16,8 @@ router = APIRouter()
 
 @router.get("/")
 async def read_bikes(
-        rider_id: int,  # TODO deduce from session,
         limit: int = 30, offset: int = 0,
+        rider: Rider = Depends(current_rider_user),
         db: Session = Depends(get_db)
 ) -> list[Bike]:
     """
@@ -24,7 +25,7 @@ async def read_bikes(
     """
     stmt = (
         select(Bike)
-        .where(Bike.rider_id == rider_id)
+        .where(Bike.rider_id == rider.id)
         .offset(offset)
         .limit(limit)
         .order_by(Bike.id)  # type: ignore[arg-type]
@@ -37,15 +38,15 @@ async def read_bikes(
 @router.get("/{id}")
 async def read_bike(
         id: int,
-        rider_id: int,  # TODO deduce from session
+        rider: Rider = Depends(current_rider_user),
         db: Session = Depends(get_db),
 ) -> Bike:
     """
-    Get details about a specific bike.
+    Get details about a specific bike. Not restricted to bikes owned by current rider.
     """
     stmt = (
         select(Bike)
-        .where(Bike.id == id, Bike.rider_id == rider_id)
+        .where(Bike.id == id)
     )
     bike = db.exec(stmt).first()
 
@@ -58,6 +59,7 @@ async def read_bike(
 @router.post("/create")
 async def create_bike(
         bike_create: BikeCreate,
+        rider: Rider = Depends(current_rider_user),
         db: Session = Depends(get_db),
 ) -> Bike:
     """
@@ -70,11 +72,11 @@ async def create_bike(
             Bike.model == bike_create.model)).first():
         raise HTTPException(403, "Identical bike already exists")
 
-    if not db.get(Rider, bike_create.rider_id):
+    if not db.get(Rider, rider.id):
         raise HTTPException(404, "Rider not found")
 
     try:
-        bike = Bike.from_orm(bike_create)
+        bike = Bike.from_orm(bike_create, update={'rider_id': rider.id})
         db.add(bike)
         db.commit()
     except (IntegrityError, ValidationError):
@@ -86,8 +88,8 @@ async def create_bike(
 @router.patch("/{id}")
 async def update_bike(
         id: int,
-        rider_id: int,  # TODO deduce from session
         bike_update: BikeUpdate,
+        rider: Rider = Depends(current_rider_user),
         db: Session = Depends(get_db)
 ) -> Bike:
     """
@@ -95,12 +97,15 @@ async def update_bike(
     """
     stmt = (
         select(Bike)
-        .where(Bike.id == id, Bike.rider_id == rider_id)
+        .where(Bike.id == id)
     )
     bike = db.exec(stmt).first()
 
     if not bike:
         raise HTTPException(404)
+
+    if bike.rider_id != rider.id:
+        raise HTTPException(403)
 
     try:
         bike_data = bike_update.dict(exclude_unset=True, exclude_defaults=True)

@@ -1,14 +1,14 @@
 import os
 
-from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from fastapi import FastAPI
 from app.api.api import api_router
+from app.util.log import get_logger
 
+logger = get_logger()
 
 app_name = os.getenv("FASTAPI_APP_NAME", "NAME NOT SET")
 api_prefix = os.getenv("FASTAPI_API_PREFIX", "/api")
-
 
 app = FastAPI(
     title=app_name,
@@ -19,16 +19,10 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[os.environ.get("FRONTEND_URL", "localhost")],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "HEAD", "OPTIONS", "PATCH", "DELETE"],
+    allow_headers=["Access-Control-Allow-Headers", 'Content-Type', 'Authorization', 'Access-Control-Allow-Origin'],
 )
 
-
 app.include_router(api_router, prefix=api_prefix)
-
-
-@app.get("/")
-async def read_root() -> dict[str, str]:
-    return {"Hello": "World"}

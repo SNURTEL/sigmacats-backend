@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
+from sqlmodel.sql.expression import SelectOfScalar
 
+from app.core.users import current_rider_user
 from app.db.session import get_db
-
 from app.models.race import Race, RaceReadListRider, RaceReadDetailRider, RaceStatus
 from app.models.bike import Bike
 from app.models.rider import Rider
@@ -15,7 +16,7 @@ router = APIRouter()
 
 @router.get("/")
 async def read_races(
-        rider_id: int,  # TODO deduce from session
+        rider: Rider = Depends(current_rider_user),
         db: Session = Depends(get_db), limit: int = 30, offset: int = 0
 ) -> list[RaceReadListRider]:
     """
@@ -31,7 +32,7 @@ async def read_races(
 
     return [RaceReadListRider.from_orm(r, update={
         'participation_status': getattr(
-            next((p for p in r.race_participations if p.rider_id == rider_id), None),
+            next((p for p in r.race_participations if p.rider_id == rider.id), None),
             'status', None)
     }) for r in races]
 
@@ -39,7 +40,7 @@ async def read_races(
 @router.get("/{id}")
 async def read_race(
         id: int,
-        rider_id: int,
+        rider: Rider = Depends(current_rider_user),
         db: Session = Depends(get_db),
 ) -> RaceReadDetailRider:
     """
@@ -56,7 +57,7 @@ async def read_race(
 
     return RaceReadDetailRider.from_orm(race, update={
         'participation_status': getattr(
-            next((p for p in race.race_participations if p.rider_id == rider_id), None),
+            next((p for p in race.race_participations if p.rider_id == rider.id), None),
             'status', None)
     })
 
@@ -64,8 +65,8 @@ async def read_race(
 @router.post("/{id}/join")
 async def join_race(
         id: int,
-        rider_id: int,  # TODO deduce from session
         bike_id: int,
+        rider: Rider = Depends(current_rider_user),
         db: Session = Depends(get_db),
 ) -> RaceParticipationCreated:
     """
@@ -76,7 +77,6 @@ async def join_race(
         .where(Race.id == id)
     )
     race = db.exec(stmt).first()
-    rider = db.get(Rider, rider_id)
     bike = db.get(Bike, bike_id)
 
     if not race or not bike or not rider:
@@ -110,22 +110,22 @@ async def join_race(
 @router.post("/{id}/withdraw")
 async def withdraw_race(
         id: int,
-        rider_id: int,  # TODO deduce from session
+        rider: Rider = Depends(current_rider_user),
         db: Session = Depends(get_db),
-):
+) -> None:
     """
     Withdraw from a race (delete race participation).
     """
-    stmt = (
+    stmt: SelectOfScalar = (
         select(Race)
         .where(Race.id == id)
     )
     race = db.exec(stmt).first()
-    rider = db.get(Rider, rider_id)
+    db_rider = db.get(Rider, rider.id)
     participation = db.exec(
-        select(RaceParticipation).where(RaceParticipation.race == race, RaceParticipation.rider == rider)).first()
+        select(RaceParticipation).where(RaceParticipation.race == race, RaceParticipation.rider == db_rider)).first()
 
-    if not race or not rider:
+    if not race or not db_rider:
         raise HTTPException(404)
 
     if race.status in (RaceStatus.cancelled, RaceStatus.ended):

@@ -35,8 +35,6 @@ class BikeCreate(SQLModel):
     brand: Optional[str] = Field(max_length=80, default=None)
     model: Optional[str] = Field(max_length=80, default=None)
 
-    rider_id: int = Field(foreign_key="rider.id")  # TODO deduce from session
-
 
 class BikeUpdate(SQLModel):
     name: str = Field(max_length=80, default=None)

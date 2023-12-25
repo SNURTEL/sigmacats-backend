@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
+from sqlmodel.sql.expression import SelectOfScalar
 
 from app.db.session import get_db
 
@@ -17,7 +18,7 @@ async def read_riders(
     """
     List all riders for a given classification.
     """
-    stmt = (
+    stmt: SelectOfScalar = (
         select(Classification)
         .where(Classification.id == id)
     )

@@ -12,7 +12,7 @@ def test_key_increment(db) -> None:  # type: ignore[no-untyped-def]
         name="test",
         surname="user",
         email="test@user.com",
-        password_hash="JYGFJYGFTUJY"
+        hashed_password="JYGFJYGFTUJY"
     )
 
     bike1 = Bike(name="bike1", type="road")
