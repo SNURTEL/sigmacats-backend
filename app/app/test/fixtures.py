@@ -1,10 +1,14 @@
+import asyncio
 from typing import Generator, Any
-
-import pytest
-
 from datetime import datetime
 
-from app.models.account import Account
+import pytest
+from fastapi.testclient import TestClient
+from sqlmodel import select, Session
+from sqlmodel.sql.expression import SelectOfScalar
+
+from app.core.users import get_user_manager, get_user_db, current_active_user
+from app.models.account import Account, AccountCreate, AccountType
 from app.models.rider import Rider
 from app.models.bike import Bike, BikeType
 from app.models.season import Season
@@ -13,35 +17,115 @@ from app.models.race_bonus import RaceBonus
 from app.models.classification import Classification
 from app.models.rider_classification_link import RiderClassificationLink
 
+from app.main import app
+
+
+async def create_account(
+        session: Session,
+        account_create: AccountCreate
+):
+    user_db_generator = get_user_db(session)
+    user_manager_generator = get_user_manager(next(user_db_generator))
+    user_manager = next(user_manager_generator)
+    return await user_manager.create(
+        account_create,
+        safe=False  # allow to set is_superuser and is_verified
+    )
+
 
 @pytest.fixture(scope="function")
-def rider(db) -> Generator[Rider, Any, None]:
-    rider_account = Account(
-        type="rider",
+def rider1(db) -> Generator[Rider, Any, None]:
+    rider_create = AccountCreate(
+        type=AccountType.rider,
         username="balbinka123",
         name="Test",
         surname="Rider",
-        email="t.rider@sigma.org",
-        password_hash="JSDHFGKIUSDFHBKGSBHDFKGS",
+        email="t.rider1@sigma.org",
+        password="qwerty123"
     )
 
-    rider = Rider(
-        account=rider_account
-    )
+    asyncio.run(create_account(
+        db,
+        rider_create
+    ))
 
-    db.add(rider)
-    db.commit()
-    yield rider
+    stmt: SelectOfScalar = (
+        select(Account)
+        .where(Account.type == AccountType.rider)
+        .order_by(Account.id.desc())  # type: ignore[union-attr]
+    )
+    rider_account = db.exec(stmt).first()
+
+    yield rider_account.rider
 
 
 @pytest.fixture(scope="function")
-def bike_road(db, rider) -> Generator[Bike, Any, None]:
+def rider2(db) -> Generator[Rider, Any, None]:
+    rider_create = AccountCreate(
+        type=AccountType.rider,
+        username="balbinka456",
+        name="Test",
+        surname="Rider",
+        email="t.rider2@sigma.org",
+        password="qwerty123"
+    )
+
+    rider_account = asyncio.run(create_account(
+        db,
+        rider_create
+    ))
+
+    yield rider_account.rider
+
+
+@pytest.fixture(scope="function")
+def coordinator(db) -> Generator[Rider, Any, None]:
+    coordinator_create = AccountCreate(
+        type=AccountType.coordinator,
+        username="coord",
+        name="Test",
+        surname="Coordinator",
+        email="t.coordinator@sigma.org",
+        password="qwerty123",
+        phone_number="+48123456789"
+    )
+
+    coordinator_account = asyncio.run(create_account(
+        db,
+        coordinator_create
+    ))
+
+    yield coordinator_account.coordinator
+
+
+@pytest.fixture(scope="function")
+def admin(db) -> Generator[Rider, Any, None]:
+    admin_create = AccountCreate(
+        type=AccountType.admin,
+        username="admin",
+        name="Test",
+        surname="Admin",
+        email="t.admin@sigma.org",
+        password="qwerty123",
+        phone_number="+48123456789"
+    )
+
+    admin_account = asyncio.run(create_account(
+        db,
+        admin_create
+    ))
+
+    yield admin_account.admin
+
+
+@pytest.fixture(scope="function")
+def bike_road(db, rider1) -> Generator[Bike, Any, None]:
     bike = Bike(
         name="Rakieta",
         type=BikeType.road,
         brand="Canyon",
         model="Ultimate CFR eTap",
-        rider=rider
+        rider=rider1
     )
     db.add(bike)
     db.commit()
@@ -49,13 +133,13 @@ def bike_road(db, rider) -> Generator[Bike, Any, None]:
 
 
 @pytest.fixture(scope="function")
-def bike_fixie(db, rider) -> Generator[Bike, Any, None]:
+def bike_fixie(db, rider1) -> Generator[Bike, Any, None]:
     bike = Bike(
         name="Czarna strzała",
         type=BikeType.fixie,
         brand="FIXIE inc.",
         model="Floater Race",
-        rider=rider
+        rider=rider1
     )
     db.add(bike)
     db.commit()
@@ -142,9 +226,53 @@ def race_ended(db, season) -> Generator[Race, Any, None]:
     yield race
 
 
-@pytest.fixture(scope="function")
-def classification_with_rider(db, season, rider) -> Generator[Classification, Any, None]:
+# note: use only one of these at a time
 
+@pytest.fixture(scope="function")
+def rider1_client(rider1, db):
+    stmt = (
+        select(Account)
+        .where(Account.type == AccountType.rider, Account.rider == rider1)
+        .order_by(Account.id.desc())
+    )
+    rider_account = db.exec(stmt).first()
+
+    app.dependency_overrides[current_active_user] = lambda: rider_account
+    with TestClient(app) as c:
+        yield c
+
+    del app.dependency_overrides[current_active_user]
+
+
+@pytest.fixture(scope="function")
+def rider2_client(rider2):
+    app.dependency_overrides[current_active_user] = lambda: rider2.account
+    with TestClient(app) as c:
+        yield c
+
+    del app.dependency_overrides[current_active_user]
+
+
+@pytest.fixture(scope="function")
+def coordinator_client(coordinator):
+    app.dependency_overrides[current_active_user] = lambda: coordinator.account
+    with TestClient(app) as c:
+        yield c
+
+    del app.dependency_overrides[current_active_user]
+
+
+@pytest.fixture(scope="function")
+def admin_client(admin):
+    app.dependency_overrides[current_active_user] = lambda: admin.account
+    with TestClient(app) as c:
+        yield c
+
+    del app.dependency_overrides[current_active_user]
+
+
+@pytest.fixture(scope="function")
+def classification_with_rider(db, season, rider1) -> Generator[Classification, Any, None]:
     classification = Classification(
         name="Dzieci",
         description="<18 lat",
@@ -153,7 +281,7 @@ def classification_with_rider(db, season, rider) -> Generator[Classification, An
 
     riderClassificationLink = RiderClassificationLink(  # noqa: F841
         score=10,
-        rider=rider,
+        rider=rider1,
         classification=classification
     )
 

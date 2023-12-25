@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
+from sqlmodel.sql.expression import SelectOfScalar
 
 from app.db.session import get_db
 
@@ -16,7 +17,7 @@ async def read_classifications(
     """
     List all classifications for a given season.
     """
-    stmt = (
+    stmt: SelectOfScalar = (
         select(Classification)
         .where(Classification.season_id == id)
     )

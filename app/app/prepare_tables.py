@@ -1,14 +1,26 @@
+import contextlib
+import os
+import asyncio
+
 from sqlalchemy.sql import text
-from sqlalchemy.orm import Session
+from sqlmodel import select
+from sqlmodel.sql.expression import SelectOfScalar
 
 from app.db.session import engine
 from app.util.log import get_logger
 
 # models HAVE to be imported beforehand for SQLModel.metadata.create_all to work
 from app.models import *  # noqa: F401,F403
-from app.initial_data import initial_data
+from app.initial_data import create_initial_data
+from app.core.users import get_user_manager, get_user_db, get_db
+from app.db.session import SessionLocal
+from app.models.account import AccountCreate, AccountType, Account
 
 logger = get_logger()
+
+get_session_context = contextlib.contextmanager(get_db)
+get_user_db_context = contextlib.contextmanager(get_user_db)
+get_user_manager_context = contextlib.contextmanager(get_user_manager)
 
 
 def create_index_sequences() -> None:
@@ -31,7 +43,7 @@ def create_triggers() -> None:
                                             .replace(":", "\\:")))
 
 
-def insert_initial_data() -> None:
+def insert_initial_users() -> None:
     with engine.connect() as connection:
         with connection.begin():
             if connection.execute(text(
@@ -41,12 +53,76 @@ def insert_initial_data() -> None:
                     where owner ='USER1' and TABLE_NAME NOT LIKE 'ALEMBIC_VERSION'
                     """
             )).first()[0]:  # type: ignore[index]
+                logger.info("SKIPPING inserting initial users - DB not empty")
+                return
+
+    rider_create = AccountCreate(
+        type=AccountType.rider,
+        username="default_rider",
+        name="Default",
+        surname="Rider",
+        email="rider@default.sigma",
+        password=os.environ.get("FASTAPI_DEFAULT_RIDER_PASSWORD", "rider123")
+    )
+    coordinator_create = AccountCreate(
+        type=AccountType.coordinator,
+        username="default_coordinator",
+        name="Default",
+        surname="Coordinator",
+        email="coordinator@default.sigma",
+        password=os.environ.get("FASTAPI_DEFAULT_COORDINATOR_PASSWORD", "coordinator123"),
+        phone_number="+4812456789"
+    )
+    admin_create = AccountCreate(
+        is_superuser=True,
+        type=AccountType.admin,
+        username="default_admin",
+        name="Default",
+        surname="Admin",
+        email="admin@default.sigma",
+        password=os.environ.get("FASTAPI_DEFAULT_ADMIN_PASSWORD", "admin123")
+    )
+
+    async def create_account(account_create: AccountCreate) -> Account:
+        with get_session_context() as session:
+            with get_user_db_context(session) as user_db:
+                with get_user_manager_context(user_db) as user_manager:
+                    return await user_manager.create(
+                        account_create,
+                        safe=False  # allow to set is_superuser and is_verified
+                    )
+
+    [asyncio.run(create_account(ac)) for ac in (rider_create, coordinator_create, admin_create)]
+
+
+def insert_initial_data() -> None:
+    with engine.connect() as connection:
+        with connection.begin():
+            if connection.execute(text(
+                    """
+                    select sum(SEGMENT_CREATED = TRUE)
+                    from ALL_TABLES
+                    where owner ='USER1' and TABLE_NAME NOT LIKE 'ALEMBIC_VERSION'
+                    and TABLE_NAME NOT LIKE 'ACCOUNT'
+                    and TABLE_NAME NOT LIKE 'RIDER'
+                    and TABLE_NAME NOT LIKE 'COORDINATOR'
+                    and TABLE_NAME NOT LIKE 'ADMIN'
+                    """
+            )).first()[0]:  # type: ignore[index]
                 logger.info("SKIPPING inserting initial data - DB not empty")
                 return
 
-            db = Session(bind=connection)
-            db.add_all(initial_data)
-            db.commit()
+    db = SessionLocal()
+    with db.begin():
+        stmt: SelectOfScalar = (
+            select(Account)
+            .order_by(Account.id)  # type: ignore[arg-type]
+        )
+        accounts = db.exec(stmt).all()
+
+        initial_data = create_initial_data(*accounts)
+        db.add_all(initial_data)
+        db.commit()
 
 
 def main() -> None:
@@ -57,6 +133,8 @@ def main() -> None:
     create_index_sequences()
     logger.info("Creating triggers")
     create_triggers()
+    logger.info("Inserting initial users")
+    insert_initial_users()
     logger.info("Inserting initial data")
     insert_initial_data()
     logger.info("Done setting up backend!")
