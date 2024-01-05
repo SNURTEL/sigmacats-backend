@@ -10,7 +10,7 @@ cookie_transport = CookieTransport(
 
 
 def get_jwt_strategy() -> JWTStrategy:
-    return JWTStrategy(secret=str(os.environ.get("FASTAPI_JWT_SECRET")))
+    return JWTStrategy(secret=str(os.environ.get("FASTAPI_JWT_SECRET")), lifetime_seconds=None)
 
 
 jwt_auth_backend = AuthenticationBackend(
