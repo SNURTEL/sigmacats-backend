@@ -23,6 +23,10 @@ fastapi-users = {extras = ["sqlmodel"], version = "^12.1.2"}
 fastapi-users-db-sqlmodel = "^0.3.0"
 python-multipart = "^0.0.6"
 sqlalchemy = "^2.0.23"
+gpxpy = "^1.6.2"
+matplotlib = "3.3.2"
+gpxo = "^0.1.6"
+scipy = "^1.11.4"
 
 [tool.poetry.group.test]
 optional = true
