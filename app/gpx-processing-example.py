@@ -66,5 +66,4 @@ delta_t = t_second - t_first
 t_interpolated = t_first + delta_t * (np.linalg.norm(p_first- p_interpolated) / delta_p)
 print(t_interpolated)
 
-
 pass

@@ -140,12 +140,12 @@ class RaceCreate(SQLModel):
 class RaceUpdate(SQLModel):
     name: str = Field(default=None)
     description: str = Field(default=None)
+    status: RaceStatus = Field(default=None)
     requirements: str = Field(default=None)
     meetup_timestamp: datetime = Field(default=None)
     start_timestamp: datetime = Field(default=None)
     end_timestamp: datetime = Field(default=None)
     entry_fee_gr: int = Field(default=None)
-    # TODO gpx
     no_laps: int = Field(default=None)
     place_to_points_mapping_json: str = Field(default=None)
     sponsor_banners_uuids_json: str = Field(default=None)
