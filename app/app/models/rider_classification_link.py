@@ -22,3 +22,7 @@ class RiderClassificationLink(SQLModel, table=True):
 
     rider: "Rider" = Relationship(back_populates="classification_links")
     classification: "Classification" = Relationship(back_populates="rider_links")
+
+
+class RiderClassificationLinkRead(SQLModel):
+    score: int
