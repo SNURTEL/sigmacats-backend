@@ -9,9 +9,10 @@ from sqlmodel import Session, select
 from sqlmodel.sql.expression import SelectOfScalar
 
 from app.core.celery import celery_app
+from app.tasks.assign_race_places import end_race_and_assign_places
 from app.db.session import get_db
 from app.models.race import Race
-from app.models.race_participation import RaceParticipation
+from app.models.race_participation import RaceParticipation, RaceParticipationStatus
 from app.util.log import get_logger
 
 FINISH_DISTANCE_THRESHOLD = 0.00015
@@ -48,14 +49,14 @@ def process_race_result_submission(
     try:
         start_timestamp = recording.data.head(1).index.to_pydatetime()[0]
     except (ValueError, IndexError, KeyError, TypeError) as e:
-        logger.warning(f"Could not read start timestamp for participation race_id={race_id}, rider_id={rider_id}, file={recording_filepath}. Falling back to race start.", e)
+        logger.warning(f"Could not read start timestamp for participation race_id={race_id}, rider_id={rider_id}, file={recording_filepath}. Falling back to race start.\n" + repr(e))
         start_timestamp = race.start_timestamp
 
     try:
         end_point = track.data.tail(1)[['latitude (°)', 'longitude (°)']].values.T.squeeze()
         end_timestamp = interpolate_end_timestamp(recording=recording, end_point=end_point, no_laps=race.no_laps)
     except (ValueError, IndexError, KeyError, TypeError) as e:
-        logger.warning(f"Could not interpolate end timestamp for participation race_id={race_id}, rider_id={rider_id}, file={recording_filepath}. Falling back to now().", e)
+        logger.warning(f"Could not interpolate end timestamp for participation race_id={race_id}, rider_id={rider_id}, file={recording_filepath}. Falling back to now().\n" +repr(e))
         end_timestamp = datetime.now()
 
     race_participation.ride_start_timestamp = start_timestamp
@@ -66,9 +67,20 @@ def process_race_result_submission(
     db.commit()
     db.refresh(race_participation)
 
-    # TODO trigger place calculation if all riders submitted or cancelled
-
     logger.info("Task done!")
+
+    stmt = (
+        select(RaceParticipation)
+        .where(
+            RaceParticipation.race_id == race_id,
+            RaceParticipation.status == RaceParticipationStatus.approved
+        )
+    )
+    all_participations = db.exec(stmt).all()
+
+    if all([p.ride_end_timestamp != None for p in all_participations]):
+        logger.info(f"Looks like all riders finished race {race_id} - closing and assigning places.")
+        end_race_and_assign_places(race_id=race_id, db=db)
 
     return
 

@@ -249,10 +249,6 @@ def test_process_fallback_strategy(
             <name>new</name>
             <type>Cycling</type>
             <trkseg>
-            <trkpt lat="52.219960373107334" lon="21.011253297328953">
-                <ele>115.9</ele>
-                <time>2024-01-08T20:42:42.000Z</time>
-            </trkpt>
             </trkseg>
         </trk>
     </gpx>

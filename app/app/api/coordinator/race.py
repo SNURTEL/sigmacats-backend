@@ -14,7 +14,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.db.session import get_db
 
-from app.tasks.assign_race_places import assign_places
+from app.tasks.assign_race_places import end_race_and_assign_places
 
 from app.models.race import Race, RaceStatus, RaceCreate, RaceUpdate, RaceReadDetailCoordinator, RaceReadListCoordinator
 from app.models.season import Season
@@ -174,6 +174,7 @@ async def update_race(
         race_data = race_update.dict(exclude_unset=True, exclude_defaults=True)
         for k, v in race_data.items():
             setattr(race, k, v)
+
         db.add(race)
         db.commit()
         db.refresh(race)
@@ -234,7 +235,7 @@ async def race_participation_set_status(
         participation_id: int,
         status: RaceParticipationStatus,
         db: Session = Depends(get_db)
-) -> RaceParticipationListRead:  # todo create a separate model for that
+) -> RaceParticipationListRead:
     """
     Set status of a given race participation
     """
@@ -251,8 +252,8 @@ async def race_participation_set_status(
     return participation  # type: ignore[return-value]
 
 
-@router.post("/{id}/assign-places")
-async def race_assign_places(
+@router.post("/{id}/force-end")
+async def race_force_end(
         id: int,
         db: Session = Depends(get_db)
 ) -> list[RaceParticipationListRead]:
@@ -260,7 +261,7 @@ async def race_assign_places(
     if not race:
         raise HTTPException(404)
 
-    assign_places(race_id=id, db=db)
+    end_race_and_assign_places(race_id=id, db=db)
 
     db.refresh(race)
     return race.race_participations

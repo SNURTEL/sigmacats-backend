@@ -65,6 +65,47 @@ def rider1(db) -> Generator[Rider, Any, None]:
 
 
 @pytest.fixture(scope="function")
+def bike_rider2(db, rider2) -> Generator[Bike, Any, None]:
+    bike = Bike(
+        name="Rakieta2",
+        type=BikeType.road,
+        brand="Canyon",
+        model="Ultimate CFR eTap",
+        rider=rider2
+    )
+    db.add(bike)
+    db.commit()
+    yield bike
+
+
+@pytest.fixture(scope="function")
+def bike_rider3(db, rider3) -> Generator[Bike, Any, None]:
+    bike = Bike(
+        name="Rakieta3",
+        type=BikeType.road,
+        brand="Canyon",
+        model="Ultimate CFR eTap",
+        rider=rider3
+    )
+    db.add(bike)
+    db.commit()
+    yield bike
+
+
+@pytest.fixture(scope="function")
+def bike_rider4(db, rider4) -> Generator[Bike, Any, None]:
+    bike = Bike(
+        name="Rakieta4",
+        type=BikeType.road,
+        brand="Canyon",
+        model="Ultimate CFR eTap",
+        rider=rider4
+    )
+    db.add(bike)
+    db.commit()
+    yield bike
+
+@pytest.fixture(scope="function")
 def rider2(db) -> Generator[Rider, Any, None]:
     rider_create = AccountCreate(
         type=AccountType.rider,
@@ -72,6 +113,44 @@ def rider2(db) -> Generator[Rider, Any, None]:
         name="Test",
         surname="Rider",
         email="t.rider2@sigma.org",
+        password="qwerty123"
+    )
+
+    rider_account = asyncio.run(create_account(
+        db,
+        rider_create
+    ))
+
+    yield rider_account.rider
+
+
+@pytest.fixture(scope="function")
+def rider3(db) -> Generator[Rider, Any, None]:
+    rider_create = AccountCreate(
+        type=AccountType.rider,
+        username="balbinka666",
+        name="Test",
+        surname="Rider",
+        email="t.rider3@sigma.org",
+        password="qwerty123"
+    )
+
+    rider_account = asyncio.run(create_account(
+        db,
+        rider_create
+    ))
+
+    yield rider_account.rider
+
+
+@pytest.fixture(scope="function")
+def rider4(db) -> Generator[Rider, Any, None]:
+    rider_create = AccountCreate(
+        type=AccountType.rider,
+        username="balbinka777",
+        name="Test",
+        surname="Rider",
+        email="t.rider4@sigma.org",
         password="qwerty123"
     )
 
@@ -250,6 +329,37 @@ def race_in_progress_with_rider_and_participation(db, race_in_progress, rider1, 
     db.refresh(race_in_progress)
 
     yield race_in_progress, participation, rider1, bike_road
+
+
+@pytest.fixture(scope="function")
+def race_in_progress_with_rider_and_multiple_participations(
+        db, race_in_progress,
+        rider1, rider2, rider3, rider4,
+        bike_road, bike_rider2, bike_rider3, bike_rider4,
+        sample_track_gpx) -> Generator[tuple[Race, list[RaceParticipation], list[Rider], list[Bike]], Any, None]:
+
+    race_in_progress.checkpoints_gpx_file = sample_track_gpx
+
+    riders = [rider1, rider2, rider3, rider4]
+    bikes = [bike_road, bike_rider2, bike_rider3, bike_rider4]
+
+    participations = [
+        RaceParticipation(
+            status=RaceParticipationStatus.approved,
+            rider=rider,
+            bike=bike,
+            race=race_in_progress
+        )
+    for rider, bike in zip(riders, bikes)]
+
+    for participation in participations:
+        db.add(participation)
+
+    db.add(race_in_progress)
+    db.commit()
+    db.refresh(race_in_progress)
+
+    yield race_in_progress, participations, riders, bikes
 
 
 @pytest.fixture(scope="function")

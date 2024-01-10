@@ -11,23 +11,33 @@ from sqlmodel.sql.expression import SelectOfScalar
 from app.core.celery import celery_app
 from app.db.session import get_db
 from app.models.race import Race, RaceStatus
-from app.models.race_participation import RaceParticipation
+from app.models.race_participation import RaceParticipation, RaceParticipationStatus
 from app.util.log import get_logger
 
 logger = get_logger()
 
 
 @celery_app.task()
-def assign_places(
+def end_race_and_assign_places(
     race_id: int,
     db: Session = None
 ):
+    logger.info(f"Assigning places for race {race_id}")
     race = db.get(Race, race_id)
     race.status = RaceStatus.ended
 
+    stmt = (
+        select(RaceParticipation)
+        .where(
+            RaceParticipation.race_id == race.id,
+            RaceParticipation.status == RaceParticipationStatus.approved
+        )
+    )
+    participations = db.exec(stmt).all()
+
     now = datetime.now()
 
-    for p in race.race_participations:
+    for p in participations:
         if not p.ride_end_timestamp:
             p.ride_end_timestamp = now
             db.add(p)
@@ -37,7 +47,7 @@ def assign_places(
 
     prev_timestamp = None
     prev_place = 1
-    for i, p in enumerate(sorted(race.race_participations, key=lambda p: p.ride_end_timestamp), start=1):
+    for i, p in enumerate(sorted(participations, key=lambda p: p.ride_end_timestamp), start=1):
         if p.ride_end_timestamp == prev_timestamp:
             p.place_generated_overall = prev_place
         else:
@@ -48,3 +58,5 @@ def assign_places(
 
     db.add(race)
     db.commit()
+
+    logger.info("Task done!")
