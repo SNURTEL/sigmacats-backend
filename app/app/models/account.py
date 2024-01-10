@@ -1,4 +1,3 @@
-
 from typing import Optional, TYPE_CHECKING
 from enum import Enum
 from datetime import datetime
@@ -25,7 +24,7 @@ class AccountType(Enum):
     admin = "admin"
 
 
-class Account(SQLModelBaseUserDB, table=True):
+class Account(SQLModelBaseUserDB, table=True):  # type: ignore
     __tablename__ = 'account'
     id: Optional[int] = Field(primary_key=True, default=None)  # type: ignore[assignment] # override is intentional
     type: AccountType = Field(sa_column_args=(

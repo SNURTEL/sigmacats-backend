@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from sqlmodel.sql.expression import SelectOfScalar
-from datetime import datetime
+import datetime
 
 from app.db.session import get_db
 
@@ -36,10 +36,10 @@ async def read_current_season(db: Session = Depends(get_db)) -> SeasonListRead:
     """
     Get the current season.
     """
-    current_date = datetime.today()
+    current_date = datetime.datetime.now()
     stmt: SelectOfScalar = (
         select(Season)
-        .where(Season.start_timestamp >= current_date)
+        .where(Season.start_timestamp <= current_date)
         .where(current_date <= Season.end_timestamp)
     )
     season = db.exec(stmt).first()
@@ -48,4 +48,3 @@ async def read_current_season(db: Session = Depends(get_db)) -> SeasonListRead:
         raise HTTPException(404)
 
     return SeasonListRead.from_orm(season)
-

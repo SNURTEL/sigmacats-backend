@@ -62,8 +62,8 @@ def create_initial_data(
 
     season = Season(
         name="23Z :d",
-        start_timestamp=datetime(day=2, month=10, year=2023),
-        end_timestamp=datetime(day=19, month=2, year=2024)
+        start_timestamp=datetime(year=2024, month=10, day=1),
+        end_timestamp=datetime(year=2024, month=12, day=31),
     )
 
     race1 = Race(
