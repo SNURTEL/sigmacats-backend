@@ -56,12 +56,20 @@ def insert_initial_users() -> None:
                 logger.info("SKIPPING inserting initial users - DB not empty")
                 return
 
-    rider_create = AccountCreate(
+    first_rider_create = AccountCreate(
         type=AccountType.rider,
-        username="default_rider",
-        name="Default",
+        username="first_default_rider",
+        name="FirstDefault",
         surname="Rider",
-        email="rider@default.sigma",
+        email="firstRider@default.sigma",
+        password=os.environ.get("FASTAPI_DEFAULT_RIDER_PASSWORD", "rider123")
+    )
+    second_rider_create = AccountCreate(
+        type=AccountType.rider,
+        username="second_default_rider",
+        name="SecondDefault",
+        surname="Rider",
+        email="secondRider@default.sigma",
         password=os.environ.get("FASTAPI_DEFAULT_RIDER_PASSWORD", "rider123")
     )
     coordinator_create = AccountCreate(
@@ -92,7 +100,11 @@ def insert_initial_users() -> None:
                         safe=False  # allow to set is_superuser and is_verified
                     )
 
-    [asyncio.run(create_account(ac)) for ac in (rider_create, coordinator_create, admin_create)]
+    [asyncio.run(create_account(ac)) for ac in (
+        first_rider_create,
+        second_rider_create,
+        coordinator_create,
+        admin_create)]
 
 
 def insert_initial_data() -> None:

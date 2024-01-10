@@ -15,7 +15,8 @@ from app.models.rider import Rider
 
 
 def create_initial_data(
-        rider_account: Account,
+        first_rider_account: Account,
+        second_rider_account: Account,
         coordinator_account: Account,
         admin_account: Account,
 ) -> list[SQLModel]:
@@ -33,6 +34,13 @@ def create_initial_data(
         model="Floater Race",
     )
 
+    bike_other = Bike(
+        name="Pierun",
+        type=BikeType.other,
+        brand="Lightning inc.",
+        model="Ultra Cloud",
+    )
+
     # dummy_rider_account = Account(
     #     type="rider",
     #     username="dummy_rider",
@@ -47,8 +55,10 @@ def create_initial_data(
     #     bikes=[bike_road, bike_fixie]
     # )
 
-    assert isinstance(rider_account.rider, Rider)
-    rider_account.rider.bikes = [bike_road, bike_fixie]
+    assert isinstance(first_rider_account.rider, Rider)
+    assert isinstance(second_rider_account.rider, Rider)
+    first_rider_account.rider.bikes = [bike_road, bike_fixie]
+    second_rider_account.rider.bikes = [bike_other]
 
     season = Season(
         name="23Z :d",
@@ -150,21 +160,45 @@ def create_initial_data(
 
     )
 
-    dummy_classification = Classification(
+    adult_classification = Classification(
         name="Dorośli",
         description=">=18 lat",
         season=season,
     )
 
-    dummy_rider_classification_link = RiderClassificationLink(
+    children_classification = Classification(
+        name="Dzieci",
+        description="<18 lat",
+        season=season
+    )
+
+    first_rider_adult_classification_link = RiderClassificationLink(
         score=420,
-        rider=rider_account.rider,
-        classification=dummy_classification
+        rider=first_rider_account.rider,
+        classification=adult_classification
+    )
+
+    first_rider_children_classification_link = RiderClassificationLink(
+        score=100,
+        rider=first_rider_account.rider,
+        classification=children_classification
+    )
+
+    second_rider_adult_classification_link = RiderClassificationLink(
+        score=300,
+        rider=second_rider_account.rider,
+        classification=adult_classification
+    )
+
+    second_rider_children_classification_link = RiderClassificationLink(
+        score=500,
+        rider=second_rider_account.rider,
+        classification=children_classification
     )
 
     dummy_race_participation = RaceParticipation(
         status=RaceParticipationStatus.approved.value,
-        rider=rider_account.rider,
+        rider=first_rider_account.rider,
         race=race1,
         bike=bike_road
     )
@@ -172,22 +206,28 @@ def create_initial_data(
     dummy_race_participation_classification_place = RiderParticipationClassificationPlace(
         place=1,
         race_participation=dummy_race_participation,
-        classification=dummy_classification
+        classification=adult_classification
     )
 
     return [
         # dummy_rider_account,
         bike_road,
         bike_fixie,
-        dummy_classification,
-        dummy_rider_classification_link,
+        bike_other,
+        adult_classification,
+        children_classification,
+        first_rider_adult_classification_link,
+        first_rider_children_classification_link,
+        second_rider_adult_classification_link,
+        second_rider_children_classification_link,
         # dummy_rider,
         race1,
         race2,
         race3,
         dummy_race_participation_classification_place,
 
-        rider_account,
+        first_rider_account,
+        second_rider_account,
         coordinator_account,
         admin_account,
     ]
