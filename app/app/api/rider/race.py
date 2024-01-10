@@ -159,11 +159,9 @@ async def upload_race_result(
     """
     form: FormData = await request.form()
     tmp_path = str(form.get('fileobj.path'))
-    new_name = f"{str(uuid.uuid4())}.gpx"
-    new_path = f'/attachments/{new_name}'
-    shutil.move(tmp_path, new_path)
 
-    with open(new_path, 'r') as f:
+
+    with open(tmp_path, 'r') as f:
         content = f.read(43)
         if content.startswith('<?xml version="1.0" encoding="UTF-8"?>\n<gpx'):
             print('GPX')
@@ -194,6 +192,13 @@ async def upload_race_result(
 
     if race_participation.status != RaceParticipationStatus.approved:
         raise HTTPException(400, f"Race participation has status {race_participation.status}, approved is required.")
+
+    if race_participation.ride_gpx_file:
+        raise HTTPException(400, "Ride GPX was already submitted")
+
+    new_name = f"{str(uuid.uuid4())}.gpx"
+    new_path = f'/attachments/{new_name}'
+    shutil.move(tmp_path, new_path)
 
     process_race_result_submission.delay(
         race_id=race.id,
