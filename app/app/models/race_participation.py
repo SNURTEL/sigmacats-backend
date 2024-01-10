@@ -62,3 +62,5 @@ class RaceParticipationListRead(SQLModel):
     rider_id: int
     bike_id: int
     status: RaceParticipationStatus
+    place_generated_overall: Optional[int]
+    place_assigned_overall: Optional[int]

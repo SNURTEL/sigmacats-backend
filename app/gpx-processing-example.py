@@ -35,7 +35,7 @@ peaks = merged.iloc[indices]
 # filter out local minima not located near track's end
 filtered = peaks.loc[peaks.dist < FINISH_DISTANCE_THRESHOLD]
 # get trackpoint closest to end in final lap; use `min` in case recording in app starts with a delay
-closest = filtered.iloc[[min(NO_LAPS, len(filtered)-1)]]
+closest = filtered.iloc[[min(max(NO_LAPS, len(filtered)), NO_LAPS + 1) - 1]]
 
 assert not closest.empty
 

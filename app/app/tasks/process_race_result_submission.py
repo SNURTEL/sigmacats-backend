@@ -47,15 +47,15 @@ def process_race_result_submission(
 
     try:
         start_timestamp = recording.data.head(1).index.to_pydatetime()[0]
-    except (ValueError, IndexError, KeyError, TypeError):
-        logger.warning(f"Could not read start timestamp for participation race_id={race_id}, rider_id={rider_id}, file={recording_filepath}. Falling back to race start.")
+    except (ValueError, IndexError, KeyError, TypeError) as e:
+        logger.warning(f"Could not read start timestamp for participation race_id={race_id}, rider_id={rider_id}, file={recording_filepath}. Falling back to race start.", e)
         start_timestamp = race.start_timestamp
 
     try:
         end_point = track.data.tail(1)[['latitude (°)', 'longitude (°)']].values.T.squeeze()
         end_timestamp = interpolate_end_timestamp(recording=recording, end_point=end_point, no_laps=race.no_laps)
-    except (ValueError, IndexError, KeyError, TypeError):
-        logger.warning(f"Could not interpolate end timestamp for participation race_id={race_id}, rider_id={rider_id}, file={recording_filepath}. Falling back to now().")
+    except (ValueError, IndexError, KeyError, TypeError) as e:
+        logger.warning(f"Could not interpolate end timestamp for participation race_id={race_id}, rider_id={rider_id}, file={recording_filepath}. Falling back to now().", e)
         end_timestamp = datetime.now()
 
     race_participation.ride_start_timestamp = start_timestamp
@@ -105,7 +105,7 @@ def interpolate_end_timestamp(recording: gpxo.Track, end_point: np.array, no_lap
         raise ValueError("No trackpoint in GPX is near race end point")
 
     # get trackpoint closest to end in final lap; use `min` in case recording in app starts with a delay
-    closest = filtered.iloc[[min(no_laps, len(filtered)-1)]]
+    closest = filtered.iloc[[min(max(no_laps, len(filtered)), no_laps+1)-1]]
 
     if closest.empty:
         raise ValueError('GPX processing error: could not find closest point')

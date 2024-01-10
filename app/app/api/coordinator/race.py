@@ -14,6 +14,8 @@ from sqlalchemy.exc import IntegrityError
 
 from app.db.session import get_db
 
+from app.tasks.assign_race_places import assign_places
+
 from app.models.race import Race, RaceStatus, RaceCreate, RaceUpdate, RaceReadDetailCoordinator, RaceReadListCoordinator
 from app.models.season import Season
 from app.models.race_participation import RaceParticipationListRead, RaceParticipation, RaceParticipationStatus
@@ -227,7 +229,7 @@ async def race_list_participants(
 
 
 @router.patch("/{race_id}/participations/{participation_id}/set-status")
-async def race_list_participants(
+async def race_participation_set_status(
         race_id: int,
         participation_id: int,
         status: RaceParticipationStatus,
@@ -247,3 +249,18 @@ async def race_list_participants(
     db.refresh(participation)
 
     return participation  # type: ignore[return-value]
+
+
+@router.post("/{id}/assign-places")
+async def race_assign_places(
+        id: int,
+        db: Session = Depends(get_db)
+) -> list[RaceParticipationListRead]:
+    race = db.get(Race, id)
+    if not race:
+        raise HTTPException(404)
+
+    assign_places(race_id=id, db=db)
+
+    db.refresh(race)
+    return race.race_participations

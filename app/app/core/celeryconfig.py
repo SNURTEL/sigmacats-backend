@@ -8,4 +8,5 @@ accept_content = ['json']
 imports = (
     'app.tasks.basic_tasks',
     'app.tasks.process_race_result_submission',
+    'app.tasks.assign_race_places',
 )

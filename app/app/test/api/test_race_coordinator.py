@@ -1,3 +1,4 @@
+import pytest
 from fastapi.encoders import jsonable_encoder
 
 from app.models.race import RaceStatus, RaceReadDetailCoordinator, RaceReadListCoordinator
@@ -193,4 +194,40 @@ def test_coordinator_cancel_race_ended(coordinator_client, db, race_ended):
 
 def test_coordinator_cancel_race_race_404(coordinator_client, db):
     response = coordinator_client.post("/api/coordinator/race/4545645/cancel")
+    assert response.status_code == 404
+
+
+def test_coordinator_update_race(coordinator_client, db, race_pending):
+    json = {
+        "name": "Different name"
+    }
+    response = coordinator_client.patch(f"/api/coordinator/race/{race_pending.id}",
+                                        json=json)
+    assert response.status_code == 200
+    assert response.json['name'] == "Different name"
+    db.refresh(race_pending)
+    assert race_pending.name == "Different name"
+
+
+@pytest.mark.parametrize("race", [
+    pytest.lazy_fixture("race_in_progress"),
+    pytest.lazy_fixture("race_ended"),
+    pytest.lazy_fixture("race_cancelled"),
+    pytest.lazy_fixture("admin_client")
+])
+def test_coordinator_update_race_invalid_status_400(coordinator_client, db, race):
+    json = {
+        "name": "Different name"
+    }
+    response = coordinator_client.patch(f"/api/coordinator/race/{race.id}",
+                                        json=json)
+    assert response.status_code == 400
+
+
+def test_coordinator_update_race_404(coordinator_client, db):
+    json = {
+        "name": "Different name"
+    }
+    response = coordinator_client.patch("/api/coordinator/race/4536456",
+                                        json=json)
     assert response.status_code == 404
