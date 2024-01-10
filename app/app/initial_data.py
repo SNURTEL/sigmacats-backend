@@ -76,13 +76,13 @@ def create_initial_data(
                     "4. Ogłoszenie zwycięzców\n"
                     "5. Pamiątkowa fota",
         requirements="Pozytywne nastawienie :))",
-        checkpoints_gpx_file="NOT_IMPLEMENTED",
+        checkpoints_gpx_file="/attachments/f0c524f0-c0ca-4d09-8b2d-e86335c2470d.gpx",
         meetup_timestamp=datetime(day=5, month=12, year=2023, hour=16),
         start_timestamp=datetime(day=5, month=12, year=2023, hour=16, minute=30),
         end_timestamp=datetime(day=5, month=12, year=2023, hour=18),
         entry_fee_gr=1000,
         no_laps=5,
-        event_graphic_file="NOT_IMPLEMENTED",
+        event_graphic_file="/attachments/d7ed0e72-4952-4d13-82a2-40a23fb17fc0.jpg",
         place_to_points_mapping_json='['
                                      '{"place": 1,"points": 20},'
                                      '{"place": 2,"points": 16},'
@@ -111,7 +111,7 @@ def create_initial_data(
                     "próbujemy nie zagrzebać się w śniegu kręcąc kółka po Polu Mokotowskim. Na mecie przewidziana "
                     "ciepła herbatka i kawusia.",
         requirements="Ciepła kurtka i czapka",
-        checkpoints_gpx_file="NOT_IMPLEMENTED1",
+        checkpoints_gpx_file="/attachments/d11a1b16-2854-4712-95b3-0be467c8ae7a.gpx",
         meetup_timestamp=datetime(day=20, month=12, year=2023, hour=12),
         start_timestamp=datetime(day=20, month=12, year=2023, hour=12, minute=30),
         end_timestamp=datetime(day=20, month=12, year=2023, hour=14),
@@ -119,7 +119,7 @@ def create_initial_data(
         no_laps=3,
         temperature=RaceTemperature.cold,
         rain=RaceRain.light,
-        event_graphic_file="NOT_IMPLEMENTED1",
+        event_graphic_file="/attachments/cb9b1ebf-1391-438e-97ef-5370b63c2e94.jpg",
         place_to_points_mapping_json='['
                                      '{"place": 1,"points": 20},'
                                      '{"place": 2,"points": 16},'
@@ -143,13 +143,13 @@ def create_initial_data(
                     "zabrania dowolnego innego sprzętu ;).\nCoffe ride: jedziemy w formule no-drop - nie ścigamy się, "
                     "cenne punkty dostajecie za samo wzięcie udziału :D.",
         requirements="Kask!!! Poruszamy się w ruchu drogowym",
-        checkpoints_gpx_file="NOT_IMPLEMENTED2",
+        checkpoints_gpx_file="/attachments/47161631-7a5f-48a4-b870-a1df3c1ae411.gpx",
         meetup_timestamp=datetime(day=1, month=10, year=2023, hour=11, minute=30),
         start_timestamp=datetime(day=1, month=10, year=2023, hour=12, minute=00),
         end_timestamp=datetime(day=1, month=10, year=2023, hour=15),
         entry_fee_gr=0,
         no_laps=1,
-        event_graphic_file="NOT_IMPLEMENTED2",
+        event_graphic_file="/attachments/db65250d-7d48-42c2-b4c5-16331f6bd636.jpg",
         place_to_points_mapping_json='['
                                      '{"place": 999,"points": 10}'
                                      ']',
