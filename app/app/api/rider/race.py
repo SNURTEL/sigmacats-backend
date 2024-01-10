@@ -175,6 +175,9 @@ async def upload_race_result(
     )
     race: Race = db.exec(stmt).first()
 
+    if not race:
+        raise HTTPException(404)
+
     if race.status != RaceStatus.in_progress:
         raise HTTPException(400, f"Race has status {race.status}, in_progress is required.")
 

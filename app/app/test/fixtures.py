@@ -1,4 +1,6 @@
 import asyncio
+import shutil
+import os
 from typing import Generator, Any
 from datetime import datetime
 
@@ -8,11 +10,14 @@ from sqlmodel import select, Session
 from sqlmodel.sql.expression import SelectOfScalar
 
 from app.core.users import get_user_manager, get_user_db, current_active_user
+from app.tasks.process_race_result_submission import process_race_result_submission
+
 from app.models.account import Account, AccountCreate, AccountType
 from app.models.rider import Rider
 from app.models.bike import Bike, BikeType
 from app.models.season import Season
 from app.models.race import Race, RaceStatus, RaceTemperature, RaceRain
+from app.models.race_participation import RaceParticipation, RaceParticipationStatus
 from app.models.race_bonus import RaceBonus
 from app.models.classification import Classification
 from app.models.rider_classification_link import RiderClassificationLink
@@ -200,6 +205,83 @@ def race_pending(db, season, race_bonus_snow) -> Generator[Race, Any, None]:
 
 
 @pytest.fixture(scope="function")
+def race_in_progress(db, season, race_bonus_snow) -> Generator[Race, Any, None]:
+    race = Race(
+        status=RaceStatus.in_progress,
+        name="Jazda w śniegu",
+        description="Jak w tytule. blablabla",
+        checkpoints_gpx_file="foo1",
+        meetup_timestamp=datetime(day=20, month=12, year=2022, hour=12),
+        start_timestamp=datetime(day=20, month=12, year=2022, hour=12, minute=30),
+        end_timestamp=datetime(day=20, month=12, year=2022, hour=14),
+        entry_fee_gr=1500,
+        no_laps=3,
+        temperature=RaceTemperature.cold,
+        rain=RaceRain.light,
+        event_graphic_file="foo1",
+        place_to_points_mapping_json='['
+                                     '{"place": 1,"points": 20},'
+                                     '{"place": 999,"points": 4}'
+                                     ']',
+        sponsor_banners_uuids_json='["foo1"]',
+        season=season,
+        bonuses=[race_bonus_snow],
+        race_participations=[]
+    )
+    db.add(race)
+    db.commit()
+    yield race
+
+
+@pytest.fixture(scope="function")
+def race_in_progress_with_rider_and_participation(db, race_in_progress, rider1, bike_road, sample_track_gpx) -> Generator[tuple[Race, RaceParticipation, Rider, Bike], Any, None]:
+    race_in_progress.checkpoints_gpx_file = sample_track_gpx
+
+    participation = RaceParticipation(
+        status=RaceParticipationStatus.approved,
+        rider=rider1,
+        bike=bike_road,
+        race=race_in_progress
+    )
+
+    db.add(race_in_progress)
+    db.add(participation)
+    db.commit()
+    db.refresh(race_in_progress)
+
+    yield race_in_progress, participation, rider1, bike_road
+
+
+@pytest.fixture(scope="function")
+def race_cancelled(db, season, race_bonus_snow) -> Generator[Race, Any, None]:
+    race = Race(
+        status=RaceStatus.cancelled,
+        name="Jazda w śniegu",
+        description="Jak w tytule. blablabla",
+        checkpoints_gpx_file="foo1",
+        meetup_timestamp=datetime(day=20, month=12, year=2022, hour=12),
+        start_timestamp=datetime(day=20, month=12, year=2022, hour=12, minute=30),
+        end_timestamp=datetime(day=20, month=12, year=2022, hour=14),
+        entry_fee_gr=1500,
+        no_laps=3,
+        temperature=RaceTemperature.cold,
+        rain=RaceRain.light,
+        event_graphic_file="foo1",
+        place_to_points_mapping_json='['
+                                     '{"place": 1,"points": 20},'
+                                     '{"place": 999,"points": 4}'
+                                     ']',
+        sponsor_banners_uuids_json='["foo1"]',
+        season=season,
+        bonuses=[race_bonus_snow],
+        race_participations=[]
+    )
+    db.add(race)
+    db.commit()
+    yield race
+
+
+@pytest.fixture(scope="function")
 def race_ended(db, season) -> Generator[Race, Any, None]:
     race = Race(
         status=RaceStatus.ended,
@@ -302,3 +384,35 @@ def classification_without_rider(db, season) -> Generator[Classification, Any, N
     db.add(classification)
     db.commit()
     yield classification
+
+
+@pytest.fixture(scope="function")
+def sample_track_gpx() -> Generator[str, Any, None]:
+    asset_path = 'app/test/assets/track.gpx'
+    new_path = '/attachments/track.gpx'
+    shutil.copy2(asset_path, new_path)
+
+    yield new_path
+
+    try:
+        os.remove(new_path)
+    except FileNotFoundError:
+        pass  # if removed by some other function
+
+
+@pytest.fixture(scope="function")
+def sample_ride_gpx() -> Generator[str, Any, None]:
+    asset_path = 'app/test/assets/test_recording.gpx'
+    new_path = '/attachments/test_recording.gpx'
+    shutil.copy2(asset_path, new_path)
+
+    yield new_path
+
+    try:
+        os.remove(new_path)
+    except FileNotFoundError:
+        pass  # if removed by some other function
+
+@pytest.fixture(scope="function")
+def disable_celery_tasks(monkeypatch):
+    monkeypatch.setattr(process_race_result_submission, 'delay', lambda *args, **kwargs: None)
