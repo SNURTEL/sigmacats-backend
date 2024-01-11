@@ -1,15 +1,8 @@
 from datetime import datetime
 
-import gpxo
-import numpy as np
-import pandas as pd
-from scipy.signal import argrelmin
-from fastapi import Depends
 from sqlmodel import Session, select
-from sqlmodel.sql.expression import SelectOfScalar
 
 from app.core.celery import celery_app
-from app.db.session import get_db
 from app.models.race import Race, RaceStatus
 from app.models.race_participation import RaceParticipation, RaceParticipationStatus
 from app.util.log import get_logger
@@ -18,7 +11,7 @@ logger = get_logger()
 
 
 @celery_app.task()
-def end_race_and_assign_places(
+def end_race_and_generate_places(
     race_id: int,
     db: Session = None
 ):

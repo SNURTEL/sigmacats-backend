@@ -151,8 +151,38 @@ def create_initial_data(
     )
 
     dummy_classification = Classification(
-        name="Dorośli",
-        description=">=18 lat",
+        name="Dummy",
+        description="Dummy",
+        season=season,
+    )
+
+    general_classification = Classification(
+        name="Klasyfikacja generalna",
+        description="Bez ograniczeń.",
+        season=season,
+    )
+
+    road_classification = Classification(
+        name="Szosa",
+        description="Rowery szosowe z przerzutkami.",
+        season=season,
+    )
+
+    fixie_classification = Classification(
+        name="Ostre koło",
+        description="Rowery typu fixie i singlespeed. Brak przerzutek.",
+        season=season,
+    )
+
+    men_classification = Classification(
+        name="Mężczyźni",
+        description="Klasyfikacja mężczyzn.",
+        season=season,
+    )
+
+    women_classification = Classification(
+        name="Kobiety",
+        description="Klasyfikacja kobiet.",
         season=season,
     )
 
@@ -180,6 +210,11 @@ def create_initial_data(
         bike_road,
         bike_fixie,
         dummy_classification,
+        general_classification,
+        road_classification,
+        fixie_classification,
+        men_classification,
+        women_classification,
         dummy_rider_classification_link,
         # dummy_rider,
         race1,

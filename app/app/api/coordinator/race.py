@@ -14,14 +14,15 @@ from sqlalchemy.exc import IntegrityError
 
 from app.db.session import get_db
 
-from app.tasks.assign_race_places import end_race_and_assign_places
+from app.tasks.generate_race_places import end_race_and_generate_places
+from app.tasks.assign_places_in_classifications import assign_places_in_classifications
 
 from app.models.race import Race, RaceStatus, RaceCreate, RaceUpdate, RaceReadDetailCoordinator, RaceReadListCoordinator
 from app.models.season import Season
-from app.models.race_participation import RaceParticipationListRead, RaceParticipation, RaceParticipationStatus
+from app.models.race_participation import RaceParticipationListRead, RaceParticipation, RaceParticipationStatus, \
+    RaceParticipationAssignPlaceListUpdate
 
 LOOP_DISTANCE_THRESHOLD = 0.00015
-
 
 router = APIRouter()
 
@@ -222,7 +223,7 @@ async def race_list_participants(
         select(RaceParticipation)
         .where(RaceParticipation.race_id == id)
         .offset(offset)
-        .limit(limit) # type: ignore[arg-type, attr-defined]
+        .limit(limit)  # type: ignore[arg-type, attr-defined]
     )
     participations = db.exec(stmt).all()
 
@@ -252,7 +253,7 @@ async def race_participation_set_status(
     return participation  # type: ignore[return-value]
 
 
-@router.post("/{id}/force-end")
+@router.patch("/{id}/force-end")
 async def race_force_end(
         id: int,
         db: Session = Depends(get_db)
@@ -261,7 +262,62 @@ async def race_force_end(
     if not race:
         raise HTTPException(404)
 
-    end_race_and_assign_places(race_id=id, db=db)
+    end_race_and_generate_places(race_id=id, db=db)
 
     db.refresh(race)
     return race.race_participations
+
+
+@router.patch("/{id}/participations")
+async def race_assign_places(
+        id: int,
+        race_participation_updates: list[RaceParticipationAssignPlaceListUpdate],
+        db: Session = Depends(get_db)
+) -> list[RaceParticipationListRead]:
+    """
+    Manually assign places to race participants
+    """
+    race = db.get(Race, id)
+
+    if not race:
+        raise HTTPException(404)
+
+    if race.status != RaceStatus.ended:
+        raise HTTPException(400, "Cannot assign places before race has ended")
+
+    stmt = (
+        select(RaceParticipation)
+        .where(
+            RaceParticipation.race_id == id,
+            RaceParticipation.status == RaceParticipationStatus.approved
+        )
+    )
+    participations = db.exec(stmt).all()
+
+    updates_approved = [rpu for rpu in race_participation_updates if rpu.id in {p.id for p in participations}]
+
+    if any([p.place_assigned_overall is not None for p in participations]):
+        raise HTTPException(400, "Places already assigned.")
+
+    if not len(updates_approved) == len(participations) or {rpu.id for rpu in updates_approved} != {
+        p.id for p in participations}:
+        raise HTTPException(400, "Cannot map provided updates to race participations 1:1")
+
+    if not all([rpu.place_assigned_overall > 0 for rpu in updates_approved]):
+        raise HTTPException(400, "Places must be at least 1")
+
+    id_to_participation_mapping = {p.id: p for p in participations}
+
+    for rpu in updates_approved:
+        p = id_to_participation_mapping[rpu.id]
+        p.place_assigned_overall = rpu.place_assigned_overall
+        db.add(p)
+
+    db.commit()
+    db.refresh(race)
+
+    assign_places_in_classifications(
+        race_id=id, db=db
+    ).delay()
+
+    return [p for p in race.race_participations if p.status == RaceParticipationStatus.approved]  # type: ignore[return-value]

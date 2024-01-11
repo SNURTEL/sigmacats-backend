@@ -64,3 +64,8 @@ class RaceParticipationListRead(SQLModel):
     status: RaceParticipationStatus
     place_generated_overall: Optional[int]
     place_assigned_overall: Optional[int]
+
+
+class RaceParticipationAssignPlaceListUpdate(SQLModel):
+    id: int
+    place_assigned_overall: int

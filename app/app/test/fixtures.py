@@ -203,7 +203,7 @@ def admin(db) -> Generator[Rider, Any, None]:
 
 
 @pytest.fixture(scope="function")
-def bike_road(db, rider1) -> Generator[Bike, Any, None]:
+def bike_rider1_road(db, rider1) -> Generator[Bike, Any, None]:
     bike = Bike(
         name="Rakieta",
         type=BikeType.road,
@@ -217,7 +217,7 @@ def bike_road(db, rider1) -> Generator[Bike, Any, None]:
 
 
 @pytest.fixture(scope="function")
-def bike_fixie(db, rider1) -> Generator[Bike, Any, None]:
+def bike_rider1_fixie(db, rider1) -> Generator[Bike, Any, None]:
     bike = Bike(
         name="Czarna strzała",
         type=BikeType.fixie,
@@ -313,13 +313,13 @@ def race_in_progress(db, season, race_bonus_snow) -> Generator[Race, Any, None]:
 
 
 @pytest.fixture(scope="function")
-def race_in_progress_with_rider_and_participation(db, race_in_progress, rider1, bike_road, sample_track_gpx) -> Generator[tuple[Race, RaceParticipation, Rider, Bike], Any, None]:
+def race_in_progress_with_rider_and_participation(db, race_in_progress, rider1, bike_rider1_road, sample_track_gpx) -> Generator[tuple[Race, RaceParticipation, Rider, Bike], Any, None]:
     race_in_progress.checkpoints_gpx_file = sample_track_gpx
 
     participation = RaceParticipation(
         status=RaceParticipationStatus.approved,
         rider=rider1,
-        bike=bike_road,
+        bike=bike_rider1_road,
         race=race_in_progress
     )
 
@@ -328,20 +328,20 @@ def race_in_progress_with_rider_and_participation(db, race_in_progress, rider1, 
     db.commit()
     db.refresh(race_in_progress)
 
-    yield race_in_progress, participation, rider1, bike_road
+    yield race_in_progress, participation, rider1, bike_rider1_road
 
 
 @pytest.fixture(scope="function")
 def race_in_progress_with_rider_and_multiple_participations(
         db, race_in_progress,
         rider1, rider2, rider3, rider4,
-        bike_road, bike_rider2, bike_rider3, bike_rider4,
+        bike_rider1_road, bike_rider2, bike_rider3, bike_rider4,
         sample_track_gpx) -> Generator[tuple[Race, list[RaceParticipation], list[Rider], list[Bike]], Any, None]:
 
     race_in_progress.checkpoints_gpx_file = sample_track_gpx
 
     riders = [rider1, rider2, rider3, rider4]
-    bikes = [bike_road, bike_rider2, bike_rider3, bike_rider4]
+    bikes = [bike_rider1_road, bike_rider2, bike_rider3, bike_rider4]
 
     participations = [
         RaceParticipation(
@@ -360,6 +360,38 @@ def race_in_progress_with_rider_and_multiple_participations(
     db.refresh(race_in_progress)
 
     yield race_in_progress, participations, riders, bikes
+
+
+@pytest.fixture(scope="function")
+def race_ended_with_rider_and_multiple_participations(
+        db, race_ended,
+        rider1, rider2, rider3, rider4,
+        bike_rider1_road, bike_rider2, bike_rider3, bike_rider4,
+        sample_track_gpx) -> Generator[tuple[Race, list[RaceParticipation], list[Rider], list[Bike]], Any, None]:
+
+    race_ended.checkpoints_gpx_file = sample_track_gpx
+
+    riders = [rider1, rider2, rider3, rider4]
+    bikes = [bike_rider1_road, bike_rider2, bike_rider3, bike_rider4]
+
+    participations = [
+        RaceParticipation(
+            status=RaceParticipationStatus.approved,
+            rider=rider,
+            bike=bike,
+            race=race_ended,
+            place_generated_overall=i
+        )
+    for i, (rider, bike) in enumerate(zip(riders, bikes), start=1)]
+
+    for participation in participations:
+        db.add(participation)
+
+    db.add(race_ended)
+    db.commit()
+    db.refresh(race_ended)
+
+    yield race_ended, participations, riders, bikes
 
 
 @pytest.fixture(scope="function")

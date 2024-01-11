@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import pytest
 from fastapi.encoders import jsonable_encoder
 
-from app.tasks.assign_race_places import end_race_and_assign_places
+from app.tasks.generate_race_places import end_race_and_generate_places
 from app.models.race import RaceStatus, RaceReadDetailCoordinator, RaceReadListCoordinator
 from app.models.race_participation import RaceParticipation, RaceParticipationStatus
 
@@ -236,12 +236,12 @@ def test_coordinator_update_race_404(coordinator_client, db):
     assert response.status_code == 404
 
 
-def test_race_assign_places(
-    race_in_progress_with_rider_and_multiple_participations, db
+def test_race_generate_places(
+        race_in_progress_with_rider_and_multiple_participations, db
 ):
     race, participations, riders, bikes = race_in_progress_with_rider_and_multiple_participations
 
-    now = datetime(2024, 1, 10, 12, 0,0)
+    now = datetime(2024, 1, 10, 12, 0, 0)
     delta = timedelta(seconds=10)
     places = [3, 1, 4, 2]
     for participation, place in zip(participations, places):
@@ -249,7 +249,7 @@ def test_race_assign_places(
         db.add(participation)
     db.commit()
 
-    end_race_and_assign_places(race_id=race.id, db=db)
+    end_race_and_generate_places(race_id=race.id, db=db)
 
     for p in participations:
         db.refresh(p)
@@ -261,12 +261,12 @@ def test_race_assign_places(
     assert race.status == RaceStatus.ended
 
 
-def test_race_assign_places_identical_time(
-    race_in_progress_with_rider_and_multiple_participations, db
+def test_race_generate_places_identical_time(
+        race_in_progress_with_rider_and_multiple_participations, db
 ):
     race, participations, riders, bikes = race_in_progress_with_rider_and_multiple_participations
 
-    now = datetime(2024, 1, 10, 12, 0,0)
+    now = datetime(2024, 1, 10, 12, 0, 0)
     delta = timedelta(seconds=10)
     places = [2, 1, 4, 2]
     for participation, place in zip(participations, places):
@@ -274,7 +274,7 @@ def test_race_assign_places_identical_time(
         db.add(participation)
     db.commit()
 
-    end_race_and_assign_places(race_id=race.id, db=db)
+    end_race_and_generate_places(race_id=race.id, db=db)
 
     for p in participations:
         db.refresh(p)
@@ -284,12 +284,12 @@ def test_race_assign_places_identical_time(
     )
 
 
-def test_race_assign_places_no_end_timestamp(
-    race_in_progress_with_rider_and_multiple_participations, db
+def test_race_generate_places_no_end_timestamp(
+        race_in_progress_with_rider_and_multiple_participations, db
 ):
     race, participations, riders, bikes = race_in_progress_with_rider_and_multiple_participations
 
-    now = datetime(2024, 1, 10, 12, 0,0)
+    now = datetime(2024, 1, 10, 12, 0, 0)
     delta = timedelta(seconds=10)
     places = [3, 1, 3, 2]
     for participation, place in zip(participations, places):
@@ -301,7 +301,7 @@ def test_race_assign_places_no_end_timestamp(
     db.add(participations[0])
     db.commit()
 
-    end_race_and_assign_places(race_id=race.id, db=db)
+    end_race_and_generate_places(race_id=race.id, db=db)
 
     for p in participations:
         db.refresh(p)
@@ -312,12 +312,12 @@ def test_race_assign_places_no_end_timestamp(
 
 
 @pytest.mark.parametrize("status", [RaceParticipationStatus.pending, RaceParticipationStatus.rejected])
-def test_race_assign_places_different_status(
-    race_in_progress_with_rider_and_multiple_participations, db, status
+def test_race_generate_places_different_status(
+        race_in_progress_with_rider_and_multiple_participations, db, status
 ):
     race, participations, riders, bikes = race_in_progress_with_rider_and_multiple_participations
 
-    now = datetime(2024, 1, 10, 12, 0,0)
+    now = datetime(2024, 1, 10, 12, 0, 0)
     delta = timedelta(seconds=10)
     places = [3, 1, 4, 2]
     for participation, place in zip(participations, places):
@@ -327,7 +327,7 @@ def test_race_assign_places_different_status(
     db.add(participations[2])
     db.commit()
 
-    end_race_and_assign_places(race_id=race.id, db=db)
+    end_race_and_generate_places(race_id=race.id, db=db)
 
     for p in participations:
         db.refresh(p)
@@ -338,8 +338,8 @@ def test_race_assign_places_different_status(
     assert participations[3].place_generated_overall == places[3]
 
 
-def test_race_assign_places_no_participations(
-    race_in_progress_with_rider_and_multiple_participations, db
+def test_race_generate_places_no_participations(
+        race_in_progress_with_rider_and_multiple_participations, db
 ):
     race, participations, riders, bikes = race_in_progress_with_rider_and_multiple_participations
 
@@ -349,13 +349,12 @@ def test_race_assign_places_no_participations(
     db.refresh(race)
 
     # success if nothing thrown
-    end_race_and_assign_places(race_id=race.id, db=db)
+    end_race_and_generate_places(race_id=race.id, db=db)
     assert race.status == RaceStatus.ended
 
 
-
-def test_race_assign_places_no_timestamps(
-    race_in_progress_with_rider_and_multiple_participations, db
+def test_race_generate_places_no_timestamps(
+        race_in_progress_with_rider_and_multiple_participations, db
 ):
     race, participations, riders, bikes = race_in_progress_with_rider_and_multiple_participations
 
@@ -364,7 +363,7 @@ def test_race_assign_places_no_timestamps(
         db.add(participation)
     db.commit()
 
-    end_race_and_assign_places(race_id=race.id, db=db)
+    end_race_and_generate_places(race_id=race.id, db=db)
 
     for p in participations:
         db.refresh(p)
@@ -376,3 +375,125 @@ def test_race_assign_places_no_timestamps(
     assert race.status == RaceStatus.ended
 
 
+def test_race_assign_places(
+        race_ended_with_rider_and_multiple_participations, db, coordinator_client
+):
+    race, participations, riders, bikes = race_ended_with_rider_and_multiple_participations
+
+    places = [2, 1, 4, 3]
+    id_to_place_mapping = {p.id: place for p, place in zip(participations, places)}
+    json = [
+        {
+            'id': id,
+            'place_assigned_overall': place
+        } for id, place in id_to_place_mapping.items()
+    ]
+
+    response = coordinator_client.patch(f"/api/coordinator/race/{race.id}/participations",
+                                        json=json)
+
+    assert response.status_code == 200
+    assert all([p.get("place_assigned_overall") == id_to_place_mapping[p.get('id')] for p in response.json()])
+    db.refresh(race)
+    assert all([p.place_assigned_overall == id_to_place_mapping[p.id] for p in race.race_participations if
+                p.status == RaceParticipationStatus.approved])
+
+
+def test_race_assign_places_not_all_entries(
+        race_ended_with_rider_and_multiple_participations, db, coordinator_client
+):
+    race, participations, riders, bikes = race_ended_with_rider_and_multiple_participations
+
+    places = [2, 1, 4, 3]
+    id_to_place_mapping = {p.id: place for p, place in zip(participations, places)}
+    json = [
+        {
+            'id': id,
+            'place_assigned_overall': place
+        } for id, place in id_to_place_mapping.items()
+    ]
+    json.pop()
+
+    response = coordinator_client.patch(f"/api/coordinator/race/{race.id}/participations",
+                                        json=json)
+
+    assert response.status_code == 400
+
+
+def test_race_assign_places_duplicate_entries(
+        race_ended_with_rider_and_multiple_participations, db, coordinator_client
+):
+    race, participations, riders, bikes = race_ended_with_rider_and_multiple_participations
+
+    places = [2, 1, 4, 3]
+    id_to_place_mapping = {p.id: place for p, place in zip(participations, places)}
+    json = [
+               {
+                   'id': id,
+                   'place_assigned_overall': place
+               } for id, place in id_to_place_mapping.items()
+           ] + [{'id': participations[0].id, 'place_assigned_overall': 3}]
+
+    response = coordinator_client.patch(f"/api/coordinator/race/{race.id}/participations",
+                                        json=json)
+
+    assert response.status_code == 400
+
+
+@pytest.mark.parametrize('status', [RaceStatus.pending, RaceStatus.cancelled, RaceStatus.in_progress])
+def test_race_assign_places_race_not_ended(
+        race_ended_with_rider_and_multiple_participations, db, coordinator_client, status
+):
+    race, participations, riders, bikes = race_ended_with_rider_and_multiple_participations
+
+    race.status = status
+    db.add(race)
+    db.commit()
+    db.refresh(race)
+
+    places = [2, 1, 4, 3]
+    id_to_place_mapping = {p.id: place for p, place in zip(participations, places)}
+    json = [
+               {
+                   'id': id,
+                   'place_assigned_overall': place
+               } for id, place in id_to_place_mapping.items()
+           ] + [{'id': participations[0].id, 'place_assigned_overall': 3}]
+
+    response = coordinator_client.patch(f"/api/coordinator/race/{race.id}/participations",
+                                        json=json)
+
+    assert response.status_code == 400
+
+
+@pytest.mark.parametrize('status', [RaceParticipationStatus.pending, RaceParticipationStatus.rejected])
+def test_race_assign_places_skip_unapproved(
+        race_ended_with_rider_and_multiple_participations, db, coordinator_client, status
+):
+    race, participations, riders, bikes = race_ended_with_rider_and_multiple_participations
+
+    participations[2].status = status
+    db.add(participations[2])
+    db.commit()
+    db.refresh(participations[2])
+
+    places = [2, 1, 4, 3]
+    id_to_place_mapping = {p.id: place for p, place in zip(participations, places)}
+    json = [
+        {
+            'id': id,
+            'place_assigned_overall': place
+        } for id, place in id_to_place_mapping.items()
+    ]
+
+    response = coordinator_client.patch(f"/api/coordinator/race/{race.id}/participations",
+                                        json=json)
+    assert response.status_code == 200
+
+    assert len(response.json()) == 3
+    assert all([p.get("place_assigned_overall") == id_to_place_mapping[p.get('id')] for p in response.json()])
+    db.refresh(race)
+    db.refresh(participations[2])
+    assert all([p.place_assigned_overall == id_to_place_mapping[p.id] for p in race.race_participations if
+                p.status == RaceParticipationStatus.approved])
+    assert participations[2].place_assigned_overall is None
