@@ -94,6 +94,7 @@ def recalculate_classification_scores(
         point_mapping = {item['place']: item['points'] for item in json.loads(participation.race.place_to_points_mapping_json)}
         for race_classification_place in participation.classification_places:
             try:
+                print(race_classification_place)
                 classification_rider_scores[race_classification_place.clasification_id][participation.rider_id] += get_points_for_place(
                     race_classification_place.place, point_mapping
                 )
