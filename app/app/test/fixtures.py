@@ -1,7 +1,8 @@
 import asyncio
 import shutil
 import os
-from typing import Generator, Any
+import uuid
+from typing import Generator, Any, Iterable, Callable, Optional
 from datetime import datetime
 
 import pytest
@@ -21,6 +22,7 @@ from app.models.race_participation import RaceParticipation, RaceParticipationSt
 from app.models.race_bonus import RaceBonus
 from app.models.classification import Classification
 from app.models.rider_classification_link import RiderClassificationLink
+from app.models.ride_participation_classification_place import RiderParticipationClassificationPlace
 
 from app.main import app
 
@@ -104,6 +106,7 @@ def bike_rider4(db, rider4) -> Generator[Bike, Any, None]:
     db.add(bike)
     db.commit()
     yield bike
+
 
 @pytest.fixture(scope="function")
 def rider2(db) -> Generator[Rider, Any, None]:
@@ -231,6 +234,15 @@ def bike_rider1_fixie(db, rider1) -> Generator[Bike, Any, None]:
 
 
 @pytest.fixture(scope="function")
+def riders_with_bikes(
+        db,
+        rider1, rider2, rider3, rider4,
+        bike_rider1_road, bike_rider2, bike_rider3, bike_rider4
+) -> Generator[tuple[tuple[Rider], tuple[Bike]], Any, None]:
+    return (rider1, rider2, rider3, rider4), (bike_rider1_road, bike_rider2, bike_rider3, bike_rider4)
+
+
+@pytest.fixture(scope="function")
 def season(db) -> Generator[Season, Any, None]:
     season = Season(
         name="Sezon 1",
@@ -313,7 +325,8 @@ def race_in_progress(db, season, race_bonus_snow) -> Generator[Race, Any, None]:
 
 
 @pytest.fixture(scope="function")
-def race_in_progress_with_rider_and_participation(db, race_in_progress, rider1, bike_rider1_road, sample_track_gpx) -> Generator[tuple[Race, RaceParticipation, Rider, Bike], Any, None]:
+def race_in_progress_with_rider_and_participation(db, race_in_progress, rider1, bike_rider1_road, sample_track_gpx) -> \
+        Generator[tuple[Race, RaceParticipation, Rider, Bike], Any, None]:
     race_in_progress.checkpoints_gpx_file = sample_track_gpx
 
     participation = RaceParticipation(
@@ -337,7 +350,6 @@ def race_in_progress_with_rider_and_multiple_participations(
         rider1, rider2, rider3, rider4,
         bike_rider1_road, bike_rider2, bike_rider3, bike_rider4,
         sample_track_gpx) -> Generator[tuple[Race, list[RaceParticipation], list[Rider], list[Bike]], Any, None]:
-
     race_in_progress.checkpoints_gpx_file = sample_track_gpx
 
     riders = [rider1, rider2, rider3, rider4]
@@ -350,7 +362,7 @@ def race_in_progress_with_rider_and_multiple_participations(
             bike=bike,
             race=race_in_progress
         )
-    for rider, bike in zip(riders, bikes)]
+        for rider, bike in zip(riders, bikes)]
 
     for participation in participations:
         db.add(participation)
@@ -368,7 +380,6 @@ def race_ended_with_rider_and_multiple_participations(
         rider1, rider2, rider3, rider4,
         bike_rider1_road, bike_rider2, bike_rider3, bike_rider4,
         sample_track_gpx) -> Generator[tuple[Race, list[RaceParticipation], list[Rider], list[Bike]], Any, None]:
-
     race_ended.checkpoints_gpx_file = sample_track_gpx
 
     riders = [rider1, rider2, rider3, rider4]
@@ -382,7 +393,7 @@ def race_ended_with_rider_and_multiple_participations(
             race=race_ended,
             place_generated_overall=i
         )
-    for i, (rider, bike) in enumerate(zip(riders, bikes), start=1)]
+        for i, (rider, bike) in enumerate(zip(riders, bikes), start=1)]
 
     for participation in participations:
         db.add(participation)
@@ -555,6 +566,130 @@ def sample_ride_gpx() -> Generator[str, Any, None]:
     except FileNotFoundError:
         pass  # if removed by some other function
 
+
 @pytest.fixture(scope="function")
 def disable_celery_tasks(monkeypatch):
     monkeypatch.setattr(process_race_result_submission, 'delay', lambda *args, **kwargs: None)
+
+
+@pytest.fixture(scope="function")
+def race_participations_factory(db) -> Generator[Callable, Any, None]:
+    def factory(
+            race: Race,
+            riders: Iterable[Rider],
+            bikes: Iterable[Bike],
+            statuses: Iterable[RaceParticipationStatus],
+            entry_kwargs: Iterable[dict[str, Any]]
+    ):
+        participations = [
+            RaceParticipation(
+                race=race,
+                rider=r,
+                bike=b,
+                status=s,
+                **kwargs
+            ) for r, b, s, kwargs in zip(riders, bikes, statuses, entry_kwargs)
+        ]
+
+        db.add_all(participations)
+        db.commit()
+        return participations
+
+    yield factory
+
+
+@pytest.fixture(scope="function")
+def race_classification_entries_factory(db) -> Generator[Callable, Any, None]:
+    def factory(
+            classification: Classification,
+            race_participations: list[RaceParticipation],
+            places: list[int]
+    ):
+        entries = [
+            RiderParticipationClassificationPlace(
+                place=place,
+                race_participation=participation,
+                classification=classification
+            ) for place, participation in zip(places, race_participations)
+        ]
+
+        db.add_all(entries)
+        db.commit()
+        return entries
+
+    yield factory
+
+
+@pytest.fixture(scope="function")
+def race_factory(db) -> Generator[Callable, Any, None]:
+    def factory(
+            season: Season,
+            status: RaceStatus,
+            checkpoints_gpx_file: Optional[str] = None,
+            event_graphic_file: Optional[str] = None,
+            start_timestamp: datetime = datetime(2024, 1, 1, 12, 0, 0),
+            end_timestamp: datetime = datetime(2024, 1, 1, 14, 0, 0),
+            name: str = "test race",
+            description: str = "test description",
+            place_to_points_mapping_json: str = "[]",
+            no_laps: int = 3,
+            entry_fee_gr: int = 0,
+            **kwargs
+    ):
+        checkpoints_gpx_file = checkpoints_gpx_file or f"UNDEFINED{uuid.uuid4()}"
+        event_graphic_file = event_graphic_file or f"UNDEFINED{uuid.uuid4()}"
+
+        race = Race(
+            name=name,
+            description=description,
+            no_laps=no_laps,
+            start_timestamp=start_timestamp,
+            end_timestamp=end_timestamp,
+            checkpoints_gpx_file=checkpoints_gpx_file,
+            event_graphic_file=event_graphic_file,
+            place_to_points_mapping_json=place_to_points_mapping_json,
+            season=season,
+            status=status,
+            entry_fee_gr=entry_fee_gr,
+            **kwargs
+        )
+
+        db.add(race)
+        db.commit()
+        return race
+
+    yield factory
+
+
+@pytest.fixture(scope="function")
+def classifications(season, db) -> Generator[tuple[Classification], Any, None]:
+    classifications = {
+        "general": Classification(
+            name="Klasyfikacja generalna",
+            description="Bez ograniczeń.",
+            season=season,
+        ),
+        "road": Classification(
+            name="Szosa",
+            description="Rowery szosowe z przerzutkami.",
+            season=season,
+        ),
+        "fixie": Classification(
+            name="Ostre koło",
+            description="Rowery typu fixie i singlespeed. Brak przerzutek.",
+            season=season,
+        ),
+        "men": Classification(
+            name="Mężczyźni",
+            description="Klasyfikacja mężczyzn.",
+            season=season,
+        ),
+        "women": Classification(
+            name="Kobiety",
+            description="Klasyfikacja kobiet.",
+            season=season,
+        )
+    }
+    db.add_all(classifications.values())
+    db.commit()
+    yield classifications

@@ -316,8 +316,6 @@ async def race_assign_places(
     db.commit()
     db.refresh(race)
 
-    assign_places_in_classifications(
-        race_id=id, db=db
-    ).delay()
+    assign_places_in_classifications.delay(race_id=id)
 
     return [p for p in race.race_participations if p.status == RaceParticipationStatus.approved]  # type: ignore[return-value]

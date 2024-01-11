@@ -4,7 +4,6 @@ import gpxo
 import numpy as np
 import pandas as pd
 from scipy.signal import argrelmin
-from fastapi import Depends
 from sqlmodel import Session, select
 from sqlmodel.sql.expression import SelectOfScalar
 
