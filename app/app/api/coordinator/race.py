@@ -169,8 +169,11 @@ async def update_race(
     race = db.get(Race, id)
     if not race:
         raise HTTPException(404)
-    if race.status != RaceStatus.pending:
-        raise HTTPException(400, "Can only edit pending races")
+
+    if (race.status != RaceStatus.pending
+            and not set(race_update.dict(exclude_unset=True, exclude_defaults=True).keys()).issubset(
+                {"temperature", "rain", "wind"})):
+        raise HTTPException(400, "Can only update temperature, rain and wind in non-pending races")
     try:
         race_data = race_update.dict(exclude_unset=True, exclude_defaults=True)
         for k, v in race_data.items():
@@ -318,4 +321,5 @@ async def race_assign_places(
 
     assign_places_in_classifications.delay(race_id=id)
 
-    return [p for p in race.race_participations if p.status == RaceParticipationStatus.approved]  # type: ignore[return-value]
+    return [p for p in race.race_participations if
+            p.status == RaceParticipationStatus.approved]  # type: ignore[return-value]

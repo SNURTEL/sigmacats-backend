@@ -8,7 +8,7 @@ from sqlmodel import Session, select
 from app.core.celery import celery_app
 from app.db.session import get_db
 from app.util.log import get_logger
-from app.models.race import Race, RaceStatus
+from app.models.race import Race, RaceStatus, RaceTemperature, RaceWind, RaceRain
 from app.models.rider import Rider
 from app.models.rider_classification_link import RiderClassificationLink
 from app.models.account import Account, Gender
@@ -18,6 +18,27 @@ from app.models.race_participation import RaceParticipation, RaceParticipationSt
 from app.models.ride_participation_classification_place import RiderParticipationClassificationPlace
 
 logger = get_logger()
+
+temperature_multiplier = {
+    None: 1.,
+    RaceTemperature.normal: 1.,
+    RaceTemperature.cold: 1.3,
+    RaceTemperature.hot: 1.3,
+}
+
+wind_multiplier = {
+    None: 1.,
+    RaceWind.zero: 1.,
+    RaceWind.light: 1.1,
+    RaceWind.heavy: 1.4
+}
+
+rain_multiplier = {
+    None: 1.,
+    RaceRain.zero: 1.,
+    RaceRain.light: 1.3,
+    RaceRain.heavy: 2.0
+}
 
 
 @celery_app.task()
@@ -91,13 +112,16 @@ def recalculate_classification_scores(
     }
 
     for participation in race_participations:
-        point_mapping = {item['place']: item['points'] for item in json.loads(participation.race.place_to_points_mapping_json)}
+        point_mapping = {item['place']: item['points'] for item in
+                         json.loads(participation.race.place_to_points_mapping_json)}
         for race_classification_place in participation.classification_places:
             try:
-                print(race_classification_place)
-                classification_rider_scores[race_classification_place.clasification_id][participation.rider_id] += get_points_for_place(
+                points = (get_points_for_place(
                     race_classification_place.place, point_mapping
-                )
+                ) * temperature_multiplier[participation.race.temperature]
+                          * wind_multiplier[participation.race.wind]
+                          * rain_multiplier[participation.race.rain])
+                classification_rider_scores[race_classification_place.clasification_id][participation.rider_id] += points
             except IndexError as e:
                 logger.warning(
                     f"Could not set score for race participation {participation.id}(rider {participation.rider_id}, "
@@ -119,14 +143,14 @@ def recalculate_classification_scores(
     classification_places = [RiderClassificationLink(
         rider_id=rider_id,
         classification_id=classification_id,
-        score=score
-    ) for classification_id, rider_id, score in itertools.chain(*[[(c_id, k, v) for k, v in  c_dict.items()] for c_id, c_dict in classification_rider_scores.items()])]
+        score=round(score)
+    ) for classification_id, rider_id, score in itertools.chain(
+        *[[(c_id, k, v) for k, v in c_dict.items()] for c_id, c_dict in classification_rider_scores.items()])]
 
     db.add_all(classification_places)
     db.commit()
 
     logger.info("Task done!")
-
 
 
 def get_points_for_place(place_assigned: int, mapping: dict[int, int]):

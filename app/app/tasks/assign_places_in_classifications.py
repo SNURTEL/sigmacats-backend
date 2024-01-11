@@ -5,8 +5,10 @@ from typing import Callable
 from sqlmodel import Session, select
 
 from app.core.celery import celery_app
+from app.tasks.recalculate_classification_scores import recalculate_classification_scores
 from app.models.race import Race, RaceStatus
 from app.models.bike import BikeType
+from app.models.season import Season
 from app.models.account import Gender
 from app.models.classification import Classification
 from app.models.race_participation import RaceParticipation, RaceParticipationStatus
@@ -89,7 +91,19 @@ def assign_places_in_classifications(
 
     db.commit()
 
-    # TODO grant points in classifications
+    now = datetime.now()
+    season = db.exec(
+        select(Season)
+        .where(Season.start_timestamp <= now,
+               Season.end_timestamp > now)
+    ).first()
+
+    if not season:
+        logger.warning(f"Could not find current season for current date {now}. Scores will NOT be recalculated.")
+    else:
+        recalculate_classification_scores.delay(
+            season_id=season.id
+        )
 
     logger.info("Task done!")
 

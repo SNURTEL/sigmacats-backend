@@ -4,7 +4,7 @@ import json
 from sqlmodel import select, Session
 
 from app.tasks.recalculate_classification_scores import recalculate_classification_scores
-from app.models.race import RaceStatus, RaceReadDetailCoordinator, RaceReadListCoordinator
+from app.models.race import RaceStatus, RaceWind, RaceRain, RaceTemperature
 from app.models.race_participation import RaceParticipationStatus
 from app.models.bike import BikeType
 from app.models.account import Gender
@@ -223,3 +223,72 @@ def test_recalculate_classification_scores_men_women(
     assert len(fixie_classification_scores) == 2
     for cs in fixie_classification_scores:
         assert cs.score == fixie_rider_id_to_points_mapping[cs.rider_id]
+
+def test_recalculate_classification_scores_weather_multipliers(
+        riders_with_bikes, race_factory, classifications,
+        race_participations_factory, race_classification_entries_factory, season, db
+):
+    riders, bikes = riders_with_bikes
+    (r1, r2, r3, r4) = riders
+    (b1, b2, b3, b4) = bikes
+
+    race1 = race_factory(
+        season=season,
+        status=RaceStatus.ended,
+        place_to_points_mapping_json=json.dumps([
+            {"place": 1, "points": 100},
+        ]),
+        temperature=RaceTemperature.cold
+
+    )
+    race2 = race_factory(
+        season=season,
+        status=RaceStatus.ended,
+        place_to_points_mapping_json=json.dumps([
+            {"place": 1, "points": 100},
+        ]),
+        wind=RaceWind.heavy,
+        rain=RaceRain.heavy
+    )
+
+    race1_participations = race_participations_factory(
+        race=race1,
+        riders=[r1],
+        bikes=[b1],
+        statuses=[RaceParticipationStatus.approved],
+        entry_kwargs=[{"place_assigned_overall": 1}]
+    )
+    race1_general_classification_entries = race_classification_entries_factory(
+        classification=classifications['general'],
+        race_participations=[race1_participations[0]],
+        places=[1]
+    )
+    race2_participations = race_participations_factory(
+        race=race2,
+        riders=[r1],
+        bikes=[b1],
+        statuses=[RaceParticipationStatus.approved],
+        entry_kwargs=[{"place_assigned_overall": 1}]
+    )
+    race2_general_classification_entries = race_classification_entries_factory(
+        classification=classifications['general'],
+        race_participations=[race2_participations[0]],
+        places=[1]
+    )
+
+    db.add_all([race1, *race1_participations, *race1_general_classification_entries,
+        race2, *race2_participations, *race2_general_classification_entries ])
+    db.commit()
+
+    recalculate_classification_scores(
+        season_id=season.id, db=db
+    )
+
+    classification_scores = _get_classification_entries(classifications['general'], season, db)
+
+    assert len(classification_scores) == 1
+    rider_id_to_points_mapping = {
+        r1.id: round(100 * 1.3 + 100 * 1.4 * 2.0)
+    }
+    for cs in classification_scores:
+        assert cs.score == rider_id_to_points_mapping[cs.rider_id]

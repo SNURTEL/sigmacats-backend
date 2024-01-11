@@ -224,6 +224,25 @@ def test_coordinator_update_race_invalid_status_400(coordinator_client, db, race
     assert response.status_code == 400
 
 
+@pytest.mark.parametrize("race", [
+    pytest.lazy_fixture("race_in_progress"),
+    pytest.lazy_fixture("race_ended"),
+    pytest.lazy_fixture("race_cancelled")
+])
+def test_coordinator_update_race_weather_conditions_200(coordinator_client, db, race):
+    json = {
+        "temperature": "cold",
+        "rain": "heavy",
+        "wind": "zero"
+    }
+    response = coordinator_client.patch(f"/api/coordinator/race/{race.id}",
+                                        json=json)
+    assert response.status_code == 200
+    assert response.json()['temperature'] == "cold"
+    assert response.json()['rain'] == "heavy"
+    assert response.json()['wind'] == "zero"
+
+
 def test_coordinator_update_race_404(coordinator_client, db):
     json = {
         "name": "Different name"
