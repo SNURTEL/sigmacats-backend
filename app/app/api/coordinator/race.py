@@ -83,15 +83,22 @@ async def create_race(
     """
     Create a new race.
     """
-    if db.exec(select(Race).where(Race.name == race_create.name, Race.season_id == race_create.season_id)).first():
-        raise HTTPException(400, "Race with given name already exists in current season")
+    current_season = db.exec(
+        select(Season)
+        .order_by(Season.start_timestamp.desc())
+    ).first()
 
-    if not db.get(Season, race_create.season_id):
-        raise HTTPException(404)
+    if not current_season:
+        print(db.exec(select(Season)).all())
+        raise HTTPException(500, "Could not find current season")
+
+    if db.exec(select(Race).where(Race.name == race_create.name, Race.season_id == current_season.id)).first():
+        raise HTTPException(400, "Race with given name already exists in current season")
 
     try:
         race = Race.from_orm(race_create, update={
             "status": RaceStatus.pending,
+            "season_id": current_season.id
         })
         db.add(race)
         db.commit()

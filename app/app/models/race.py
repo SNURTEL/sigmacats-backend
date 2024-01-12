@@ -136,7 +136,6 @@ class RaceCreate(SQLModel):
     no_laps: int
     place_to_points_mapping_json: str
     sponsor_banners_uuids_json: str
-    season_id: int
 
 
 class RaceUpdate(SQLModel):

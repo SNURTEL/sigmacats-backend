@@ -10,8 +10,9 @@ from app.models.classification import Classification
 def test_coordinator_list_seasons(coordinator_client, db, season, season2):
     response = coordinator_client.get("/api/coordinator/season")
     assert response.status_code == 200
-    assert response.json()[:2] == [jsonable_encoder(SeasonRead.from_orm(item)) for item in
-                                    (season2, season)]
+    assert [entry for entry in response.json() if int(entry['id']) > 10000] == [
+        jsonable_encoder(SeasonRead.from_orm(item)) for item in
+        (season2, season)]
 
 
 def test_coordinator_season_detail(coordinator_client, db, season):
@@ -27,7 +28,7 @@ def test_coordinator_season_detail_404(coordinator_client, db):
 
 def test_coordinator_season_start_new(coordinator_client, db, season):
     response = coordinator_client.post("/api/coordinator/season/start-new",
-                                      json={"name": "Test Season"})
+                                       json={"name": "Test Season"})
     print(response.json())
     assert response.status_code == 201
     assert response.json()['name'] == "Test Season"
@@ -40,6 +41,6 @@ def test_coordinator_season_start_new(coordinator_client, db, season):
 
 def test_coordinator_season_start_new_empty_name_400(coordinator_client, db, season):
     response = coordinator_client.post("/api/coordinator/season/start-new",
-                                      json={"name": ""})
+                                       json={"name": ""})
     print(response.json())
     assert response.status_code == 400

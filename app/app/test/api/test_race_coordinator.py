@@ -37,8 +37,7 @@ def test_coordinator_create_race(coordinator_client, db, season):
                                            "event_graphic_file": "/tmp/nginx_upload/0027983891",
                                            "place_to_points_mapping_json": '[{"place": 1,"points": 20}, '
                                                                            '{"place": 2,"points": 16}]',
-                                           "sponsor_banners_uuids_json": "[]",
-                                           "season_id": season.id
+                                           "sponsor_banners_uuids_json": "[]"
                                        })
 
     assert response.status_code == 200
@@ -58,8 +57,7 @@ def test_coordinator_create_race_timestamp_order(coordinator_client, db, season)
                                            "event_graphic_file": "/tmp/nginx_upload/0027983891",
                                            "place_to_points_mapping_json": '[{"place": 1,"points": 20}, '
                                                                            '{"place": 2,"points": 16}]',
-                                           "sponsor_banners_uuids_json": "[]]",
-                                           "season_id": season.id
+                                           "sponsor_banners_uuids_json": "[]]"
                                        })
 
     assert response.status_code == 400
@@ -79,8 +77,7 @@ def test_coordinator_create_race_zero_laps(coordinator_client, db, season):
                                            "event_graphic_file": "/tmp/nginx_upload/0027983891",
                                            "place_to_points_mapping_json": '[{"place": 1,"points": 20}, '
                                                                            '{"place": 2,"points": 16}]',
-                                           "sponsor_banners_uuids_json": "[]",
-                                           "season_id": season.id
+                                           "sponsor_banners_uuids_json": "[]"
                                        })
 
     assert response.status_code == 400
@@ -100,32 +97,10 @@ def test_coordinator_create_race_negative_entry_fee(coordinator_client, db, seas
                                            "event_graphic_file": "/tmp/nginx_upload/0027983891",
                                            "place_to_points_mapping_json": '[{"place": 1,"points": 20}, '
                                                                            '{"place": 2,"points": 16}]',
-                                           "sponsor_banners_uuids_json": "[]",
-                                           "season_id": season.id
+                                           "sponsor_banners_uuids_json": "[]"
                                        })
 
     assert response.status_code == 400
-
-
-def test_coordinator_create_race_season_404(coordinator_client, db, season):
-    response = coordinator_client.post("/api/coordinator/race/create",
-                                       json={
-                                           "name": "test",
-                                           "description": "test",
-                                           "requirements": "test",
-                                           "start_timestamp": "2023-12-02T23:48:36.620Z",
-                                           "end_timestamp": "2023-12-02T21:48:36.620Z",
-                                           "entry_fee_gr": 10000,
-                                           "no_laps": 1,
-                                           "checkpoints_gpx_file": "/tmp/nginx_upload/0027983891",
-                                           "event_graphic_file": "/tmp/nginx_upload/0027983891",
-                                           "place_to_points_mapping_json": '[{"place": 1,"points": 20}, '
-                                                                           '{"place": 2,"points": 16}]',
-                                           "sponsor_banners_uuids_json": "[]",
-                                           "season_id": 45645645
-                                       })
-
-    assert response.status_code == 404
 
 
 def test_coordinator_create_race_invalid_score_json(coordinator_client, db, season):
@@ -142,8 +117,7 @@ def test_coordinator_create_race_invalid_score_json(coordinator_client, db, seas
                                            "event_graphic_file": "/tmp/nginx_upload/0027983891",
                                            "place_to_points_mapping_json": "[{\"place\": 1, \"score\": \"sdfgs\"\"}, "
                                                                            "{\"place\": 2, \"score\": 0\"}]",
-                                           "sponsor_banners_uuids_json": "[]",
-                                           "season_id": season.id
+                                           "sponsor_banners_uuids_json": "[]"
                                        })
 
     assert response.status_code == 400
@@ -163,8 +137,7 @@ def test_coordinator_create_race_invalid_sponsors_json(coordinator_client, db, s
                                            "event_graphic_file": "/tmp/nginx_upload/0027983891",
                                            "place_to_points_mapping_json": '[{"place": 1,"points": 20}, '
                                                                            '{"place": 2,"points": 16}]',
-                                           "sponsor_banners_uuids_json": "[1]",
-                                           "season_id": season.id
+                                           "sponsor_banners_uuids_json": "[1]"
                                        })
 
     assert response.status_code == 400
