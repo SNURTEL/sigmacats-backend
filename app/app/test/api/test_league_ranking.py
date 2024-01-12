@@ -5,7 +5,7 @@ from fastapi.encoders import jsonable_encoder
 from app.models.rider import RiderRead
 from app.models.classification import ClassificationRead
 from app.models.season import SeasonListRead
-from app.models.rider_classification_link import RiderClassificationLinkRead
+from app.models.rider_classification_link import RiderClassificationLinkRead, RiderClassificationLinkRiderDetails
 from app.test.fixtures import NOVEMBER_TIME, PAST_TIME
 
 
@@ -52,17 +52,29 @@ def test_season_no_current_season_404(rider1_client, db, patch_datetime_past):
 def test_rider_classification_link_classification_id(
         rider1_client,
         classification_with_rider,
-        rider_classification_link,
+        rider_classification_link_rider_details,
         db):
     response = rider1_client.get(f"/api/rider/rider_classification_link/{classification_with_rider.id}/classification")
     assert response.status_code == 200
-    assert response.json() == [jsonable_encoder(RiderClassificationLinkRead.from_orm(rider_classification_link))]
+    assert response.json() == [
+        jsonable_encoder(RiderClassificationLinkRiderDetails.from_orm(rider_classification_link_rider_details))
+    ]
 
 
 def test_rider_classification_link_no_classification_404(
         rider1_client,
         db):
     response = rider1_client.get("/api/rider/rider_classification_link/934789374893897/classification")
+    assert response.status_code == 404
+
+
+def test_rider_classification_link_no_rider_in_classification_404(
+        rider1_client,
+        classification_without_rider
+        ):
+    response = rider1_client.get(
+        f"/api/rider/rider_classification_link/{classification_without_rider.id}/classification"
+    )
     assert response.status_code == 404
 
 

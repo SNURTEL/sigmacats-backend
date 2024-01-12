@@ -15,7 +15,7 @@ from app.models.season import Season
 from app.models.race import Race, RaceStatus, RaceTemperature, RaceRain
 from app.models.race_bonus import RaceBonus
 from app.models.classification import Classification
-from app.models.rider_classification_link import RiderClassificationLink
+from app.models.rider_classification_link import RiderClassificationLink, RiderClassificationLinkRiderDetails
 
 from app.main import app
 
@@ -324,6 +324,17 @@ def rider_classification_link(db, season, rider1) -> Generator[RiderClassificati
     db.add(classification)
     db.commit()
     yield riderClassificationLink
+
+
+@pytest.fixture(scope="function")
+def rider_classification_link_rider_details(rider1) -> Generator[RiderClassificationLinkRiderDetails, Any, None]:
+    riderClassificationLinkRiderDetails = RiderClassificationLinkRiderDetails(
+        score=10,
+        name=rider1.account.name,
+        surname=rider1.account.surname
+    )
+
+    yield riderClassificationLinkRiderDetails
 
 
 @pytest.fixture(scope="function")
