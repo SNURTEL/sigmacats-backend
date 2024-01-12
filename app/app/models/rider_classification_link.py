@@ -28,3 +28,9 @@ class RiderClassificationLinkRead(SQLModel):
     score: int
     rider_id: int
     classification_id: int
+
+
+class RiderClassificationLinkRiderDetails(SQLModel):
+    score: int
+    name: str
+    surname: str
