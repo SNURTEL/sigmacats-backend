@@ -139,6 +139,7 @@ def recalculate_classification_scores(
     )
     for old in old_classification_places:
         db.delete(old)
+    db.commit()
 
     classification_places = [RiderClassificationLink(
         rider_id=rider_id,

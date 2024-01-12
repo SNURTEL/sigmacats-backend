@@ -95,15 +95,13 @@ def assign_places_in_classifications(
 
     db.commit()
 
-    now = datetime.now()
     season = db.exec(
         select(Season)
-        .where(Season.start_timestamp <= now,
-               Season.end_timestamp is None)
+        .order_by(Season.start_timestamp.desc())
     ).first()
 
     if not season:
-        logger.warning(f"Could not find current season for current date {now}. Scores will NOT be recalculated.")
+        logger.warning(f"Could not find current season. Scores will NOT be recalculated.")
     else:
         recalculate_classification_scores.delay(
             season_id=season.id
