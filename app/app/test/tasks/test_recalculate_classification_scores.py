@@ -1,4 +1,5 @@
 import json
+from typing import Sequence
 
 from sqlmodel import select, Session
 
@@ -12,12 +13,12 @@ from app.models.classification import Classification
 from app.models.rider_classification_link import RiderClassificationLink
 
 
-def _get_classification_entries(classification: Classification, season: Season, db: Session) -> list[
+def _get_classification_entries(classification: Classification, season: Season, db: Session) -> Sequence[
     RiderClassificationLink
 ]:
     return db.exec(
         select(RiderClassificationLink)
-        .join(Classification, RiderClassificationLink.classification_id == Classification.id)
+        .join(Classification, RiderClassificationLink.classification_id == Classification.id)  # type: ignore[arg-type]
         .where(
             Classification.season_id == season.id,
             RiderClassificationLink.classification_id == classification.id

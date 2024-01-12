@@ -83,13 +83,16 @@ def recalculate_classification_scores(
     race_participations = db.exec(
         select(RaceParticipation)
         .join(Race,
-              RaceParticipation.race_id == Race.id)
+              RaceParticipation.race_id == Race.id)  # type: ignore[arg-type]
         .join(Rider,
-              RaceParticipation.rider_id == Rider.id)
+              RaceParticipation.rider_id == Rider.id)  # type: ignore[arg-type]
         .join(Account,
-              RaceParticipation.rider_id == Account.id)
-        .join(RiderParticipationClassificationPlace,
-              RiderParticipationClassificationPlace.race_participation_id == RaceParticipation.id)
+              RaceParticipation.rider_id == Account.id)  # type: ignore[arg-type]
+        .join(
+            RiderParticipationClassificationPlace,
+            RiderParticipationClassificationPlace.race_participation_id
+            == RaceParticipation.id  # type: ignore[arg-type]
+        )
         .where(
             Race.season == season,
             Race.status == RaceStatus.ended,
@@ -126,7 +129,7 @@ def recalculate_classification_scores(
             except IndexError as e:
                 logger.warning(
                     f"Could not set score for race participation {participation.id}(rider {participation.rider_id}, "
-                    f"race {participation.race_id}) in classification {race_classification_place.classification_id} "
+                    f"race {participation.race_id}) in classification {race_classification_place.clasification_id} "
                     f"({race_classification_place.classification.name})\n " + repr(e))
                 continue
 
@@ -135,7 +138,7 @@ def recalculate_classification_scores(
 
     old_classification_places = db.exec(
         select(RiderClassificationLink)
-        .join(Classification, Classification.id == RiderClassificationLink.classification_id)
+        .join(Classification, Classification.id == RiderClassificationLink.classification_id)  # type: ignore[arg-type]
         .where(Classification.season_id == season_id)
     )
     for old in old_classification_places:
