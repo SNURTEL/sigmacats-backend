@@ -72,6 +72,22 @@ def insert_initial_users() -> None:
         email="secondRider@default.sigma",
         password=os.environ.get("FASTAPI_DEFAULT_RIDER_PASSWORD", "rider123")
     )
+    third_rider_create = AccountCreate(
+        type=AccountType.rider,
+        username="third_default_rider",
+        name="ThirdDefault",
+        surname="Rider",
+        email="thirdRider@default.sigma",
+        password=os.environ.get("FASTAPI_DEFAULT_RIDER_PASSWORD", "rider123")
+    )
+    fourth_rider_create = AccountCreate(
+        type=AccountType.rider,
+        username="fourth_default_rider",
+        name="FourthDefault",
+        surname="Rider",
+        email="fourthRider@default.sigma",
+        password=os.environ.get("FASTAPI_DEFAULT_RIDER_PASSWORD", "rider123")
+    )
     coordinator_create = AccountCreate(
         type=AccountType.coordinator,
         username="default_coordinator",
@@ -103,6 +119,8 @@ def insert_initial_users() -> None:
     [asyncio.run(create_account(ac)) for ac in (
         first_rider_create,
         second_rider_create,
+        third_rider_create,
+        fourth_rider_create,
         coordinator_create,
         admin_create)]
 
