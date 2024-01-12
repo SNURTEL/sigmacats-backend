@@ -91,7 +91,7 @@ jobs:
         docker compose -f "docker-compose.yml" up --detach
     - name: Wait for startup   # todo not too elegant
       run: |
-        sleep 30
+        sleep 60
     - name: Check for pending migrations
       run: |
         docker exec fastapi-backend bash -c "alembic check"

@@ -44,7 +44,8 @@ class RaceParticipation(SQLModel, table=True):
     bike: "Bike" = Relationship(back_populates="race_participations")
 
     classification_places: list["RiderParticipationClassificationPlace"] = Relationship(
-        back_populates="race_participation")
+        back_populates="race_participation",
+        sa_relationship_kwargs={"cascade": "delete"})
 
 
 class RaceParticipationCreated(SQLModel):
@@ -57,6 +58,14 @@ class RaceParticipationCreated(SQLModel):
 
 class RaceParticipationListRead(SQLModel):
     id: int
+    race_id: int
     rider_id: int
     bike_id: int
     status: RaceParticipationStatus
+    place_generated_overall: Optional[int]
+    place_assigned_overall: Optional[int]
+
+
+class RaceParticipationAssignPlaceListUpdate(SQLModel):
+    id: int
+    place_assigned_overall: int

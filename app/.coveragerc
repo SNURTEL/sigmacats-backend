@@ -1,0 +1,10 @@
+[run]
+omit =
+  app/backend_pre_start.py
+  app/initial_data.py
+  app/prepare_tables.py
+  app/util/mail/*
+  app/test/*
+  app/db/*
+  app/core/*
+  app/util/log.py

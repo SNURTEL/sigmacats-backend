@@ -28,7 +28,8 @@ class Classification(SQLModel, table=True):
     )
 
     race_participation_places: list["RiderParticipationClassificationPlace"] = Relationship(
-        back_populates="classification")
+        back_populates="classification",
+        sa_relationship_kwargs={"cascade": "delete"})
 
     rider_links: list["RiderClassificationLink"] = Relationship(back_populates="classification")
 

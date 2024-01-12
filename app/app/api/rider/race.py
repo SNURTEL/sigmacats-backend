@@ -1,7 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException
+import uuid
+import shutil
+
+from fastapi import APIRouter, Depends, HTTPException, Request
+from starlette.datastructures import FormData
+
 from sqlmodel import Session, select
 from sqlmodel.sql.expression import SelectOfScalar
 
+from app.tasks.process_race_result_submission import process_race_result_submission
 from app.core.users import current_rider_user
 from app.db.session import get_db
 from app.models.race import Race, RaceReadListRider, RaceReadDetailRider, RaceStatus
@@ -139,3 +145,65 @@ async def withdraw_race(
     db.commit()
 
     return
+
+
+@router.post('/{id}/upload-result', status_code=202)
+async def upload_race_result(
+        id: int,
+        request: Request,
+        rider: Rider = Depends(current_rider_user),
+        db: Session = Depends(get_db),
+) -> None:
+    """
+    Submit race result along with recording GPX.
+    """
+    form: FormData = await request.form()
+    tmp_path = str(form.get('fileobj.path'))
+
+    with open(tmp_path, 'r') as f:
+        content = f.read(43)
+        if content.startswith('<?xml version="1.0" encoding="UTF-8"?>\n<gpx'):
+            print('GPX')
+        else:
+            print('INVALID TYPE')
+            raise HTTPException(400)
+
+    stmt_race: SelectOfScalar = (
+        select(Race)
+        .where(Race.id == id)
+    )
+    race = db.exec(stmt_race).first()
+
+    if not race:
+        raise HTTPException(404)
+
+    if race.status != RaceStatus.in_progress:
+        raise HTTPException(400, f"Race has status {race.status}, in_progress is required.")
+
+    stmt_participation: SelectOfScalar = (
+        select(RaceParticipation)
+        .where(
+            RaceParticipation.race_id == race.id,
+            RaceParticipation.rider_id == rider.id
+        )
+    )
+    race_participation = db.exec(stmt_participation).first()
+
+    if race_participation is None:
+        raise HTTPException(400, "Not participating in race.")
+
+    if race_participation.status != RaceParticipationStatus.approved:
+        raise HTTPException(400, f"Race participation has status {race_participation.status}, approved is required.")
+
+    if race_participation.ride_gpx_file:
+        raise HTTPException(400, "Ride GPX was already submitted")
+
+    new_name = f"{str(uuid.uuid4())}.gpx"
+    new_path = f'/attachments/{new_name}'
+    shutil.move(tmp_path, new_path)
+
+    process_race_result_submission.delay(
+        race_id=race.id,
+        rider_id=rider.id,
+        recording_filepath=new_path
+    )

@@ -15,7 +15,7 @@ from app.models.rider import Rider
 
 
 def create_initial_data(
-        first_rider_account: Account,
+        rider_account: Account,
         second_rider_account: Account,
         coordinator_account: Account,
         admin_account: Account,
@@ -55,15 +55,14 @@ def create_initial_data(
     #     bikes=[bike_road, bike_fixie]
     # )
 
-    assert isinstance(first_rider_account.rider, Rider)
+    assert isinstance(rider_account.rider, Rider)
     assert isinstance(second_rider_account.rider, Rider)
-    first_rider_account.rider.bikes = [bike_road, bike_fixie]
+    rider_account.rider.bikes = [bike_road, bike_fixie]
     second_rider_account.rider.bikes = [bike_other]
 
     season = Season(
         name="23Z :d",
-        start_timestamp=datetime(year=2024, month=10, day=1),
-        end_timestamp=datetime(year=2024, month=12, day=31),
+        start_timestamp=datetime(day=2, month=10, year=2023),
     )
 
     race1 = Race(
@@ -160,45 +159,51 @@ def create_initial_data(
 
     )
 
-    adult_classification = Classification(
-        name="Dorośli",
-        description=">=18 lat",
+    dummy_classification = Classification(
+        name="Dummy",
+        description="Dummy",
         season=season,
     )
 
-    children_classification = Classification(
-        name="Dzieci",
-        description="<18 lat",
-        season=season
+    general_classification = Classification(
+        name="Klasyfikacja generalna",
+        description="Bez ograniczeń.",
+        season=season,
     )
 
-    first_rider_adult_classification_link = RiderClassificationLink(
+    road_classification = Classification(
+        name="Szosa",
+        description="Rowery szosowe z przerzutkami.",
+        season=season,
+    )
+
+    fixie_classification = Classification(
+        name="Ostre koło",
+        description="Rowery typu fixie i singlespeed. Brak przerzutek.",
+        season=season,
+    )
+
+    men_classification = Classification(
+        name="Mężczyźni",
+        description="Klasyfikacja mężczyzn.",
+        season=season,
+    )
+
+    women_classification = Classification(
+        name="Kobiety",
+        description="Klasyfikacja kobiet.",
+        season=season,
+    )
+
+    dummy_rider_classification_link = RiderClassificationLink(
         score=420,
-        rider=first_rider_account.rider,
-        classification=adult_classification
-    )
-
-    first_rider_children_classification_link = RiderClassificationLink(
-        score=100,
-        rider=first_rider_account.rider,
-        classification=children_classification
-    )
-
-    second_rider_adult_classification_link = RiderClassificationLink(
-        score=300,
-        rider=second_rider_account.rider,
-        classification=adult_classification
-    )
-
-    second_rider_children_classification_link = RiderClassificationLink(
-        score=500,
-        rider=second_rider_account.rider,
-        classification=children_classification
+        rider=rider_account.rider,
+        classification=dummy_classification
     )
 
     dummy_race_participation = RaceParticipation(
         status=RaceParticipationStatus.approved.value,
-        rider=first_rider_account.rider,
+        rider=rider_account.rider,
         race=race1,
         bike=bike_road
     )
@@ -206,7 +211,7 @@ def create_initial_data(
     dummy_race_participation_classification_place = RiderParticipationClassificationPlace(
         place=1,
         race_participation=dummy_race_participation,
-        classification=adult_classification
+        classification=dummy_classification
     )
 
     return [
@@ -214,19 +219,20 @@ def create_initial_data(
         bike_road,
         bike_fixie,
         bike_other,
-        adult_classification,
-        children_classification,
-        first_rider_adult_classification_link,
-        first_rider_children_classification_link,
-        second_rider_adult_classification_link,
-        second_rider_children_classification_link,
+        dummy_classification,
+        general_classification,
+        road_classification,
+        fixie_classification,
+        men_classification,
+        women_classification,
+        dummy_rider_classification_link,
         # dummy_rider,
         race1,
         race2,
         race3,
         dummy_race_participation_classification_place,
 
-        first_rider_account,
+        rider_account,
         second_rider_account,
         coordinator_account,
         admin_account,
