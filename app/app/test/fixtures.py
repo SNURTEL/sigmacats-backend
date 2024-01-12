@@ -246,7 +246,8 @@ def riders_with_bikes(
         rider1, rider2, rider3, rider4,
         bike_rider1_road, bike_rider2, bike_rider3, bike_rider4
 ) -> Generator[tuple[tuple[Rider], tuple[Bike]], Any, None]:
-    return (rider1, rider2, rider3, rider4), (bike_rider1_road, bike_rider2, bike_rider3, bike_rider4)
+    yield ((rider1, rider2, rider3, rider4),
+           (bike_rider1_road, bike_rider2, bike_rider3, bike_rider4))  # type: ignore[misc]
 
 
 @pytest.fixture(scope="function")
@@ -591,7 +592,8 @@ def disable_celery_tasks(monkeypatch):
         end_race_and_generate_places,
         process_race_result_submission,
         recalculate_classification_scores,
-        set_race_in_progress]:
+        set_race_in_progress
+    ]:
         monkeypatch.setattr(task, 'delay', lambda *args, **kwargs: None)
         monkeypatch.setattr(task, 'apply_async', lambda *args, **kwargs: None)
 
@@ -686,7 +688,7 @@ def race_factory(db) -> Generator[Callable, Any, None]:
 
 
 @pytest.fixture(scope="function")
-def classifications(season, db) -> Generator[tuple[Classification], Any, None]:
+def classifications(season, db) -> Generator[dict[str, Classification], Any, None]:
     classifications = {
         "general": Classification(
             name="Klasyfikacja generalna",
@@ -717,7 +719,6 @@ def classifications(season, db) -> Generator[tuple[Classification], Any, None]:
     db.add_all(classifications.values())
     db.commit()
     yield classifications
-
 
 
 @pytest.fixture(scope="function")

@@ -1,13 +1,9 @@
-from datetime import datetime, timedelta
-
 import pytest
-from fastapi.encoders import jsonable_encoder
 from sqlmodel import select
 
 from app.tasks.assign_places_in_classifications import assign_places_in_classifications
-from app.models.race_participation import RaceParticipation, RaceParticipationStatus
+from app.models.race_participation import RaceParticipationStatus
 from app.models.ride_participation_classification_place import RiderParticipationClassificationPlace
-from app.models.classification import Classification
 from app.models.bike import BikeType
 from app.models.account import Gender
 
@@ -27,7 +23,6 @@ def test_assign_classification_places_general(
     )
 
     assign_places_in_classifications(race_id=race_ended.id, db=db)
-
 
     entries = db.exec(
         select(RiderParticipationClassificationPlace).where(
@@ -60,7 +55,6 @@ def test_assign_classification_places_road(
     )
 
     assign_places_in_classifications(race_id=race_ended.id, db=db)
-
 
     entries = db.exec(
         select(RiderParticipationClassificationPlace).where(
@@ -97,7 +91,6 @@ def test_assign_classification_places_fixie(
 
     assign_places_in_classifications(race_id=race_ended.id, db=db)
 
-
     entries = db.exec(
         select(RiderParticipationClassificationPlace).where(
             RiderParticipationClassificationPlace.race_participation_id.in_([p.id for p in participations]),
@@ -132,7 +125,6 @@ def test_assign_classification_places_men(
     )
 
     assign_places_in_classifications(race_id=race_ended.id, db=db)
-
 
     entries = db.exec(
         select(RiderParticipationClassificationPlace).where(
@@ -169,7 +161,6 @@ def test_assign_classification_places_women(
 
     assign_places_in_classifications(race_id=race_ended.id, db=db)
 
-
     entries = db.exec(
         select(RiderParticipationClassificationPlace).where(
             RiderParticipationClassificationPlace.race_participation_id.in_([p.id for p in participations]),
@@ -193,12 +184,12 @@ def test_assign_classification_places_skip_unapproved(
         race=race_ended,
         riders=(r1, r2, r3, r4),
         bikes=(b1, b2, b3, b4),
-        statuses=[RaceParticipationStatus.approved, RaceParticipationStatus.approved, status, RaceParticipationStatus.approved],
+        statuses=[RaceParticipationStatus.approved, RaceParticipationStatus.approved, status,
+                  RaceParticipationStatus.approved],
         entry_kwargs=[{'place_assigned_overall': p} for p in places]
     )
 
     assign_places_in_classifications(race_id=race_ended.id, db=db)
-
 
     entries = db.exec(
         select(RiderParticipationClassificationPlace).where(

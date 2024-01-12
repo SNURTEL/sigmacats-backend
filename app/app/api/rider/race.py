@@ -149,17 +149,16 @@ async def withdraw_race(
 
 @router.post('/{id}/upload-result', status_code=202)
 async def upload_race_result(
-    id: int,
-    request: Request,
-    rider: Rider = Depends(current_rider_user),
-    db: Session = Depends(get_db),
+        id: int,
+        request: Request,
+        rider: Rider = Depends(current_rider_user),
+        db: Session = Depends(get_db),
 ) -> None:
     """
     Submit race result along with recording GPX.
     """
     form: FormData = await request.form()
     tmp_path = str(form.get('fileobj.path'))
-
 
     with open(tmp_path, 'r') as f:
         content = f.read(43)
@@ -169,11 +168,11 @@ async def upload_race_result(
             print('INVALID TYPE')
             raise HTTPException(400)
 
-    stmt: SelectOfScalar = (
+    stmt_race: SelectOfScalar = (
         select(Race)
         .where(Race.id == id)
     )
-    race: Race = db.exec(stmt).first()
+    race = db.exec(stmt_race).first()
 
     if not race:
         raise HTTPException(404)
@@ -181,14 +180,14 @@ async def upload_race_result(
     if race.status != RaceStatus.in_progress:
         raise HTTPException(400, f"Race has status {race.status}, in_progress is required.")
 
-    stmt: SelectOfScalar = (
+    stmt_participation: SelectOfScalar = (
         select(RaceParticipation)
         .where(
             RaceParticipation.race_id == race.id,
             RaceParticipation.rider_id == rider.id
         )
     )
-    race_participation: RaceParticipation = db.exec(stmt).first()
+    race_participation = db.exec(stmt_participation).first()
 
     if race_participation is None:
         raise HTTPException(400, "Not participating in race.")

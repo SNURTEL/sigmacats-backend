@@ -1,3 +1,5 @@
+from typing import Optional
+
 from sqlmodel import Session
 
 from app.core.celery import celery_app
@@ -9,7 +11,7 @@ logger = get_logger()
 
 
 @celery_app.task()
-def set_race_in_progress(race_id: int, db: Session = None):
+def set_race_in_progress(race_id: int, db: Optional[Session] = None) -> None:
     logger.info("Scheduled task DONE")
 
     if not db:

@@ -58,8 +58,7 @@ async def start_new_season(
     now = datetime.now()
     current_season = db.exec(
         select(Season)
-        .where(Season.start_timestamp <= now,
-               Season.end_timestamp.is_(None))
+        .order_by(Season.start_timestamp.desc())  # type: ignore[attr-defined]
     ).first()
 
     if not current_season:
@@ -68,7 +67,6 @@ async def start_new_season(
 
     current_season.end_timestamp = now
     db.add(current_season)
-
 
     new_season = Season(
         name=season_start.name,

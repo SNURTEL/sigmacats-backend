@@ -1,4 +1,3 @@
-import pytest
 import json
 
 from sqlmodel import select, Session
@@ -13,7 +12,9 @@ from app.models.classification import Classification
 from app.models.rider_classification_link import RiderClassificationLink
 
 
-def _get_classification_entries(classification: Classification, season: Season, db: Session) -> list[RiderClassificationLink]:
+def _get_classification_entries(classification: Classification, season: Season, db: Session) -> list[
+    RiderClassificationLink
+]:
     return db.exec(
         select(RiderClassificationLink)
         .join(Classification, RiderClassificationLink.classification_id == Classification.id)
@@ -22,6 +23,7 @@ def _get_classification_entries(classification: Classification, season: Season, 
             RiderClassificationLink.classification_id == classification.id
         )
     ).all()
+
 
 def test_recalculate_classification_scores_general(
         riders_with_bikes, race_factory, classifications,
@@ -76,7 +78,7 @@ def test_recalculate_classification_scores_general(
     )
 
     db.add_all([race1, *race1_participations, *race1_general_classification_entries,
-        race2, *race2_participations, *race2_general_classification_entries ])
+                race2, *race2_participations, *race2_general_classification_entries])
     db.commit()
 
     recalculate_classification_scores(
@@ -92,6 +94,7 @@ def test_recalculate_classification_scores_general(
     for cs in classification_scores:
         assert cs.score == rider_id_to_points_mapping[cs.rider_id]
 
+
 def test_recalculate_classification_scores_bike_type(
         riders_with_bikes, race_factory, classifications,
         race_participations_factory, race_classification_entries_factory, season, db
@@ -106,7 +109,6 @@ def test_recalculate_classification_scores_bike_type(
     db.commit()
     db.refresh(b2)
     db.refresh(b3)
-
 
     race1 = race_factory(
         season=season,
@@ -157,6 +159,7 @@ def test_recalculate_classification_scores_bike_type(
     for cs in fixie_classification_scores:
         assert cs.score == fixie_rider_id_to_points_mapping[cs.rider_id]
 
+
 def test_recalculate_classification_scores_men_women(
         riders_with_bikes, race_factory, classifications,
         race_participations_factory, race_classification_entries_factory, season, db
@@ -200,7 +203,6 @@ def test_recalculate_classification_scores_men_women(
         places=[1, 2]
     )
 
-
     db.add_all([race1, *race1_participations, *race1_classification_entries])
     db.commit()
 
@@ -223,6 +225,7 @@ def test_recalculate_classification_scores_men_women(
     assert len(fixie_classification_scores) == 2
     for cs in fixie_classification_scores:
         assert cs.score == fixie_rider_id_to_points_mapping[cs.rider_id]
+
 
 def test_recalculate_classification_scores_weather_multipliers(
         riders_with_bikes, race_factory, classifications,
@@ -277,7 +280,7 @@ def test_recalculate_classification_scores_weather_multipliers(
     )
 
     db.add_all([race1, *race1_participations, *race1_general_classification_entries,
-        race2, *race2_participations, *race2_general_classification_entries ])
+                race2, *race2_participations, *race2_general_classification_entries])
     db.commit()
 
     recalculate_classification_scores(

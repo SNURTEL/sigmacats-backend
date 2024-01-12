@@ -105,7 +105,7 @@ def test_race_generate_places_different_status(
 
     assert participations[0].place_generated_overall == places[0]
     assert participations[1].place_generated_overall == places[1]
-    assert participations[2].place_generated_overall == None
+    assert participations[2].place_generated_overall is None
     assert participations[3].place_generated_overall == places[3]
 
 

@@ -1,8 +1,11 @@
+from typing import Optional
 from datetime import datetime
 
 from sqlmodel import Session, select
+from sqlmodel.sql.expression import SelectOfScalar
 
 from app.core.celery import celery_app
+from app.db.session import get_db
 from app.models.race import Race, RaceStatus
 from app.models.race_participation import RaceParticipation, RaceParticipationStatus
 from app.util.log import get_logger
@@ -13,13 +16,20 @@ logger = get_logger()
 @celery_app.task()
 def end_race_and_generate_places(
     race_id: int,
-    db: Session = None
-):
+    db: Optional[Session] = None
+) -> None:
+    if not db:
+        db = next(get_db())
+
     logger.info(f"Assigning places for race {race_id}")
     race = db.get(Race, race_id)
+
+    if not race:
+        raise ValueError(f"Race {race_id} not found")
+
     race.status = RaceStatus.ended
 
-    stmt = (
+    stmt: SelectOfScalar = (
         select(RaceParticipation)
         .where(
             RaceParticipation.race_id == race.id,

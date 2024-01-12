@@ -24,7 +24,7 @@ def test_coordinator_race_detail_404(coordinator_client, db):
 
 
 def test_coordinator_create_race(coordinator_client, db, season,
-                                                       disable_celery_tasks):
+                                 disable_celery_tasks):
     response = coordinator_client.post("/api/coordinator/race/create",
                                        json={
                                            "name": "test",
@@ -45,7 +45,7 @@ def test_coordinator_create_race(coordinator_client, db, season,
 
 
 def test_coordinator_create_race_timestamp_order(coordinator_client, db, season,
-                                                       disable_celery_tasks):
+                                                 disable_celery_tasks):
     response = coordinator_client.post("/api/coordinator/race/create",
                                        json={
                                            "name": "test",
@@ -66,7 +66,7 @@ def test_coordinator_create_race_timestamp_order(coordinator_client, db, season,
 
 
 def test_coordinator_create_race_zero_laps(coordinator_client, db, season,
-                                                       disable_celery_tasks):
+                                           disable_celery_tasks):
     response = coordinator_client.post("/api/coordinator/race/create",
                                        json={
                                            "name": "test",
@@ -87,7 +87,7 @@ def test_coordinator_create_race_zero_laps(coordinator_client, db, season,
 
 
 def test_coordinator_create_race_negative_entry_fee(coordinator_client, db, season,
-                                                       disable_celery_tasks):
+                                                    disable_celery_tasks):
     response = coordinator_client.post("/api/coordinator/race/create",
                                        json={
                                            "name": "test",
@@ -108,7 +108,7 @@ def test_coordinator_create_race_negative_entry_fee(coordinator_client, db, seas
 
 
 def test_coordinator_create_race_invalid_score_json(coordinator_client, db, season,
-                                                       disable_celery_tasks):
+                                                    disable_celery_tasks):
     response = coordinator_client.post("/api/coordinator/race/create",
                                        json={
                                            "name": "test",
@@ -178,7 +178,7 @@ def test_coordinator_cancel_race_race_404(coordinator_client, db):
 
 
 def test_coordinator_update_race(coordinator_client, db, race_pending,
-                                                       disable_celery_tasks):
+                                 disable_celery_tasks):
     json = {
         "name": "Different name"
     }
@@ -196,7 +196,7 @@ def test_coordinator_update_race(coordinator_client, db, race_pending,
     pytest.lazy_fixture("race_cancelled")
 ])
 def test_coordinator_update_race_invalid_status_400(coordinator_client, db, race,
-                                                       disable_celery_tasks):
+                                                    disable_celery_tasks):
     json = {
         "name": "Different name"
     }
@@ -211,7 +211,7 @@ def test_coordinator_update_race_invalid_status_400(coordinator_client, db, race
     pytest.lazy_fixture("race_cancelled")
 ])
 def test_coordinator_update_race_weather_conditions_200(coordinator_client, db, race,
-                                                       disable_celery_tasks):
+                                                        disable_celery_tasks):
     json = {
         "temperature": "cold",
         "rain": "heavy",
@@ -226,7 +226,7 @@ def test_coordinator_update_race_weather_conditions_200(coordinator_client, db, 
 
 
 def test_coordinator_update_race_404(coordinator_client, db,
-                                                       disable_celery_tasks):
+                                     disable_celery_tasks):
     json = {
         "name": "Different name"
     }

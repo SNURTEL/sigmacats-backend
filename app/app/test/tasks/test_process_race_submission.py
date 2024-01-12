@@ -8,7 +8,7 @@ from app.tasks.process_race_result_submission import process_race_result_submiss
 
 
 def test_end_point_interpolation(
-    sample_ride_gpx,
+        sample_ride_gpx,
 ):
     ride = gpxo.Track(sample_ride_gpx)
     with open(sample_ride_gpx) as fp:
@@ -20,9 +20,8 @@ def test_end_point_interpolation(
     assert interpolated > datetime.fromisoformat('2024-01-08T20:53:38.767Z').replace(tzinfo=None)
 
 
-
 def test_end_point_interpolation_fewer_laps(
-    sample_ride_gpx
+        sample_ride_gpx
 ):
     ride = gpxo.Track(sample_ride_gpx)
     track_end = np.array([52.219954, 21.011319])  # last trackpoint in file
@@ -32,7 +31,7 @@ def test_end_point_interpolation_fewer_laps(
 
 
 def test_end_point_interpolation_too_many_laps(
-    sample_ride_gpx
+        sample_ride_gpx
 ):
     ride = gpxo.Track(sample_ride_gpx)
     track_end = np.array([52.219954, 21.011319])  # last trackpoint in file
@@ -41,7 +40,7 @@ def test_end_point_interpolation_too_many_laps(
 
 
 def test_end_point_interpolation_broken_race_end(
-    sample_ride_gpx
+        sample_ride_gpx
 ):
     ride = gpxo.Track(sample_ride_gpx)
     track_end = np.array([0., 0.])  # last trackpoint in file
@@ -52,7 +51,6 @@ def test_end_point_interpolation_broken_race_end(
 def test_process_submission(
         race_in_progress_with_rider_and_participation,
         db, sample_ride_gpx, sample_track_gpx):
-
     race, participation, rider, bike = race_in_progress_with_rider_and_participation
 
     process_race_result_submission(
@@ -75,22 +73,33 @@ def test_process_submission(
 def test_process_fallback_strategy(
         race_in_progress_with_rider_and_participation,
         db, sample_ride_gpx):
-
-
     broken_gpx = \
-    """<?xml version="1.0" encoding="UTF-8"?>
-        <gpx xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd http://www.topografix.com/GPX/gpx_style/0/2 http://www.topografix.com/GPX/gpx_style/0/2/gpx_style.xsd" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xmlns:gpx_style="http://www.topografix.com/GPX/gpx_style/0/2" version="1.1" creator="https://gpx.studio">
-        <metadata>
-            <name>new</name>
-        </metadata>
-        <trk>
-            <name>new</name>
-            <type>Cycling</type>
-            <trkseg>
-            </trkseg>
-        </trk>
-    </gpx>
-    """
+        """<?xml version="1.0" encoding="UTF-8"?>
+            <gpx xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns="http://www.topografix.com/GPX/1/1"
+              xsi:schemaLocation="http://www.topografix.com/GPX/1/1
+               http://www.topografix.com/GPX/1/1/gpx.xsd
+                http://www.garmin.com/xmlschemas/GpxExtensions/v3
+                 http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd
+                  http://www.garmin.com/xmlschemas/TrackPointExtension/v1
+                   http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd
+                    http://www.topografix.com/GPX/gpx_style/0/2
+                     http://www.topografix.com/GPX/gpx_style/0/2/gpx_style.xsd"
+                      xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1"
+                       xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3"
+                        xmlns:gpx_style="http://www.topografix.com/GPX/gpx_style/0/2"
+                         version="1.1" creator="https://gpx.studio">
+            <metadata>
+                <name>new</name>
+            </metadata>
+            <trk>
+                <name>new</name>
+                <type>Cycling</type>
+                <trkseg>
+                </trkseg>
+            </trk>
+        </gpx>
+        """
 
     race, participation, rider, bike = race_in_progress_with_rider_and_participation
 

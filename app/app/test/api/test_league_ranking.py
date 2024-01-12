@@ -6,7 +6,7 @@ from app.models.rider import RiderRead
 from app.models.classification import ClassificationRead
 from app.models.season import SeasonRead
 from app.models.rider_classification_link import RiderClassificationLinkRead
-from app.test.fixtures import NOVEMBER_TIME, PAST_TIME
+from app.test.fixtures import NOVEMBER_TIME
 
 
 def test_classification_list_riders(rider1_client, db, classification_with_rider, rider1):

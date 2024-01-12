@@ -1,9 +1,7 @@
-from datetime import datetime
-
 from sqlmodel import select
 from fastapi.encoders import jsonable_encoder
 
-from app.models.season import SeasonRead, Season
+from app.models.season import SeasonRead
 from app.models.classification import Classification
 
 

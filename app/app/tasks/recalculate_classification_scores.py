@@ -44,8 +44,8 @@ rain_multiplier = {
 @celery_app.task()
 def recalculate_classification_scores(
         season_id: Optional[list[int]] = None,
-        db: Session = None
-):
+        db: Optional[Session] = None
+) -> None:
     logger.info(f"Recalculating stats in season {season_id}")
 
     if not db:
@@ -63,22 +63,22 @@ def recalculate_classification_scores(
     else:
         season = db.get(Season, season_id)
 
-    general_classification = db.exec(
+    general_classification: Classification = db.exec(
         select(Classification).where(Classification.name == "Klasyfikacja generalna",
                                      Classification.season == season)
-    ).first()
-    road_classification = db.exec(
+    ).first()  # type: ignore[assignment]
+    road_classification: Classification = db.exec(
         select(Classification).where(Classification.name == "Szosa", Classification.season == season)
-    ).first()
-    fixie_classification = db.exec(
+    ).first()  # type: ignore[assignment]
+    fixie_classification: Classification = db.exec(
         select(Classification).where(Classification.name == "Ostre koło", Classification.season == season)
-    ).first()
-    men_classification = db.exec(
+    ).first()  # type: ignore[assignment]
+    men_classification: Classification = db.exec(
         select(Classification).where(Classification.name == "Mężczyźni", Classification.season == season)
-    ).first()
-    women_classification = db.exec(
+    ).first()  # type: ignore[assignment]
+    women_classification: Classification = db.exec(
         select(Classification).where(Classification.name == "Kobiety", Classification.season == season)
-    ).first()
+    ).first()  # type: ignore[assignment]
 
     race_participations = db.exec(
         select(RaceParticipation)
@@ -104,11 +104,11 @@ def recalculate_classification_scores(
             riders.append(p.rider)
             rider_ids.append(p.id)
     classification_rider_scores = {
-        general_classification.id: {r.id: 0 for r in riders},
-        road_classification.id: {r.id: 0 for r in riders},
-        fixie_classification.id: {r.id: 0 for r in riders},
-        men_classification.id: {r.id: 0 for r in riders if r.account.gender == Gender.male},
-        women_classification.id: {r.id: 0 for r in riders if r.account.gender == Gender.female}
+        general_classification.id: {r.id: 0. for r in riders},
+        road_classification.id: {r.id: 0. for r in riders},
+        fixie_classification.id: {r.id: 0. for r in riders},
+        men_classification.id: {r.id: 0. for r in riders if r.account.gender == Gender.male},
+        women_classification.id: {r.id: 0. for r in riders if r.account.gender == Gender.female}
     }
 
     for participation in race_participations:
@@ -121,7 +121,8 @@ def recalculate_classification_scores(
                 ) * temperature_multiplier[participation.race.temperature]
                           * wind_multiplier[participation.race.wind]
                           * rain_multiplier[participation.race.rain])
-                classification_rider_scores[race_classification_place.clasification_id][participation.rider_id] += points
+                classification_rider_scores[race_classification_place.clasification_id][
+                    participation.rider_id] += points
             except IndexError as e:
                 logger.warning(
                     f"Could not set score for race participation {participation.id}(rider {participation.rider_id}, "
@@ -154,5 +155,5 @@ def recalculate_classification_scores(
     logger.info("Task done!")
 
 
-def get_points_for_place(place_assigned: int, mapping: dict[int, int]):
+def get_points_for_place(place_assigned: int, mapping: dict[int, int]) -> int:
     return next((points for place, points in mapping.items() if place >= place_assigned), 0)

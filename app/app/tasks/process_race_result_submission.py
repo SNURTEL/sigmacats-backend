@@ -1,3 +1,4 @@
+from typing import Optional
 from datetime import datetime
 
 import gpxo
@@ -21,17 +22,20 @@ logger = get_logger()
 
 @celery_app.task()
 def process_race_result_submission(
-    race_id: int,
-    rider_id: int,
-    recording_filepath: str,
-    db: Session = None
-):
+        race_id: int,
+        rider_id: int,
+        recording_filepath: str,
+        db: Optional[Session] = None
+) -> None:
     logger.info(f"Received participation task for race_id={race_id}, rider_id={rider_id}")
 
     if not db:
         db = next(get_db())
 
-    race: Race = db.get(Race, race_id)
+    race = db.get(Race, race_id)
+
+    if not race:
+        raise ValueError(f"Race {race_id} not found")
 
     stmt: SelectOfScalar = (
         select(RaceParticipation)
@@ -40,7 +44,10 @@ def process_race_result_submission(
             RaceParticipation.rider_id == rider_id
         )
     )
-    race_participation: RaceParticipation = db.exec(stmt).first()
+    race_participation = db.exec(stmt).first()
+
+    if not race_participation:
+        raise ValueError(f"Race participation for race_id={race_id} ider_id{rider_id} not found")
 
     recording = gpxo.Track(recording_filepath)
     track = gpxo.Track(race.checkpoints_gpx_file)
@@ -48,14 +55,20 @@ def process_race_result_submission(
     try:
         start_timestamp = recording.data.head(1).index.to_pydatetime()[0]
     except (ValueError, IndexError, KeyError, TypeError) as e:
-        logger.warning(f"Could not read start timestamp for participation race_id={race_id}, rider_id={rider_id}, file={recording_filepath}. Falling back to race start.\n" + repr(e))
+        logger.warning(
+            f"Could not read start timestamp for participation race_id={race_id}, rider_id={rider_id}, "
+            f"file={recording_filepath}. Falling back to race start.\n" + repr(
+                e))
         start_timestamp = race.start_timestamp
 
     try:
         end_point = track.data.tail(1)[['latitude (°)', 'longitude (°)']].values.T.squeeze()
         end_timestamp = interpolate_end_timestamp(recording=recording, end_point=end_point, no_laps=race.no_laps)
     except (ValueError, IndexError, KeyError, TypeError) as e:
-        logger.warning(f"Could not interpolate end timestamp for participation race_id={race_id}, rider_id={rider_id}, file={recording_filepath}. Falling back to now().\n" +repr(e))
+        logger.warning(
+            f"Could not interpolate end timestamp for participation race_id={race_id}, rider_id={rider_id}, "
+            f"file={recording_filepath}. Falling back to now().\n" + repr(
+                e))
         end_timestamp = datetime.now()
 
     race_participation.ride_start_timestamp = start_timestamp
@@ -77,14 +90,14 @@ def process_race_result_submission(
     )
     all_participations = db.exec(stmt).all()
 
-    if all([p.ride_end_timestamp != None for p in all_participations]):
+    if all([p.ride_end_timestamp is not None for p in all_participations]):
         logger.info(f"Looks like all riders finished race {race_id} - closing and assigning places.")
         end_race_and_generate_places(race_id=race_id, db=db)
 
     return
 
 
-def interpolate_end_timestamp(recording: gpxo.Track, end_point: np.array, no_laps: int) -> datetime:
+def interpolate_end_timestamp(recording: gpxo.Track, end_point: np.ndarray, no_laps: int) -> datetime:
     if end_point.shape != (2,):
         raise ValueError(f'GPX processing error: end point coordinates have wrong shape ({end_point.shape})')
 
@@ -96,7 +109,8 @@ def interpolate_end_timestamp(recording: gpxo.Track, end_point: np.array, no_lap
     df = recording.data
 
     # calculate distance to track end point
-    dist = df.apply(lambda r: np.linalg.norm(np.array([r['latitude (°)'], r['longitude (°)']]) - end_point), axis='columns')
+    dist = df.apply(lambda r: np.linalg.norm(np.array([r['latitude (°)'], r['longitude (°)']]) - end_point),
+                    axis='columns')
     # find points locally closest to track end
     indices = argrelmin(dist.values, order=5)[0]
 
@@ -116,14 +130,15 @@ def interpolate_end_timestamp(recording: gpxo.Track, end_point: np.array, no_lap
         raise ValueError("No trackpoint in GPX is near race end point")
 
     # get trackpoint closest to end in final lap; use `min` in case recording in app starts with a delay
-    closest = filtered.iloc[[min(max(no_laps, len(filtered)), no_laps+1)-1]]
+    closest = filtered.iloc[[min(max(no_laps, len(filtered)), no_laps + 1) - 1]]
 
     if closest.empty:
         raise ValueError('GPX processing error: could not find closest point')
 
     merged_with_timestamp = merged.assign(timestamp=merged.index)
     # sample neighbouring points to closes, discard one with the greatest dist
-    samples = pd.concat([closest.assign(timestamp=closest.index), merged_with_timestamp.shift(1).loc[closest.index], merged_with_timestamp.shift(-1).loc[closest.index]])
+    samples = pd.concat([closest.assign(timestamp=closest.index), merged_with_timestamp.shift(1).loc[closest.index],
+                         merged_with_timestamp.shift(-1).loc[closest.index]])
     p1, p2 = samples.nsmallest(2, columns='dist')[['latitude (°)', 'longitude (°)']].values
     t1, t2 = samples.nsmallest(2, columns='dist')['timestamp']
 
@@ -142,9 +157,11 @@ def interpolate_end_timestamp(recording: gpxo.Track, end_point: np.array, no_lap
     # estimate timestamp for interpolated point
     delta_p = np.linalg.norm(p1 - p2)
     delta_t = t_second - t_first
-    t_interpolated = t_first + delta_t * (np.linalg.norm(p_first- p_interpolated) / delta_p)
+    t_interpolated = t_first + delta_t * (np.linalg.norm(p_first - p_interpolated) / delta_p)
 
     if not t_first <= t_interpolated <= t_second:
-        raise ValueError(f'GPX processing error: interpolated timestamp not between interpolation points ({t_first} <= {t_interpolated} <= {t_second})')
+        raise ValueError(
+            f'GPX processing error: interpolated timestamp not between interpolation points '
+            f'({t_first} <= {t_interpolated} <= {t_second})')
 
     return t_interpolated

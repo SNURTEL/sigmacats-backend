@@ -1,5 +1,4 @@
 import os
-from zoneinfo import ZoneInfo
 
 broker_url = os.environ.get("CELERY_BROKER_URL")
 result_backend = os.environ.get("CELERY_RESULT_BACKEND_URL")

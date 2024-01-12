@@ -49,6 +49,7 @@ def test_submit_race_result_access(
 
     assert response.status_code == code
 
+
 def test_submit_race_result_malformed_gpx_400(
         rider1_client,
         race_in_progress_with_rider_and_participation,
@@ -162,5 +163,3 @@ def test_submit_race_result_already_submitted(
         data={"fileobj.path": sample_ride_gpx}
     )
     assert response.status_code == 400
-
-

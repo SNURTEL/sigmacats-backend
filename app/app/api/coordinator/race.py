@@ -1,6 +1,5 @@
 import shutil
 import uuid
-from datetime import datetime, timedelta
 
 import imghdr
 import gpxo
@@ -32,8 +31,8 @@ LOOP_DISTANCE_THRESHOLD = 0.00015
 
 router = APIRouter()
 
-
 logger = get_logger()
+
 
 # mypy: disable-error-code=var-annotated
 
@@ -85,7 +84,7 @@ async def create_race(
     """
     current_season = db.exec(
         select(Season)
-        .order_by(Season.start_timestamp.desc())
+        .order_by(Season.start_timestamp.desc())  # type: ignore[attr-defined]
     ).first()
 
     if not current_season:
@@ -103,13 +102,14 @@ async def create_race(
         db.add(race)
         db.commit()
     except (IntegrityError, ValidationError) as e:
-        logger.error("Creating race failed: " +repr(e))
+        logger.error("Creating race failed: " + repr(e))
         raise HTTPException(400)
 
     db.refresh(race)
 
     tz = pytz.timezone('Poland')
-    task_id = set_race_in_progress.apply_async(args=[race.id], eta=tz.localize(race.start_timestamp).astimezone(pytz.UTC))
+    task_id = set_race_in_progress.apply_async(args=[race.id],
+                                               eta=tz.localize(race.start_timestamp).astimezone(pytz.UTC))
 
     race.celery_task_id = str(task_id)
     db.add(race)
@@ -303,7 +303,7 @@ async def race_force_end(
     end_race_and_generate_places(race_id=id, db=db)
 
     db.refresh(race)
-    return race.race_participations
+    return [RaceParticipationListRead.from_orm(r) for r in race.race_participations]
 
 
 @router.patch("/{id}/participations")
@@ -337,8 +337,8 @@ async def race_assign_places(
     if any([p.place_assigned_overall is not None for p in participations]):
         raise HTTPException(400, "Places already assigned.")
 
-    if not len(updates_approved) == len(participations) or {rpu.id for rpu in updates_approved} != {
-        p.id for p in participations}:
+    if (not len(updates_approved) == len(participations)
+            or {rpu.id for rpu in updates_approved} != {p.id for p in participations}):
         raise HTTPException(400, "Cannot map provided updates to race participations 1:1")
 
     if not all([rpu.place_assigned_overall > 0 for rpu in updates_approved]):
@@ -356,5 +356,5 @@ async def race_assign_places(
 
     assign_places_in_classifications.delay(race_id=id)
 
-    return [p for p in race.race_participations if
-            p.status == RaceParticipationStatus.approved]  # type: ignore[return-value]
+    return [RaceParticipationListRead.from_orm(p) for p in race.race_participations if
+            p.status == RaceParticipationStatus.approved]

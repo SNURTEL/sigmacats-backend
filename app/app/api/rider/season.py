@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from sqlmodel.sql.expression import SelectOfScalar
-import datetime
 
 from app.db.session import get_db
 
@@ -36,10 +35,9 @@ async def read_current_season(db: Session = Depends(get_db)) -> SeasonRead:
     """
     Get the current season.
     """
-    current_date = datetime.datetime.now()
     stmt: SelectOfScalar = (
         select(Season)
-        .order_by(Season.start_timestamp.desc())
+        .order_by(Season.start_timestamp.desc())  # type: ignore[attr-defined]
     )
     season = db.exec(stmt).first()
 

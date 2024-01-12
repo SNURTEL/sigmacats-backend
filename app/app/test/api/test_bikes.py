@@ -6,8 +6,6 @@ from app.models.bike import BikeType
 def test_read_bikes(rider1_client, rider1, db, bike_rider1_road, bike_rider1_fixie):
     response = rider1_client.get("/api/rider/bike")
     assert response.status_code == 200
-    # assert response.json()[-2:] == [jsonable_encoder(Bike.from_orm(item)) for item in
-    #                                 (bike_rider1_road, bike_rider1_fixie)]
 
 
 def test_read_bikes_different_rider(rider2_client, rider1, db, bike_rider1_road, bike_rider1_fixie):

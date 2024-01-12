@@ -1,13 +1,11 @@
-import json
-from datetime import datetime
-from typing import Callable
+from typing import Callable, Optional
 
 from sqlmodel import Session, select
 
 from app.core.celery import celery_app
 from app.db.session import get_db
 from app.tasks.recalculate_classification_scores import recalculate_classification_scores
-from app.models.race import Race, RaceStatus
+from app.models.race import Race
 from app.models.bike import BikeType
 from app.models.season import Season
 from app.models.account import Gender
@@ -22,8 +20,8 @@ logger = get_logger()
 @celery_app.task()
 def assign_places_in_classifications(
         race_id: int,
-        db: Session = None
-):
+        db: Optional[Session] = None
+) -> None:
     logger.info(f"Granting points for race {race_id}")
 
     if not db:
@@ -31,22 +29,25 @@ def assign_places_in_classifications(
 
     race = db.get(Race, race_id)
 
-    general_classification = db.exec(
+    if not race:
+        raise ValueError(f"Race {race_id} not found")
+
+    general_classification: Classification = db.exec(
         select(Classification).where(Classification.name == "Klasyfikacja generalna",
                                      Classification.season == race.season)
-    ).first()
-    road_classification = db.exec(
+    ).first()  # type: ignore[assignment]
+    road_classification: Classification = db.exec(
         select(Classification).where(Classification.name == "Szosa", Classification.season == race.season)
-    ).first()
-    fixie_classification = db.exec(
+    ).first()  # type: ignore[assignment]
+    fixie_classification: Classification = db.exec(
         select(Classification).where(Classification.name == "Ostre koło", Classification.season == race.season)
-    ).first()
-    men_classification = db.exec(
+    ).first()  # type: ignore[assignment]
+    men_classification: Classification = db.exec(
         select(Classification).where(Classification.name == "Mężczyźni", Classification.season == race.season)
-    ).first()
-    women_classification = db.exec(
+    ).first()  # type: ignore[assignment]
+    women_classification: Classification = db.exec(
         select(Classification).where(Classification.name == "Kobiety", Classification.season == race.season)
-    ).first()
+    ).first()  # type: ignore[assignment]
 
     classificaitons = [general_classification, road_classification, fixie_classification, men_classification,
                        women_classification]
@@ -86,22 +87,20 @@ def assign_places_in_classifications(
         filter=lambda p: p.rider.account.gender == Gender.female
     )
 
-    for e in general_classification_race_entries + \
-             road_classification_race_entries + \
-             fixie_classification_race_entries + \
-             men_classification_race_entries + \
-             women_classification_race_entries:
+    for e in (general_classification_race_entries + road_classification_race_entries
+              + fixie_classification_race_entries + men_classification_race_entries
+              + women_classification_race_entries):
         db.add(e)
 
     db.commit()
 
     season = db.exec(
         select(Season)
-        .order_by(Season.start_timestamp.desc())
+        .order_by(Season.start_timestamp.desc())  # type: ignore[attr-defined]
     ).first()
 
     if not season:
-        logger.warning(f"Could not find current season. Scores will NOT be recalculated.")
+        logger.warning("Could not find current season. Scores will NOT be recalculated.")
     else:
         recalculate_classification_scores.delay(
             season_id=season.id
@@ -117,7 +116,8 @@ def create_race_classification_entries(
 ) -> list[RiderParticipationClassificationPlace]:
     race_classification_entries = []
     offset = 0
-    for participation in sorted(participations, key=lambda p: p.place_assigned_overall):
+    for participation in sorted(participations,
+                                key=lambda p: p.place_assigned_overall):  # type: ignore[arg-type, return-value]
         if not filter(participation):
             offset += 1
             continue
@@ -126,7 +126,7 @@ def create_race_classification_entries(
             RiderParticipationClassificationPlace(
                 classification=classification,
                 race_participation=participation,
-                place=participation.place_assigned_overall - offset
+                place=participation.place_assigned_overall - offset if participation.place_assigned_overall else 99999
             )
         )
 
