@@ -232,7 +232,7 @@ def create_initial_data(
         race3,
         dummy_race_participation_classification_place,
 
-        first_rider_account,
+        rider_account,
         second_rider_account,
         coordinator_account,
         admin_account,
