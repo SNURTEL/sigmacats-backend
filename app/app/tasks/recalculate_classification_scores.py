@@ -56,7 +56,7 @@ def recalculate_classification_scores(
         season = db.exec(
             select(Season).where(
                 Season.start_timestamp <= now,
-                Season.end_timestamp > now
+                Season.end_timestamp is None
             )
         ).first()
 

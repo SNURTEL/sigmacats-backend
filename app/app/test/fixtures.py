@@ -246,8 +246,18 @@ def riders_with_bikes(
 def season(db) -> Generator[Season, Any, None]:
     season = Season(
         name="Sezon 1",
-        start_timestamp=datetime(day=2, month=10, year=2021),
-        end_timestamp=datetime(day=19, month=2, year=2024)
+        start_timestamp=datetime(day=1, month=1, year=2024)
+    )
+    db.add(season)
+    db.commit()
+    yield season
+
+
+@pytest.fixture(scope="function")
+def season2(db) -> Generator[Season, Any, None]:
+    season = Season(
+        name="Sezon 2",
+        start_timestamp=datetime(day=2, month=10, year=2027)
     )
     db.add(season)
     db.commit()

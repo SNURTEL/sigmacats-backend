@@ -95,7 +95,7 @@ def assign_places_in_classifications(
     season = db.exec(
         select(Season)
         .where(Season.start_timestamp <= now,
-               Season.end_timestamp > now)
+               Season.end_timestamp is None)
     ).first()
 
     if not season:
