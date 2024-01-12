@@ -12,6 +12,10 @@ from sqlmodel.sql.expression import SelectOfScalar
 
 from app.core.users import get_user_manager, get_user_db, current_active_user
 from app.tasks.process_race_result_submission import process_race_result_submission
+from app.tasks.recalculate_classification_scores import recalculate_classification_scores
+from app.tasks.assign_places_in_classifications import assign_places_in_classifications
+from app.tasks.generate_race_places import end_race_and_generate_places
+from app.tasks.set_race_in_progress import set_race_in_progress
 
 from app.models.account import Account, AccountCreate, AccountType
 from app.models.rider import Rider
@@ -579,7 +583,14 @@ def sample_ride_gpx() -> Generator[str, Any, None]:
 
 @pytest.fixture(scope="function")
 def disable_celery_tasks(monkeypatch):
-    monkeypatch.setattr(process_race_result_submission, 'delay', lambda *args, **kwargs: None)
+    for task in [
+        assign_places_in_classifications,
+        end_race_and_generate_places,
+        process_race_result_submission,
+        recalculate_classification_scores,
+        set_race_in_progress]:
+        monkeypatch.setattr(task, 'delay', lambda *args, **kwargs: None)
+        monkeypatch.setattr(task, 'apply_async', lambda *args, **kwargs: None)
 
 
 @pytest.fixture(scope="function")

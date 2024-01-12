@@ -5,6 +5,7 @@ from typing import Callable
 from sqlmodel import Session, select
 
 from app.core.celery import celery_app
+from app.db.session import get_db
 from app.tasks.recalculate_classification_scores import recalculate_classification_scores
 from app.models.race import Race, RaceStatus
 from app.models.bike import BikeType
@@ -24,6 +25,9 @@ def assign_places_in_classifications(
         db: Session = None
 ):
     logger.info(f"Granting points for race {race_id}")
+
+    if not db:
+        db = next(get_db())
 
     race = db.get(Race, race_id)
 

@@ -1,7 +1,10 @@
 import shutil
 import uuid
+from datetime import datetime, timedelta
+
 import imghdr
 import gpxo
+import pytz
 import numpy as np
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -12,7 +15,10 @@ from pydantic import ValidationError
 
 from sqlalchemy.exc import IntegrityError
 
+from app.core.celery import celery_app
 from app.db.session import get_db
+from app.util.log import get_logger
+from app.tasks.set_race_in_progress import set_race_in_progress
 
 from app.tasks.generate_race_places import end_race_and_generate_places
 from app.tasks.assign_places_in_classifications import assign_places_in_classifications
@@ -26,6 +32,8 @@ LOOP_DISTANCE_THRESHOLD = 0.00015
 
 router = APIRouter()
 
+
+logger = get_logger()
 
 # mypy: disable-error-code=var-annotated
 
@@ -87,8 +95,18 @@ async def create_race(
         })
         db.add(race)
         db.commit()
-    except (IntegrityError, ValidationError):
+    except (IntegrityError, ValidationError) as e:
+        logger.error("Creating race failed: " +repr(e))
         raise HTTPException(400)
+
+    db.refresh(race)
+
+    tz = pytz.timezone('Poland')
+    task_id = set_race_in_progress.apply_async(args=[race.id], eta=tz.localize(race.start_timestamp).astimezone(pytz.UTC))
+
+    race.celery_task_id = str(task_id)
+    db.add(race)
+    db.commit()
 
     return RaceReadDetailCoordinator.from_orm(race)
 
@@ -182,6 +200,16 @@ async def update_race(
         db.add(race)
         db.commit()
         db.refresh(race)
+
+        if race_update.start_timestamp is not None:
+            celery_app.control.revoke(race.celery_task_id, terminate=True)
+            tz = pytz.timezone('Poland')
+            task_id = set_race_in_progress.apply_async(args=[race.id],
+                                                       eta=tz.localize(race.start_timestamp).astimezone(pytz.UTC))
+            race.celery_task_id = str(task_id)
+            db.add(race)
+            db.commit()
+
     except (IntegrityError, ValidationError):
         raise HTTPException(400)
 
