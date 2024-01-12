@@ -16,6 +16,7 @@ from app.models.rider import Rider
 
 def create_initial_data(
         rider_account: Account,
+        second_rider_account: Account,
         coordinator_account: Account,
         admin_account: Account,
 ) -> list[SQLModel]:
@@ -33,6 +34,13 @@ def create_initial_data(
         model="Floater Race",
     )
 
+    bike_other = Bike(
+        name="Pierun",
+        type=BikeType.other,
+        brand="Lightning inc.",
+        model="Ultra Cloud",
+    )
+
     # dummy_rider_account = Account(
     #     type="rider",
     #     username="dummy_rider",
@@ -48,7 +56,9 @@ def create_initial_data(
     # )
 
     assert isinstance(rider_account.rider, Rider)
+    assert isinstance(second_rider_account.rider, Rider)
     rider_account.rider.bikes = [bike_road, bike_fixie]
+    second_rider_account.rider.bikes = [bike_other]
 
     season = Season(
         name="23Z :d",
@@ -208,6 +218,7 @@ def create_initial_data(
         # dummy_rider_account,
         bike_road,
         bike_fixie,
+        bike_other,
         dummy_classification,
         general_classification,
         road_classification,
@@ -221,7 +232,8 @@ def create_initial_data(
         race3,
         dummy_race_participation_classification_place,
 
-        rider_account,
+        first_rider_account,
+        second_rider_account,
         coordinator_account,
         admin_account,
     ]

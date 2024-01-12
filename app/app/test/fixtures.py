@@ -3,7 +3,7 @@ import shutil
 import os
 import uuid
 from typing import Generator, Any, Iterable, Callable, Optional
-from datetime import datetime
+import datetime
 
 import pytest
 from fastapi.testclient import TestClient
@@ -29,6 +29,9 @@ from app.models.rider_classification_link import RiderClassificationLink
 from app.models.ride_participation_classification_place import RiderParticipationClassificationPlace
 
 from app.main import app
+
+NOVEMBER_TIME = datetime.datetime(2023, 11, 1, 1, 1, 1)
+PAST_TIME = datetime.datetime(1997, 11, 1, 1, 1, 1)
 
 
 async def create_account(
@@ -250,7 +253,7 @@ def riders_with_bikes(
 def season(db) -> Generator[Season, Any, None]:
     season = Season(
         name="Sezon 1",
-        start_timestamp=datetime(day=1, month=1, year=2024)
+        start_timestamp=datetime.datetime(day=1, month=1, year=2024)
     )
     db.add(season)
     db.commit()
@@ -261,7 +264,7 @@ def season(db) -> Generator[Season, Any, None]:
 def season2(db) -> Generator[Season, Any, None]:
     season = Season(
         name="Sezon 2",
-        start_timestamp=datetime(day=2, month=10, year=2027)
+        start_timestamp=datetime.datetime(day=2, month=10, year=2027)
     )
     db.add(season)
     db.commit()
@@ -287,9 +290,9 @@ def race_pending(db, season, race_bonus_snow) -> Generator[Race, Any, None]:
         name="Jazda w śniegu",
         description="Jak w tytule. blablabla",
         checkpoints_gpx_file="foo1",
-        meetup_timestamp=datetime(day=20, month=12, year=2022, hour=12),
-        start_timestamp=datetime(day=20, month=12, year=2022, hour=12, minute=30),
-        end_timestamp=datetime(day=20, month=12, year=2022, hour=14),
+        meetup_timestamp=datetime.datetime(day=20, month=12, year=2022, hour=12),
+        start_timestamp=datetime.datetime(day=20, month=12, year=2022, hour=12, minute=30),
+        end_timestamp=datetime.datetime(day=20, month=12, year=2022, hour=14),
         entry_fee_gr=1500,
         no_laps=3,
         temperature=RaceTemperature.cold,
@@ -456,9 +459,9 @@ def race_ended(db, season) -> Generator[Race, Any, None]:
         description="opis.",
         requirements="Kask",
         checkpoints_gpx_file="foo2",
-        meetup_timestamp=datetime(day=1, month=10, year=2022, hour=11, minute=30),
-        start_timestamp=datetime(day=1, month=10, year=2022, hour=12, minute=00),
-        end_timestamp=datetime(day=1, month=10, year=2022, hour=15),
+        meetup_timestamp=datetime.datetime(day=1, month=10, year=2022, hour=11, minute=30),
+        start_timestamp=datetime.datetime(day=1, month=10, year=2022, hour=12, minute=00),
+        end_timestamp=datetime.datetime(day=1, month=10, year=2022, hour=15),
         entry_fee_gr=0,
         no_laps=1,
         event_graphic_file="foo2",
@@ -648,8 +651,8 @@ def race_factory(db) -> Generator[Callable, Any, None]:
             status: RaceStatus,
             checkpoints_gpx_file: Optional[str] = None,
             event_graphic_file: Optional[str] = None,
-            start_timestamp: datetime = datetime(2024, 1, 1, 12, 0, 0),
-            end_timestamp: datetime = datetime(2024, 1, 1, 14, 0, 0),
+            start_timestamp: datetime.datetime = datetime.datetime(2024, 1, 1, 12, 0, 0),
+            end_timestamp: datetime.datetime = datetime.datetime(2024, 1, 1, 14, 0, 0),
             name: str = "test race",
             description: str = "test description",
             place_to_points_mapping_json: str = "[]",
@@ -714,3 +717,43 @@ def classifications(season, db) -> Generator[tuple[Classification], Any, None]:
     db.add_all(classifications.values())
     db.commit()
     yield classifications
+
+
+
+@pytest.fixture(scope="function")
+def rider_classification_link(db, season, rider1) -> Generator[RiderClassificationLink, Any, None]:
+    classification = Classification(
+        name="Dzieci",
+        description="<18 lat",
+        season=season,
+    )
+
+    riderClassificationLink = RiderClassificationLink(  # noqa: F841
+        score=10,
+        rider=rider1,
+        classification=classification
+    )
+
+    db.add(classification)
+    db.commit()
+    yield riderClassificationLink
+
+
+@pytest.fixture(scope="function")
+def patch_datetime_now(monkeypatch):
+    class November(datetime.datetime):
+        @classmethod
+        def now(cls):
+            return NOVEMBER_TIME
+
+    monkeypatch.setattr(datetime, 'datetime', November)
+
+
+@pytest.fixture(scope="function")
+def patch_datetime_past(monkeypatch):
+    class November(datetime.datetime):
+        @classmethod
+        def now(cls):
+            return PAST_TIME
+
+    monkeypatch.setattr(datetime, 'datetime', November)
