@@ -205,7 +205,12 @@ def create_initial_data(
         status=RaceParticipationStatus.approved.value,
         rider=rider_account.rider,
         race=race1,
-        bike=bike_road
+        bike=bike_road,
+        ride_start_timestamp=datetime(2023, 11, 6, 12, 0, 0),
+        ride_end_timestamp=datetime(2023, 11, 6, 14, 0, 0),
+        ride_gpx_file="not_really",
+        place_generated_overall=1,
+        place_assigned_overall=1
     )
 
     dummy_race_participation_classification_place = RiderParticipationClassificationPlace(

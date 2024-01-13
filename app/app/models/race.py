@@ -15,7 +15,8 @@ from .race_bonus_race_link import RaceBonusRaceLink
 if TYPE_CHECKING:
     from .season import Season, SeasonRead
     from .race_bonus import RaceBonus, RaceBonusListRead
-    from .race_participation import RaceParticipation, RaceParticipationStatus, RaceParticipationListRead
+    from .race_participation import RaceParticipation, RaceParticipationStatus, RaceParticipationListRead, \
+        RaceParticipationListReadNames
 
 
 class RaceStatus(Enum):
@@ -201,9 +202,34 @@ class RaceReadListCoordinator(SQLModel):
     end_timestamp: datetime
     event_graphic_file: str
     season_id: int = Field(foreign_key="season.id")
+    is_approved: bool
 
 
 class RaceReadDetailCoordinator(SQLModel):
+    id: int
+    status: RaceStatus
+    name: str
+    description: str
+    requirements: Optional[str] = Field(default=None)
+    no_laps: int
+    meetup_timestamp: Optional[datetime] = Field(default=None)
+    start_timestamp: datetime
+    end_timestamp: datetime
+    event_graphic_file: str
+    checkpoints_gpx_file: str
+    entry_fee_gr: int
+    season: "SeasonRead"
+    bonuses: list["RaceBonusListRead"]
+    race_participations: list["RaceParticipationListReadNames"] = Field(default=None)
+    temperature: Optional[RaceTemperature]
+    rain: Optional[RaceRain]
+    wind: Optional[RaceWind]
+    place_to_points_mapping_json: str
+    sponsor_banners_uuids_json: Optional[str]
+    is_approved: bool
+
+
+class RaceReadUpdatedCoordinator(SQLModel):
     id: int
     status: RaceStatus
     name: str
@@ -224,3 +250,4 @@ class RaceReadDetailCoordinator(SQLModel):
     wind: Optional[RaceWind]
     place_to_points_mapping_json: str
     sponsor_banners_uuids_json: Optional[str]
+    is_approved: bool

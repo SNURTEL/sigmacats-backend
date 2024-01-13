@@ -1,4 +1,5 @@
-from app.models.race_participation import RaceParticipation, RaceParticipationStatus, RaceParticipationListRead
+from app.models.race_participation import RaceParticipation, RaceParticipationStatus, RaceParticipationListReadNames, \
+    RaceParticipationListRead
 from app.models.bike import Bike, BikeType
 from app.models.rider import Rider, RiderRead
 from app.models.season import Season
@@ -8,7 +9,8 @@ from app.models.race_bonus import RaceBonus
 from app.models.account import Account, Gender, AccountType
 from app.models.ride_participation_classification_place import RiderParticipationClassificationPlace
 from app.models.rider_classification_link import RiderClassificationLink
-from app.models.race import RaceReadDetailRider, RaceReadDetailCoordinator, RaceReadListRider
+from app.models.race import RaceReadDetailRider, RaceReadDetailCoordinator, RaceReadListRider, \
+    RaceReadUpdatedCoordinator
 from app.models.season import SeasonRead
 from app.models.race_bonus import RaceBonusListRead
 
@@ -108,6 +110,11 @@ def update_forward_refs() -> None:
     )
 
     RaceReadDetailCoordinator.update_forward_refs(
+        RaceBonusListRead=RaceBonusListRead,
+        SeasonRead=SeasonRead,
+        RaceParticipationListReadNames=RaceParticipationListReadNames)
+
+    RaceReadUpdatedCoordinator.update_forward_refs(
         RaceBonusListRead=RaceBonusListRead,
         SeasonRead=SeasonRead,
         RaceParticipationListRead=RaceParticipationListRead)
