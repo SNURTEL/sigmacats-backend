@@ -1,5 +1,5 @@
 from typing import Optional, TYPE_CHECKING
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import Enum
 
 from sqlmodel import SQLModel, Field, Relationship, CheckConstraint
@@ -64,6 +64,13 @@ class RaceParticipationListRead(SQLModel):
     status: RaceParticipationStatus
     place_generated_overall: Optional[int]
     place_assigned_overall: Optional[int]
+
+
+class RaceParticipationListReadNames(RaceParticipationListRead):
+    rider_name: str
+    rider_surname: str
+    rider_username: str
+    time_seconds: Optional[timedelta]
 
 
 class RaceParticipationAssignPlaceListUpdate(SQLModel):

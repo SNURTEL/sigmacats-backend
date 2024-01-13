@@ -22,10 +22,11 @@ from app.tasks.set_race_in_progress import set_race_in_progress
 from app.tasks.generate_race_places import end_race_and_generate_places
 from app.tasks.assign_places_in_classifications import assign_places_in_classifications
 
-from app.models.race import Race, RaceStatus, RaceCreate, RaceUpdate, RaceReadDetailCoordinator, RaceReadListCoordinator
+from app.models.race import Race, RaceStatus, RaceCreate, RaceUpdate, RaceReadDetailCoordinator, \
+    RaceReadListCoordinator, RaceReadUpdatedCoordinator
 from app.models.season import Season
 from app.models.race_participation import RaceParticipationListRead, RaceParticipation, RaceParticipationStatus, \
-    RaceParticipationAssignPlaceListUpdate
+    RaceParticipationAssignPlaceListUpdate, RaceParticipationListReadNames
 
 LOOP_DISTANCE_THRESHOLD = 0.00015
 
@@ -52,7 +53,9 @@ async def read_races(
     )
     races = db.exec(stmt).all()
 
-    return races  # type: ignore[return-value]
+    return [RaceReadListCoordinator.from_orm(r, update={
+        "is_approved": any([p.place_assigned_overall is not None for p in r.race_participations])}) for r in
+            races]  # type: ignore[return-value]
 
 
 @router.get("/{id}")
@@ -71,7 +74,18 @@ async def read_race(
     if not race:
         raise HTTPException(404)
 
-    return RaceReadDetailCoordinator.from_orm(race)
+    is_approved = any([p.place_assigned_overall is not None for p in race.race_participations])
+
+    return RaceReadDetailCoordinator.from_orm(race, update={
+        "is_approved": is_approved,
+        "race_participations": [RaceParticipationListReadNames.from_orm(p, update={
+            "rider_name": p.rider.account.name,
+            "rider_surname": p.rider.account.surname,
+            "rider_username": p.rider.account.username,
+            "time_seconds": p.ride_end_timestamp - p.ride_start_timestamp if (
+                    p.ride_start_timestamp and p.ride_end_timestamp) else None
+        }) for p in race.race_participations]
+    })
 
 
 @router.post("/create")
@@ -115,7 +129,7 @@ async def create_race(
     db.add(race)
     db.commit()
 
-    return RaceReadDetailCoordinator.from_orm(race)
+    return RaceReadDetailCoordinator.from_orm(race, update={"is_approved": False})
 
 
 @router.post("/create/upload-route/", status_code=201)
@@ -187,7 +201,7 @@ async def update_race(
         id: int,
         race_update: RaceUpdate,
         db: Session = Depends(get_db)
-) -> RaceReadDetailCoordinator:
+) -> RaceReadUpdatedCoordinator:
     """
     Update race details.
     """
@@ -220,7 +234,8 @@ async def update_race(
     except (IntegrityError, ValidationError):
         raise HTTPException(400)
 
-    return RaceReadDetailCoordinator.from_orm(race)
+    return RaceReadUpdatedCoordinator.from_orm(race, update={
+        "is_approved": any([p.place_assigned_overall is not None for p in race.race_participations])})
 
 
 @router.post("/{id}/cancel")
@@ -240,7 +255,7 @@ async def cancel_race(
     db.add(race)
     db.commit()
     db.refresh(race)
-    return RaceReadDetailCoordinator.from_orm(race)
+    return RaceReadDetailCoordinator.from_orm(race, update={"is_approved": False})
 
 
 @router.get("/{id}/participations")

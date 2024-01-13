@@ -8,14 +8,17 @@ from app.models.race_participation import RaceParticipationStatus
 def test_coordinator_list_races(coordinator_client, db, race_pending, race_ended):
     response = coordinator_client.get("/api/coordinator/race")
     assert response.status_code == 200
-    assert response.json()[-2:] == [jsonable_encoder(RaceReadListCoordinator.from_orm(item)) for item in
-                                    (race_pending, race_ended)]
+    assert response.json()[-2:] == [
+        jsonable_encoder(RaceReadListCoordinator.from_orm(item, update={"is_approved": False})) for item in
+        (race_pending, race_ended)
+    ]
 
 
 def test_coordinator_race_detail(coordinator_client, db, race_pending):
     response = coordinator_client.get(f"/api/coordinator/race/{race_pending.id}")
     assert response.status_code == 200
-    assert response.json() == jsonable_encoder(RaceReadDetailCoordinator.from_orm(race_pending))
+    assert response.json() == jsonable_encoder(RaceReadDetailCoordinator.from_orm(race_pending,
+                                                                                  update={"is_approved": False}))
 
 
 def test_coordinator_race_detail_404(coordinator_client, db):
