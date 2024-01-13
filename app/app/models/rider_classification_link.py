@@ -34,3 +34,4 @@ class RiderClassificationLinkRiderDetails(SQLModel):
     score: int
     name: str
     surname: str
+    username: str

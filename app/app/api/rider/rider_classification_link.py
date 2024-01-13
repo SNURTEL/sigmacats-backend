@@ -40,7 +40,8 @@ async def read_scores_from_classification(
                 scores.append(RiderClassificationLinkRiderDetails(
                     score=link.score,
                     name=rider.account.name,
-                    surname=rider.account.surname)
+                    surname=rider.account.surname,
+                    username=rider.account.username)
                 )
 
     return sorted(scores, key=lambda x: x.score, reverse=True)
