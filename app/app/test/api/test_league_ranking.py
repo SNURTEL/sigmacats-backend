@@ -4,9 +4,9 @@ from fastapi.encoders import jsonable_encoder
 
 from app.models.rider import RiderRead
 from app.models.classification import ClassificationRead
-from app.models.season import SeasonListRead
+from app.models.season import SeasonRead
 from app.models.rider_classification_link import RiderClassificationLinkRead, RiderClassificationLinkRiderDetails
-from app.test.fixtures import NOVEMBER_TIME, PAST_TIME
+from app.test.fixtures import NOVEMBER_TIME
 
 
 def test_classification_list_riders(rider1_client, db, classification_with_rider, rider1):
@@ -40,17 +40,11 @@ def test_season_current(rider1_client, season_1, db, patch_datetime_now):
     response = rider1_client.get("/api/rider/season/current")
     assert datetime.datetime.now() == NOVEMBER_TIME
     assert response.status_code == 200
-    assert response.json() == jsonable_encoder(SeasonListRead.from_orm(season_1))
-
-
-def test_season_no_current_season_404(rider1_client, db, patch_datetime_past):
-    response = rider1_client.get("/api/rider/season/current")
-    assert datetime.datetime.now() == PAST_TIME
-    assert response.status_code == 404
+    assert response.json() == jsonable_encoder(SeasonRead.from_orm(season_1))
 
 
 def test_season_all(rider1_client, db, season_1, season_2):
-    seasons = [jsonable_encoder(SeasonListRead.from_orm(season)) for season in [season_1, season_2]]
+    seasons = [jsonable_encoder(SeasonRead.from_orm(season)) for season in [season_1, season_2]]
     response = rider1_client.get("/api/rider/season/all")
     assert response.status_code == 200
     for season in seasons:

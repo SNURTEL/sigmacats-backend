@@ -15,4 +15,4 @@ done
 
 celery -A app.core.celery  \
     --broker="${CELERY_BROKER_URL}" \
-    flower
+    flower --port=5001
