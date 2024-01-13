@@ -81,9 +81,15 @@ def create_initial_data(
     third_rider_account.rider.bikes = [bike_third]
     fourth_rider_account.rider.bikes = [bike_fourth]
 
-    season = Season(
-        name="23Z :d",
+    season_1 = Season(
+        name="Sezonik 1",
         start_timestamp=datetime(year=2024, month=1, day=1),
+        end_timestamp=datetime(year=2024, month=6, day=30),
+    )
+
+    season_2 = Season(
+        name="Sezonik 2",
+        start_timestamp=datetime(year=2024, month=7, day=1),
         end_timestamp=datetime(year=2024, month=12, day=31),
     )
 
@@ -113,7 +119,7 @@ def create_initial_data(
                                      '{"place": 999,"points": 4}'
                                      ']',
         sponsor_banners_uuids_json='["NOT_IMPLEMENTED"]',
-        season=season,
+        season=season_1,
         bonuses=[],
         race_participations=[]
 
@@ -150,7 +156,7 @@ def create_initial_data(
                                      '{"place": 999,"points": 4}'
                                      ']',
         sponsor_banners_uuids_json='["NOT_IMPLEMENTED1"]',
-        season=season,
+        season=season_1,
         bonuses=[race_bonus_snow],
         race_participations=[]
     )
@@ -175,7 +181,7 @@ def create_initial_data(
                                      '{"place": 999,"points": 10}'
                                      ']',
         sponsor_banners_uuids_json='["NOT_IMPLEMENTED2"]',
-        season=season,
+        season=season_1,
         bonuses=[],
         race_participations=[]
 
@@ -184,13 +190,19 @@ def create_initial_data(
     adult_classification = Classification(
         name="Dorośli",
         description=">=18 lat",
-        season=season,
+        season=season_1,
     )
 
     children_classification = Classification(
         name="Dzieci",
         description="<18 lat",
-        season=season
+        season=season_1
+    )
+
+    grandma_classification = Classification(
+        name="Babcie",
+        description=">=1 wnuk",
+        season=season_2
     )
 
     first_rider_adult_classification_link = RiderClassificationLink(
@@ -217,6 +229,12 @@ def create_initial_data(
         classification=children_classification
     )
 
+    second_rider_grandma_classification_link = RiderClassificationLink(
+        score=420,
+        rider=second_rider_account.rider,
+        classification=grandma_classification
+    )
+
     third_rider_adult_classification_link = RiderClassificationLink(
         score=1000,
         rider=third_rider_account.rider,
@@ -227,6 +245,12 @@ def create_initial_data(
         score=900,
         rider=third_rider_account.rider,
         classification=children_classification
+    )
+
+    third_rider_grandma_classification_link = RiderClassificationLink(
+        score=121,
+        rider=third_rider_account.rider,
+        classification=grandma_classification
     )
 
     fourth_rider_adult_classification_link = RiderClassificationLink(
@@ -263,12 +287,15 @@ def create_initial_data(
         bike_fourth,
         adult_classification,
         children_classification,
+        grandma_classification,
         first_rider_adult_classification_link,
         first_rider_children_classification_link,
         second_rider_adult_classification_link,
         second_rider_children_classification_link,
+        second_rider_grandma_classification_link,
         third_rider_adult_classification_link,
         third_rider_children_classification_link,
+        third_rider_grandma_classification_link,
         fourth_rider_adult_classification_link,
         fourth_rider_children_classification_link,
         # dummy_rider,

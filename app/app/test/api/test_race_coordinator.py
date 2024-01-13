@@ -21,7 +21,7 @@ def test_coordinator_race_detail_404(coordinator_client, db):
     assert response.status_code == 404
 
 
-def test_coordinator_create_race(coordinator_client, db, season):
+def test_coordinator_create_race(coordinator_client, db, season_1):
     response = coordinator_client.post("/api/coordinator/race/create",
                                        json={
                                            "name": "test",
@@ -36,13 +36,13 @@ def test_coordinator_create_race(coordinator_client, db, season):
                                            "place_to_points_mapping_json": '[{"place": 1,"points": 20}, '
                                                                            '{"place": 2,"points": 16}]',
                                            "sponsor_banners_uuids_json": "[]",
-                                           "season_id": season.id
+                                           "season_id": season_1.id
                                        })
 
     assert response.status_code == 200
 
 
-def test_coordinator_create_race_timestamp_order(coordinator_client, db, season):
+def test_coordinator_create_race_timestamp_order(coordinator_client, db, season_1):
     response = coordinator_client.post("/api/coordinator/race/create",
                                        json={
                                            "name": "test",
@@ -57,13 +57,13 @@ def test_coordinator_create_race_timestamp_order(coordinator_client, db, season)
                                            "place_to_points_mapping_json": '[{"place": 1,"points": 20}, '
                                                                            '{"place": 2,"points": 16}]',
                                            "sponsor_banners_uuids_json": "[]]",
-                                           "season_id": season.id
+                                           "season_id": season_1.id
                                        })
 
     assert response.status_code == 400
 
 
-def test_coordinator_create_race_zero_laps(coordinator_client, db, season):
+def test_coordinator_create_race_zero_laps(coordinator_client, db, season_1):
     response = coordinator_client.post("/api/coordinator/race/create",
                                        json={
                                            "name": "test",
@@ -78,13 +78,13 @@ def test_coordinator_create_race_zero_laps(coordinator_client, db, season):
                                            "place_to_points_mapping_json": '[{"place": 1,"points": 20}, '
                                                                            '{"place": 2,"points": 16}]',
                                            "sponsor_banners_uuids_json": "[]",
-                                           "season_id": season.id
+                                           "season_id": season_1.id
                                        })
 
     assert response.status_code == 400
 
 
-def test_coordinator_create_race_negative_entry_fee(coordinator_client, db, season):
+def test_coordinator_create_race_negative_entry_fee(coordinator_client, db, season_1):
     response = coordinator_client.post("/api/coordinator/race/create",
                                        json={
                                            "name": "test",
@@ -99,13 +99,13 @@ def test_coordinator_create_race_negative_entry_fee(coordinator_client, db, seas
                                            "place_to_points_mapping_json": '[{"place": 1,"points": 20}, '
                                                                            '{"place": 2,"points": 16}]',
                                            "sponsor_banners_uuids_json": "[]",
-                                           "season_id": season.id
+                                           "season_id": season_1.id
                                        })
 
     assert response.status_code == 400
 
 
-def test_coordinator_create_race_season_404(coordinator_client, db, season):
+def test_coordinator_create_race_season_404(coordinator_client, db, season_1):
     response = coordinator_client.post("/api/coordinator/race/create",
                                        json={
                                            "name": "test",
@@ -126,7 +126,7 @@ def test_coordinator_create_race_season_404(coordinator_client, db, season):
     assert response.status_code == 404
 
 
-def test_coordinator_create_race_invalid_score_json(coordinator_client, db, season):
+def test_coordinator_create_race_invalid_score_json(coordinator_client, db, season_1):
     response = coordinator_client.post("/api/coordinator/race/create",
                                        json={
                                            "name": "test",
@@ -141,13 +141,13 @@ def test_coordinator_create_race_invalid_score_json(coordinator_client, db, seas
                                            "place_to_points_mapping_json": "[{\"place\": 1, \"score\": \"sdfgs\"\"}, "
                                                                            "{\"place\": 2, \"score\": 0\"}]",
                                            "sponsor_banners_uuids_json": "[]",
-                                           "season_id": season.id
+                                           "season_id": season_1.id
                                        })
 
     assert response.status_code == 400
 
 
-def test_coordinator_create_race_invalid_sponsors_json(coordinator_client, db, season):
+def test_coordinator_create_race_invalid_sponsors_json(coordinator_client, db, season_1):
     response = coordinator_client.post("/api/coordinator/race/create",
                                        json={
                                            "name": "test",
@@ -162,7 +162,7 @@ def test_coordinator_create_race_invalid_sponsors_json(coordinator_client, db, s
                                            "place_to_points_mapping_json": '[{"place": 1,"points": 20}, '
                                                                            '{"place": 2,"points": 16}]',
                                            "sponsor_banners_uuids_json": "[1]",
-                                           "season_id": season.id
+                                           "season_id": season_1.id
                                        })
 
     assert response.status_code == 400

@@ -25,8 +25,8 @@ def test_classification_list_no_riders_404(rider1_client, classification_without
     assert response.status_code == 404
 
 
-def test_season_list_classification(rider1_client, db, classification_with_rider, season):
-    response = rider1_client.get(f"/api/rider/season/{season.id}/classification")
+def test_season_list_classification(rider1_client, db, classification_with_rider, season_1):
+    response = rider1_client.get(f"/api/rider/season/{season_1.id}/classification")
     assert response.status_code == 200
     assert response.json() == [jsonable_encoder(ClassificationRead.from_orm(classification_with_rider))]
 
@@ -36,17 +36,25 @@ def test_season_list_no_classifications_404(rider1_client, db):
     assert response.status_code == 404
 
 
-def test_season_current(rider1_client, season, db, patch_datetime_now):
+def test_season_current(rider1_client, season_1, db, patch_datetime_now):
     response = rider1_client.get("/api/rider/season/current")
     assert datetime.datetime.now() == NOVEMBER_TIME
     assert response.status_code == 200
-    assert response.json() == jsonable_encoder(SeasonListRead.from_orm(season))
+    assert response.json() == jsonable_encoder(SeasonListRead.from_orm(season_1))
 
 
 def test_season_no_current_season_404(rider1_client, db, patch_datetime_past):
     response = rider1_client.get("/api/rider/season/current")
     assert datetime.datetime.now() == PAST_TIME
     assert response.status_code == 404
+
+
+def test_season_all(rider1_client, db, season_1, season_2):
+    seasons = [jsonable_encoder(SeasonListRead.from_orm(season)) for season in [season_1, season_2]]
+    response = rider1_client.get("/api/rider/season/all")
+    assert response.status_code == 200
+    for season in seasons:
+        assert season in response.json()
 
 
 def test_rider_classification_link_classification_id(
