@@ -9,8 +9,9 @@ def test_coordinator_list_races(coordinator_client, db, race_pending, race_ended
     response = coordinator_client.get("/api/coordinator/race")
     assert response.status_code == 200
     assert response.json()[-2:] == [
-        jsonable_encoder(RaceReadListCoordinator.from_orm(item, update={"is_approved": False})) for item in
-        (race_pending, race_ended)
+        jsonable_encoder(RaceReadListCoordinator.from_orm(item, update={"is_approved": is_approved})) for
+        item, is_approved in
+        zip((race_pending, race_ended), (False, True))
     ]
 
 

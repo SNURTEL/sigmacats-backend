@@ -54,8 +54,10 @@ async def read_races(
     races = db.exec(stmt).all()
 
     return [RaceReadListCoordinator.from_orm(r, update={
-        "is_approved": any([p.place_assigned_overall is not None for p in r.race_participations])}) for r in
-            races]  # type: ignore[return-value]
+        "is_approved": any([p.place_assigned_overall is not None for p in
+                            r.race_participations]) or (r.status == RaceStatus.ended and not r.race_participations)})
+            for
+            r in races]  # type: ignore[return-value]
 
 
 @router.get("/{id}")
@@ -74,7 +76,8 @@ async def read_race(
     if not race:
         raise HTTPException(404)
 
-    is_approved = any([p.place_assigned_overall is not None for p in race.race_participations])
+    is_approved = any([p.place_assigned_overall is not None for p in race.race_participations]) or (
+            race.status == RaceStatus.ended and not race.race_participations)
 
     return RaceReadDetailCoordinator.from_orm(race, update={
         "is_approved": is_approved,
@@ -235,7 +238,8 @@ async def update_race(
         raise HTTPException(400)
 
     return RaceReadUpdatedCoordinator.from_orm(race, update={
-        "is_approved": any([p.place_assigned_overall is not None for p in race.race_participations])})
+        "is_approved": any([p.place_assigned_overall is not None for p in race.race_participations]) or (
+                    race.status == RaceStatus.ended and not race.race_participations)})
 
 
 @router.post("/{id}/cancel")
