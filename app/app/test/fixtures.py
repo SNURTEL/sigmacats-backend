@@ -25,8 +25,8 @@ from app.models.race import Race, RaceStatus, RaceTemperature, RaceRain
 from app.models.race_participation import RaceParticipation, RaceParticipationStatus
 from app.models.race_bonus import RaceBonus
 from app.models.classification import Classification
-from app.models.rider_classification_link import RiderClassificationLink
 from app.models.ride_participation_classification_place import RiderParticipationClassificationPlace
+from app.models.rider_classification_link import RiderClassificationLink, RiderClassificationLinkRiderDetails
 
 from app.main import app
 
@@ -251,10 +251,10 @@ def riders_with_bikes(
 
 
 @pytest.fixture(scope="function")
-def season(db) -> Generator[Season, Any, None]:
+def season_1(db) -> Generator[Season, Any, None]:
     season = Season(
         name="Sezon 1",
-        start_timestamp=datetime.datetime(day=1, month=1, year=2024)
+        start_timestamp=datetime.datetime(year=2024, month=1, day=1),
     )
     db.add(season)
     db.commit()
@@ -262,10 +262,10 @@ def season(db) -> Generator[Season, Any, None]:
 
 
 @pytest.fixture(scope="function")
-def season2(db) -> Generator[Season, Any, None]:
+def season_2(db) -> Generator[Season, Any, None]:
     season = Season(
         name="Sezon 2",
-        start_timestamp=datetime.datetime(day=2, month=10, year=2027)
+        start_timestamp=datetime.datetime(year=2027, month=10, day=2),
     )
     db.add(season)
     db.commit()
@@ -285,7 +285,7 @@ def race_bonus_snow(db) -> Generator[RaceBonus, Any, None]:
 
 
 @pytest.fixture(scope="function")
-def race_pending(db, season, race_bonus_snow) -> Generator[Race, Any, None]:
+def race_pending(db, season_1, race_bonus_snow) -> Generator[Race, Any, None]:
     race = Race(
         status=RaceStatus.pending,
         name="Jazda w śniegu",
@@ -304,7 +304,7 @@ def race_pending(db, season, race_bonus_snow) -> Generator[Race, Any, None]:
                                      '{"place": 999,"points": 4}'
                                      ']',
         sponsor_banners_uuids_json='["foo1"]',
-        season=season,
+        season=season_1,
         bonuses=[race_bonus_snow],
         race_participations=[]
     )
@@ -314,7 +314,7 @@ def race_pending(db, season, race_bonus_snow) -> Generator[Race, Any, None]:
 
 
 @pytest.fixture(scope="function")
-def race_in_progress(db, season, race_bonus_snow) -> Generator[Race, Any, None]:
+def race_in_progress(db, season_1, race_bonus_snow) -> Generator[Race, Any, None]:
     race = Race(
         status=RaceStatus.in_progress,
         name="Jazda w śniegu",
@@ -333,7 +333,7 @@ def race_in_progress(db, season, race_bonus_snow) -> Generator[Race, Any, None]:
                                      '{"place": 999,"points": 4}'
                                      ']',
         sponsor_banners_uuids_json='["foo1"]',
-        season=season,
+        season=season_1,
         bonuses=[race_bonus_snow],
         race_participations=[]
     )
@@ -424,7 +424,7 @@ def race_ended_with_rider_and_multiple_participations(
 
 
 @pytest.fixture(scope="function")
-def race_cancelled(db, season, race_bonus_snow) -> Generator[Race, Any, None]:
+def race_cancelled(db, season_1, race_bonus_snow) -> Generator[Race, Any, None]:
     race = Race(
         status=RaceStatus.cancelled,
         name="Jazda w śniegu",
@@ -443,7 +443,7 @@ def race_cancelled(db, season, race_bonus_snow) -> Generator[Race, Any, None]:
                                      '{"place": 999,"points": 4}'
                                      ']',
         sponsor_banners_uuids_json='["foo1"]',
-        season=season,
+        season=season_1,
         bonuses=[race_bonus_snow],
         race_participations=[]
     )
@@ -453,7 +453,7 @@ def race_cancelled(db, season, race_bonus_snow) -> Generator[Race, Any, None]:
 
 
 @pytest.fixture(scope="function")
-def race_ended(db, season) -> Generator[Race, Any, None]:
+def race_ended(db, season_1) -> Generator[Race, Any, None]:
     race = Race(
         status=RaceStatus.ended,
         name="Coffe ride: Pożegnanie lata",
@@ -470,7 +470,7 @@ def race_ended(db, season) -> Generator[Race, Any, None]:
                                      '{"place": 999,"points": 10}'
                                      ']',
         sponsor_banners_uuids_json='["foo2"]',
-        season=season,
+        season=season_1,
         bonuses=[],
         race_participations=[]
     )
@@ -525,11 +525,11 @@ def admin_client(admin):
 
 
 @pytest.fixture(scope="function")
-def classification_with_rider(db, season, rider1) -> Generator[Classification, Any, None]:
+def classification_with_rider(db, season_1, rider1) -> Generator[Classification, Any, None]:
     classification = Classification(
         name="Dzieci",
         description="<18 lat",
-        season=season,
+        season=season_1,
     )
 
     riderClassificationLink = RiderClassificationLink(  # noqa: F841
@@ -544,11 +544,11 @@ def classification_with_rider(db, season, rider1) -> Generator[Classification, A
 
 
 @pytest.fixture(scope="function")
-def classification_without_rider(db, season) -> Generator[Classification, Any, None]:
+def classification_without_rider(db, season_1) -> Generator[Classification, Any, None]:
     classification = Classification(
         name="Dorośli",
         description=">=18 lat",
-        season=season,
+        season=season_1,
         riders=[]
     )
 
@@ -688,32 +688,32 @@ def race_factory(db) -> Generator[Callable, Any, None]:
 
 
 @pytest.fixture(scope="function")
-def classifications(season, db) -> Generator[dict[str, Classification], Any, None]:
+def classifications(season_1, db) -> Generator[dict[str, Classification], Any, None]:
     classifications = {
         "general": Classification(
             name="Klasyfikacja generalna",
             description="Bez ograniczeń.",
-            season=season,
+            season=season_1,
         ),
         "road": Classification(
             name="Szosa",
             description="Rowery szosowe z przerzutkami.",
-            season=season,
+            season=season_1,
         ),
         "fixie": Classification(
             name="Ostre koło",
             description="Rowery typu fixie i singlespeed. Brak przerzutek.",
-            season=season,
+            season=season_1,
         ),
         "men": Classification(
             name="Mężczyźni",
             description="Klasyfikacja mężczyzn.",
-            season=season,
+            season=season_1,
         ),
         "women": Classification(
             name="Kobiety",
             description="Klasyfikacja kobiet.",
-            season=season,
+            season=season_1,
         )
     }
     db.add_all(classifications.values())
@@ -722,11 +722,11 @@ def classifications(season, db) -> Generator[dict[str, Classification], Any, Non
 
 
 @pytest.fixture(scope="function")
-def rider_classification_link(db, season, rider1) -> Generator[RiderClassificationLink, Any, None]:
+def rider_classification_link(db, season_1, rider1) -> Generator[RiderClassificationLink, Any, None]:
     classification = Classification(
         name="Dzieci",
         description="<18 lat",
-        season=season,
+        season=season_1,
     )
 
     riderClassificationLink = RiderClassificationLink(  # noqa: F841
@@ -738,6 +738,18 @@ def rider_classification_link(db, season, rider1) -> Generator[RiderClassificati
     db.add(classification)
     db.commit()
     yield riderClassificationLink
+
+
+@pytest.fixture(scope="function")
+def rider_classification_link_rider_details(rider1) -> Generator[RiderClassificationLinkRiderDetails, Any, None]:
+    riderClassificationLinkRiderDetails = RiderClassificationLinkRiderDetails(
+        score=10,
+        name=rider1.account.name,
+        surname=rider1.account.surname,
+        username=rider1.account.username
+    )
+
+    yield riderClassificationLinkRiderDetails
 
 
 @pytest.fixture(scope="function")

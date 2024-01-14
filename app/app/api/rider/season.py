@@ -45,3 +45,19 @@ async def read_current_season(db: Session = Depends(get_db)) -> SeasonRead:
         raise HTTPException(404)
 
     return SeasonRead.from_orm(season)
+
+
+@router.get("/all")
+async def read_all_seasons(db: Session = Depends(get_db)) -> list[SeasonRead]:
+    """
+    Get all seasons.
+    """
+    stmt: SelectOfScalar = (
+        select(Season)
+    )
+    seasons = db.exec(stmt).all()
+
+    if not seasons or len(seasons) <= 0:
+        raise HTTPException(404)
+
+    return [SeasonRead.from_orm(s) for s in seasons]

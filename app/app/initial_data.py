@@ -17,6 +17,8 @@ from app.models.rider import Rider
 def create_initial_data(
         rider_account: Account,
         second_rider_account: Account,
+        third_rider_account: Account,
+        fourth_rider_account: Account,
         coordinator_account: Account,
         admin_account: Account,
 ) -> list[SQLModel]:
@@ -41,6 +43,20 @@ def create_initial_data(
         model="Ultra Cloud",
     )
 
+    bike_third = Bike(
+        name="Czerwony",
+        type=BikeType.road,
+        brand="Fastest inc.",
+        model="Vampire's favourite"
+    )
+
+    bike_fourth = Bike(
+        name="Autobus",
+        type=BikeType.other,
+        brand="MPK",
+        model="WTP"
+    )
+
     # dummy_rider_account = Account(
     #     type="rider",
     #     username="dummy_rider",
@@ -57,12 +73,17 @@ def create_initial_data(
 
     assert isinstance(rider_account.rider, Rider)
     assert isinstance(second_rider_account.rider, Rider)
+    assert isinstance(third_rider_account.rider, Rider)
+    assert isinstance(fourth_rider_account.rider, Rider)
+
     rider_account.rider.bikes = [bike_road, bike_fixie]
     second_rider_account.rider.bikes = [bike_other]
+    third_rider_account.rider.bikes = [bike_third]
+    fourth_rider_account.rider.bikes = [bike_fourth]
 
-    season = Season(
-        name="23Z :d",
-        start_timestamp=datetime(day=2, month=10, year=2023),
+    season_1 = Season(
+        name="Sezonik 1",
+        start_timestamp=datetime(year=2023, month=10, day=2),
     )
 
     race1 = Race(
@@ -91,7 +112,7 @@ def create_initial_data(
                                      '{"place": 999,"points": 4}'
                                      ']',
         sponsor_banners_uuids_json='["NOT_IMPLEMENTED"]',
-        season=season,
+        season=season_1,
         bonuses=[],
         race_participations=[]
 
@@ -128,7 +149,7 @@ def create_initial_data(
                                      '{"place": 999,"points": 4}'
                                      ']',
         sponsor_banners_uuids_json='["NOT_IMPLEMENTED1"]',
-        season=season,
+        season=season_1,
         bonuses=[race_bonus_snow],
         race_participations=[]
     )
@@ -153,7 +174,7 @@ def create_initial_data(
                                      '{"place": 999,"points": 10}'
                                      ']',
         sponsor_banners_uuids_json='["NOT_IMPLEMENTED2"]',
-        season=season,
+        season=season_1,
         bonuses=[],
         race_participations=[]
 
@@ -162,43 +183,67 @@ def create_initial_data(
     dummy_classification = Classification(
         name="Dummy",
         description="Dummy",
-        season=season,
+        season=season_1,
     )
 
     general_classification = Classification(
         name="Klasyfikacja generalna",
         description="Bez ograniczeń.",
-        season=season,
+        season=season_1,
     )
 
     road_classification = Classification(
         name="Szosa",
         description="Rowery szosowe z przerzutkami.",
-        season=season,
+        season=season_1,
     )
 
     fixie_classification = Classification(
         name="Ostre koło",
         description="Rowery typu fixie i singlespeed. Brak przerzutek.",
-        season=season,
+        season=season_1,
     )
 
     men_classification = Classification(
         name="Mężczyźni",
         description="Klasyfikacja mężczyzn.",
-        season=season,
+        season=season_1,
     )
 
     women_classification = Classification(
         name="Kobiety",
         description="Klasyfikacja kobiet.",
-        season=season,
+        season=season_1,
     )
 
-    dummy_rider_classification_link = RiderClassificationLink(
-        score=420,
+    rider_classification_link = RiderClassificationLink(
+        score=400,
         rider=rider_account.rider,
-        classification=dummy_classification
+        classification=general_classification
+    )
+
+    second_rider_classification_link = RiderClassificationLink(
+        score=420,
+        rider=second_rider_account.rider,
+        classification=general_classification
+    )
+
+    third_rider_classification_link = RiderClassificationLink(
+        score=300,
+        rider=third_rider_account.rider,
+        classification=general_classification
+    )
+
+    fourth_rider_classification_link = RiderClassificationLink(
+        score=200,
+        rider=fourth_rider_account.rider,
+        classification=general_classification
+    )
+
+    rider_classification_link_men = RiderClassificationLink(
+        score=1000,
+        rider=rider_account.rider,
+        classification=men_classification
     )
 
     dummy_race_participation = RaceParticipation(
@@ -224,13 +269,19 @@ def create_initial_data(
         bike_road,
         bike_fixie,
         bike_other,
+        bike_third,
+        bike_fourth,
         dummy_classification,
         general_classification,
         road_classification,
         fixie_classification,
         men_classification,
         women_classification,
-        dummy_rider_classification_link,
+        rider_classification_link,
+        rider_classification_link_men,
+        second_rider_classification_link,
+        third_rider_classification_link,
+        fourth_rider_classification_link,
         # dummy_rider,
         race1,
         race2,
@@ -239,6 +290,8 @@ def create_initial_data(
 
         rider_account,
         second_rider_account,
+        third_rider_account,
+        fourth_rider_account,
         coordinator_account,
         admin_account,
     ]

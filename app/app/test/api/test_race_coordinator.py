@@ -27,7 +27,7 @@ def test_coordinator_race_detail_404(coordinator_client, db):
     assert response.status_code == 404
 
 
-def test_coordinator_create_race(coordinator_client, db, season,
+def test_coordinator_create_race(coordinator_client, db, season_1,
                                  disable_celery_tasks):
     response = coordinator_client.post("/api/coordinator/race/create",
                                        json={
@@ -48,7 +48,7 @@ def test_coordinator_create_race(coordinator_client, db, season,
     assert response.status_code == 200
 
 
-def test_coordinator_create_race_timestamp_order(coordinator_client, db, season,
+def test_coordinator_create_race_timestamp_order(coordinator_client, db, season_1,
                                                  disable_celery_tasks):
     response = coordinator_client.post("/api/coordinator/race/create",
                                        json={
@@ -69,7 +69,7 @@ def test_coordinator_create_race_timestamp_order(coordinator_client, db, season,
     assert response.status_code == 400
 
 
-def test_coordinator_create_race_zero_laps(coordinator_client, db, season,
+def test_coordinator_create_race_zero_laps(coordinator_client, db, season_1,
                                            disable_celery_tasks):
     response = coordinator_client.post("/api/coordinator/race/create",
                                        json={
@@ -90,7 +90,7 @@ def test_coordinator_create_race_zero_laps(coordinator_client, db, season,
     assert response.status_code == 400
 
 
-def test_coordinator_create_race_negative_entry_fee(coordinator_client, db, season,
+def test_coordinator_create_race_negative_entry_fee(coordinator_client, db, season_1,
                                                     disable_celery_tasks):
     response = coordinator_client.post("/api/coordinator/race/create",
                                        json={
@@ -111,7 +111,7 @@ def test_coordinator_create_race_negative_entry_fee(coordinator_client, db, seas
     assert response.status_code == 400
 
 
-def test_coordinator_create_race_invalid_score_json(coordinator_client, db, season,
+def test_coordinator_create_race_invalid_score_json(coordinator_client, db, season_1,
                                                     disable_celery_tasks):
     response = coordinator_client.post("/api/coordinator/race/create",
                                        json={
@@ -132,8 +132,7 @@ def test_coordinator_create_race_invalid_score_json(coordinator_client, db, seas
     assert response.status_code == 400
 
 
-def test_coordinator_create_race_invalid_sponsors_json(coordinator_client, db, season,
-                                                       disable_celery_tasks):
+def test_coordinator_create_race_invalid_sponsors_json(coordinator_client, db, season_1, disable_celery_tasks):
     response = coordinator_client.post("/api/coordinator/race/create",
                                        json={
                                            "name": "test",
