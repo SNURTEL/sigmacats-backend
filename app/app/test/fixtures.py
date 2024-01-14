@@ -674,7 +674,7 @@ def race_factory(db) -> Generator[Callable, Any, None]:
             checkpoints_gpx_file=checkpoints_gpx_file,
             event_graphic_file=event_graphic_file,
             place_to_points_mapping_json=place_to_points_mapping_json,
-            season=season_1,
+            season=season,
             status=status,
             entry_fee_gr=entry_fee_gr,
             **kwargs

@@ -70,7 +70,7 @@ def test_coordinator_create_race_timestamp_order(coordinator_client, db, season_
 
 
 def test_coordinator_create_race_zero_laps(coordinator_client, db, season_1,
-                                            disable_celery_tasks):
+                                           disable_celery_tasks):
     response = coordinator_client.post("/api/coordinator/race/create",
                                        json={
                                            "name": "test",
@@ -91,7 +91,7 @@ def test_coordinator_create_race_zero_laps(coordinator_client, db, season_1,
 
 
 def test_coordinator_create_race_negative_entry_fee(coordinator_client, db, season_1,
-                                                disable_celery_tasks):
+                                                    disable_celery_tasks):
     response = coordinator_client.post("/api/coordinator/race/create",
                                        json={
                                            "name": "test",
