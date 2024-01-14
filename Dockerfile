@@ -1,5 +1,7 @@
 FROM python:3.11.6-slim-bullseye
 
+# Dockerfile for setting up the application
+
 # "production", "development", "test"
 ARG BUILD_ENV=development
 

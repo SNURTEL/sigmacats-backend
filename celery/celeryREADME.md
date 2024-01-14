@@ -1,0 +1,1 @@
+This folder contains all the necessary starting scripts for celery, a distributed task queue.

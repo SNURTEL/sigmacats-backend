@@ -1,3 +1,5 @@
+# Configuration for code coverage measurement tool
+
 [run]
 omit =
   app/backend_pre_start.py

@@ -1,4 +1,5 @@
 #!/bin/bash
+# Starting script for the app
 
 set -o errexit
 set -o pipefail

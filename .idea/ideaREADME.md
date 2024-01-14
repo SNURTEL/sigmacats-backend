@@ -1,0 +1,1 @@
+This folder contains files with project-specific setting for the IntelliJ IDE

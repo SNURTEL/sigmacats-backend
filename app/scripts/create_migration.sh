@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# Script for running a database migration
 # execute from scripts directory
 
 if [ "$#" -ne 1 ]; then
