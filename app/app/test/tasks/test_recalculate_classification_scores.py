@@ -13,14 +13,14 @@ from app.models.classification import Classification
 from app.models.rider_classification_link import RiderClassificationLink
 
 
-def _get_classification_entries(classification: Classification, season: Season, db: Session) -> Sequence[
+def _get_classification_entries(classification: Classification, season_1: Season, db: Session) -> Sequence[
     RiderClassificationLink
 ]:
     return db.exec(
         select(RiderClassificationLink)
         .join(Classification, RiderClassificationLink.classification_id == Classification.id)  # type: ignore[arg-type]
         .where(
-            Classification.season_id == season.id,
+            Classification.season_id == season_1.id,
             RiderClassificationLink.classification_id == classification.id
         )
     ).all()
@@ -28,14 +28,14 @@ def _get_classification_entries(classification: Classification, season: Season, 
 
 def test_recalculate_classification_scores_general(
         riders_with_bikes, race_factory, classifications,
-        race_participations_factory, race_classification_entries_factory, season, db
+        race_participations_factory, race_classification_entries_factory, season_1, db
 ):
     riders, bikes = riders_with_bikes
     (r1, r2, r3, r4) = riders
     (b1, b2, b3, b4) = bikes
 
     race1 = race_factory(
-        season=season,
+        season=season_1,
         status=RaceStatus.ended,
         place_to_points_mapping_json=json.dumps([
             {"place": 1, "points": 100},
@@ -43,7 +43,7 @@ def test_recalculate_classification_scores_general(
         ])
     )
     race2 = race_factory(
-        season=season,
+        season=season_1,
         status=RaceStatus.ended,
         place_to_points_mapping_json=json.dumps([
             {"place": 3, "points": 1000},
@@ -83,10 +83,10 @@ def test_recalculate_classification_scores_general(
     db.commit()
 
     recalculate_classification_scores(
-        season_id=season.id, db=db
+        season_id=season_1.id, db=db
     )
 
-    classification_scores = _get_classification_entries(classifications['general'], season, db)
+    classification_scores = _get_classification_entries(classifications['general'], season_1, db)
 
     assert len(classification_scores) == 4
     rider_id_to_points_mapping = {
@@ -98,7 +98,7 @@ def test_recalculate_classification_scores_general(
 
 def test_recalculate_classification_scores_bike_type(
         riders_with_bikes, race_factory, classifications,
-        race_participations_factory, race_classification_entries_factory, season, db
+        race_participations_factory, race_classification_entries_factory, season_1, db
 ):
     riders, bikes = riders_with_bikes
     (r1, r2, r3, r4) = riders
@@ -112,7 +112,7 @@ def test_recalculate_classification_scores_bike_type(
     db.refresh(b3)
 
     race1 = race_factory(
-        season=season,
+        season=season_1,
         status=RaceStatus.ended,
         place_to_points_mapping_json=json.dumps([
             {"place": 1, "points": 1000},
@@ -141,10 +141,10 @@ def test_recalculate_classification_scores_bike_type(
     db.commit()
 
     recalculate_classification_scores(
-        season_id=season.id, db=db
+        season_id=season_1.id, db=db
     )
 
-    road_classification_scores = _get_classification_entries(classifications['road'], season, db)
+    road_classification_scores = _get_classification_entries(classifications['road'], season_1, db)
     road_rider_id_to_points_mapping = {
         r1.id: 1000, r2.id: 0, r3.id: 0, r4.id: 100
     }
@@ -152,7 +152,7 @@ def test_recalculate_classification_scores_bike_type(
     for cs in road_classification_scores:
         assert cs.score == road_rider_id_to_points_mapping[cs.rider_id]
 
-    fixie_classification_scores = _get_classification_entries(classifications['fixie'], season, db)
+    fixie_classification_scores = _get_classification_entries(classifications['fixie'], season_1, db)
     fixie_rider_id_to_points_mapping = {
         r1.id: 0, r2.id: 1000, r3.id: 100, r4.id: 0
     }
@@ -163,7 +163,7 @@ def test_recalculate_classification_scores_bike_type(
 
 def test_recalculate_classification_scores_men_women(
         riders_with_bikes, race_factory, classifications,
-        race_participations_factory, race_classification_entries_factory, season, db
+        race_participations_factory, race_classification_entries_factory, season_1, db
 ):
     riders, bikes = riders_with_bikes
     (r1, r2, r3, r4) = riders
@@ -179,7 +179,7 @@ def test_recalculate_classification_scores_men_women(
         db.refresh(rider)
 
     race1 = race_factory(
-        season=season,
+        season=season_1,
         status=RaceStatus.ended,
         place_to_points_mapping_json=json.dumps([
             {"place": 1, "points": 1000},
@@ -208,10 +208,10 @@ def test_recalculate_classification_scores_men_women(
     db.commit()
 
     recalculate_classification_scores(
-        season_id=season.id, db=db
+        season_id=season_1.id, db=db
     )
 
-    road_classification_scores = _get_classification_entries(classifications['men'], season, db)
+    road_classification_scores = _get_classification_entries(classifications['men'], season_1, db)
     road_rider_id_to_points_mapping = {
         r1.id: 1000, r2.id: 0, r3.id: 0, r4.id: 100
     }
@@ -219,7 +219,7 @@ def test_recalculate_classification_scores_men_women(
     for cs in road_classification_scores:
         assert cs.score == road_rider_id_to_points_mapping[cs.rider_id]
 
-    fixie_classification_scores = _get_classification_entries(classifications['women'], season, db)
+    fixie_classification_scores = _get_classification_entries(classifications['women'], season_1, db)
     fixie_rider_id_to_points_mapping = {
         r1.id: 0, r2.id: 1000, r3.id: 100, r4.id: 0
     }
@@ -230,14 +230,14 @@ def test_recalculate_classification_scores_men_women(
 
 def test_recalculate_classification_scores_weather_multipliers(
         riders_with_bikes, race_factory, classifications,
-        race_participations_factory, race_classification_entries_factory, season, db
+        race_participations_factory, race_classification_entries_factory, season_1, db
 ):
     riders, bikes = riders_with_bikes
     (r1, r2, r3, r4) = riders
     (b1, b2, b3, b4) = bikes
 
     race1 = race_factory(
-        season=season,
+        season=season_1,
         status=RaceStatus.ended,
         place_to_points_mapping_json=json.dumps([
             {"place": 1, "points": 100},
@@ -246,7 +246,7 @@ def test_recalculate_classification_scores_weather_multipliers(
 
     )
     race2 = race_factory(
-        season=season,
+        season=season_1,
         status=RaceStatus.ended,
         place_to_points_mapping_json=json.dumps([
             {"place": 1, "points": 100},
@@ -285,10 +285,10 @@ def test_recalculate_classification_scores_weather_multipliers(
     db.commit()
 
     recalculate_classification_scores(
-        season_id=season.id, db=db
+        season_id=season_1.id, db=db
     )
 
-    classification_scores = _get_classification_entries(classifications['general'], season, db)
+    classification_scores = _get_classification_entries(classifications['general'], season_1, db)
 
     assert len(classification_scores) == 1
     rider_id_to_points_mapping = {

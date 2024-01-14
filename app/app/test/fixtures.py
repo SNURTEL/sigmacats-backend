@@ -314,7 +314,7 @@ def race_pending(db, season_1, race_bonus_snow) -> Generator[Race, Any, None]:
 
 
 @pytest.fixture(scope="function")
-def race_in_progress(db, season, race_bonus_snow) -> Generator[Race, Any, None]:
+def race_in_progress(db, season_1, race_bonus_snow) -> Generator[Race, Any, None]:
     race = Race(
         status=RaceStatus.in_progress,
         name="Jazda w śniegu",
@@ -333,7 +333,7 @@ def race_in_progress(db, season, race_bonus_snow) -> Generator[Race, Any, None]:
                                      '{"place": 999,"points": 4}'
                                      ']',
         sponsor_banners_uuids_json='["foo1"]',
-        season=season,
+        season=season_1,
         bonuses=[race_bonus_snow],
         race_participations=[]
     )
@@ -424,7 +424,7 @@ def race_ended_with_rider_and_multiple_participations(
 
 
 @pytest.fixture(scope="function")
-def race_cancelled(db, season, race_bonus_snow) -> Generator[Race, Any, None]:
+def race_cancelled(db, season_1, race_bonus_snow) -> Generator[Race, Any, None]:
     race = Race(
         status=RaceStatus.cancelled,
         name="Jazda w śniegu",
@@ -443,7 +443,7 @@ def race_cancelled(db, season, race_bonus_snow) -> Generator[Race, Any, None]:
                                      '{"place": 999,"points": 4}'
                                      ']',
         sponsor_banners_uuids_json='["foo1"]',
-        season=season,
+        season=season_1,
         bonuses=[race_bonus_snow],
         race_participations=[]
     )
@@ -674,7 +674,7 @@ def race_factory(db) -> Generator[Callable, Any, None]:
             checkpoints_gpx_file=checkpoints_gpx_file,
             event_graphic_file=event_graphic_file,
             place_to_points_mapping_json=place_to_points_mapping_json,
-            season=season,
+            season=season_1,
             status=status,
             entry_fee_gr=entry_fee_gr,
             **kwargs
@@ -688,32 +688,32 @@ def race_factory(db) -> Generator[Callable, Any, None]:
 
 
 @pytest.fixture(scope="function")
-def classifications(season, db) -> Generator[dict[str, Classification], Any, None]:
+def classifications(season_1, db) -> Generator[dict[str, Classification], Any, None]:
     classifications = {
         "general": Classification(
             name="Klasyfikacja generalna",
             description="Bez ograniczeń.",
-            season=season,
+            season=season_1,
         ),
         "road": Classification(
             name="Szosa",
             description="Rowery szosowe z przerzutkami.",
-            season=season,
+            season=season_1,
         ),
         "fixie": Classification(
             name="Ostre koło",
             description="Rowery typu fixie i singlespeed. Brak przerzutek.",
-            season=season,
+            season=season_1,
         ),
         "men": Classification(
             name="Mężczyźni",
             description="Klasyfikacja mężczyzn.",
-            season=season,
+            season=season_1,
         ),
         "women": Classification(
             name="Kobiety",
             description="Klasyfikacja kobiet.",
-            season=season,
+            season=season_1,
         )
     }
     db.add_all(classifications.values())
@@ -745,7 +745,8 @@ def rider_classification_link_rider_details(rider1) -> Generator[RiderClassifica
     riderClassificationLinkRiderDetails = RiderClassificationLinkRiderDetails(
         score=10,
         name=rider1.account.name,
-        surname=rider1.account.surname
+        surname=rider1.account.surname,
+        username=rider1.account.username
     )
 
     yield riderClassificationLinkRiderDetails

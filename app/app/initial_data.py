@@ -86,11 +86,6 @@ def create_initial_data(
         start_timestamp=datetime(year=2023, month=10, day=2),
     )
 
-    season_2 = Season(
-        name="Sezonik 2",
-        start_timestamp=datetime(year=2024, month=11, day=1),
-    )
-
     race1 = Race(
         status=RaceStatus.pending,
         name="Dookoła bloku",
@@ -218,13 +213,37 @@ def create_initial_data(
     women_classification = Classification(
         name="Kobiety",
         description="Klasyfikacja kobiet.",
-        season=season,
+        season=season_1,
     )
 
-    dummy_rider_classification_link = RiderClassificationLink(
-        score=420,
+    rider_classification_link = RiderClassificationLink(
+        score=400,
         rider=rider_account.rider,
-        classification=dummy_classification
+        classification=general_classification
+    )
+
+    second_rider_classification_link = RiderClassificationLink(
+        score=420,
+        rider=second_rider_account.rider,
+        classification=general_classification
+    )
+
+    third_rider_classification_link = RiderClassificationLink(
+        score=300,
+        rider=third_rider_account.rider,
+        classification=general_classification
+    )
+
+    fourth_rider_classification_link = RiderClassificationLink(
+        score=200,
+        rider=fourth_rider_account.rider,
+        classification=general_classification
+    )
+
+    rider_classification_link_men = RiderClassificationLink(
+        score=1000,
+        rider=rider_account.rider,
+        classification=men_classification
     )
 
     dummy_race_participation = RaceParticipation(
@@ -250,13 +269,19 @@ def create_initial_data(
         bike_road,
         bike_fixie,
         bike_other,
+        bike_third,
+        bike_fourth,
         dummy_classification,
         general_classification,
         road_classification,
         fixie_classification,
         men_classification,
         women_classification,
-        dummy_rider_classification_link,
+        rider_classification_link,
+        rider_classification_link_men,
+        second_rider_classification_link,
+        third_rider_classification_link,
+        fourth_rider_classification_link,
         # dummy_rider,
         race1,
         race2,
