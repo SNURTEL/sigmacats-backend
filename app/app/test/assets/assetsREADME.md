@@ -1,0 +1,1 @@
+This folder contains assets that are used for testing

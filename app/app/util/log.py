@@ -6,8 +6,14 @@ from pydantic import BaseModel
 
 LOG_TAG = os.environ.get("FASTAPI_LOG_TAG", default="=== NO LOG TAG SET ===")
 
+"""
+This file contains functionalities for logging the execution of the application
+"""
 
 class LogConfig(BaseModel):
+    """
+    Class for logging the execution of the application
+    """
     LOGGER_NAME: str = LOG_TAG
     LOG_FORMAT: str = "%(levelprefix)s | %(asctime)s | %(message)s"
     LOG_LEVEL: str = "DEBUG"
@@ -37,4 +43,7 @@ dictConfig(LogConfig().dict())
 
 
 def get_logger() -> logging.Logger:
+    """
+    Function for getting a logger
+    """
     return logging.getLogger(LOG_TAG)

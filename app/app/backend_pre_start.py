@@ -3,6 +3,12 @@ import os
 from app.util.log import get_logger
 from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixed, Retrying
 
+"""
+File responsible for checking, if database is running.
+If it is running, it also creates database users.
+"""
+
+
 logger = get_logger()
 
 max_tries = int(os.environ.get("FASTAPI_DB_CONNECTION_TIMEOUT", default=120))
@@ -34,6 +40,9 @@ oracle_user_password = os.environ.get("ORACLE_USER_USERNAME", default="user1")
     after=after_log(logger, logging.WARNING),
 )
 def init() -> None:
+    """
+    Start database
+    """
     try:
         with engine_admin.connect() as connection:
             # ping the DB
@@ -44,6 +53,9 @@ def init() -> None:
 
 
 def create_db_users() -> None:
+    """
+    Create database users
+    """
     with engine_admin.connect() as connection:
         with connection.begin():
             connection.execute(

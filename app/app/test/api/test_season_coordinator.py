@@ -4,8 +4,15 @@ from fastapi.encoders import jsonable_encoder
 from app.models.season import SeasonRead
 from app.models.classification import Classification
 
+"""
+This file contains tests related to management of seasons
+"""
+
 
 def test_coordinator_list_seasons(coordinator_client, db, season_1, season_2):
+    """
+    Test listing of all seasons
+    """
     response = coordinator_client.get("/api/coordinator/season")
     assert response.status_code == 200
     assert [entry for entry in response.json() if int(entry['id']) > 10000] == [
@@ -14,17 +21,26 @@ def test_coordinator_list_seasons(coordinator_client, db, season_1, season_2):
 
 
 def test_coordinator_season_detail(coordinator_client, db, season_1):
+    """
+    Test listing of details of a given season
+    """
     response = coordinator_client.get(f"/api/coordinator/season/{season_1.id}")
     assert response.status_code == 200
     assert response.json() == jsonable_encoder(SeasonRead.from_orm(season_1))
 
 
 def test_coordinator_season_detail_404(coordinator_client, db):
+    """
+    Test listing of details of a non-existent season
+    """
     response = coordinator_client.get("/api/coordinator/season/54654246")
     assert response.status_code == 404
 
 
 def test_coordinator_season_start_new(coordinator_client, db, season_1):
+    """
+    Test starting of a new season
+    """
     response = coordinator_client.post("/api/coordinator/season/start-new",
                                        json={"name": "Test Season"})
     print(response.json())
@@ -38,6 +54,9 @@ def test_coordinator_season_start_new(coordinator_client, db, season_1):
 
 
 def test_coordinator_season_start_new_empty_name_400(coordinator_client, db, season_1):
+    """
+    Test starting of a season with no defined name
+    """
     response = coordinator_client.post("/api/coordinator/season/start-new",
                                        json={"name": ""})
     print(response.json())

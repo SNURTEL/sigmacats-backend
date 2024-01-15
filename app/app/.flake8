@@ -1,3 +1,5 @@
+# Configuration file for flake8 (linter)
+
 [flake8]
 exclude =
     .git
