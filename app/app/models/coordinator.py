@@ -8,6 +8,9 @@ if TYPE_CHECKING:
 
 
 class Coordinator(SQLModel, table=True):
+    """
+    Full model of a coordinator
+    """
     id: int = Field(foreign_key="account.id", primary_key=True)
     account: "Account" = Relationship(back_populates="coordinator",
                                       sa_relationship_kwargs={
@@ -18,6 +21,9 @@ class Coordinator(SQLModel, table=True):
 
     @validator("phone_number")
     def validate_phone_number(cls, v: str) -> str:
+        """
+        Check validity of a phone number
+        """
         if (v[0] == "+" and not int(v[1:])) or (v[0] != "+" and not int(v)):
             raise ValueError("Invalid phone number")
 

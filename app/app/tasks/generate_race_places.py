@@ -12,12 +12,17 @@ from app.util.log import get_logger
 
 logger = get_logger()
 
-
+"""
+This file contains task for generating places for a race
+"""
 @celery_app.task()
 def end_race_and_generate_places(
     race_id: int,
     db: Optional[Session] = None
 ) -> None:
+    """
+    Generate places for a race
+    """
     if not db:
         db = next(get_db())
 

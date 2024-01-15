@@ -12,6 +12,9 @@ if TYPE_CHECKING:
 
 
 class Classification(SQLModel, table=True):
+    """
+    Full model of race classification
+    """
     id: Optional[int] = Field(primary_key=True, default=None)
     name: str = Field(max_length=80)
     description: str = Field(max_length=512)
@@ -35,6 +38,9 @@ class Classification(SQLModel, table=True):
 
 
 class ClassificationRead(SQLModel):
+    """
+    Model for reading race classification
+    """
     id: int
     name: str
     description: str

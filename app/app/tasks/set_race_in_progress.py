@@ -9,9 +9,15 @@ from app.models.race import Race, RaceStatus
 
 logger = get_logger()
 
+"""
+This file contains a task for starting a race
+"""
 
 @celery_app.task()
 def set_race_in_progress(race_id: int, db: Optional[Session] = None) -> None:
+    """
+    Set a race status to in progress
+    """
     logger.info("Scheduled task DONE")
 
     if not db:
@@ -20,7 +26,7 @@ def set_race_in_progress(race_id: int, db: Optional[Session] = None) -> None:
     race = db.get(Race, race_id)
 
     if not race:
-        logger.error("Clould not find race")
+        logger.error("Could not find race")
         raise ValueError("Could not find race")
 
     if race.status != RaceStatus.pending:

@@ -1,0 +1,1 @@
+This folder contains definition of tasks for celery, a distributed task queue.

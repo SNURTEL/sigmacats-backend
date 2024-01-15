@@ -20,6 +20,9 @@ if TYPE_CHECKING:
 
 
 class RaceStatus(Enum):
+    """
+    Model for displaying race status
+    """
     pending = "pending"
     in_progress = "in_progress"
     ended = "ended"
@@ -27,18 +30,27 @@ class RaceStatus(Enum):
 
 
 class RaceTemperature(Enum):
+    """
+    Model for displaying race temperature (for multipliers)
+    """
     cold = "cold"
     normal = "normal"
     hot = "hot"
 
 
 class RaceRain(Enum):
+    """
+    Model for displaying raining during race (for multipliers)
+    """
     zero = "zero"
     light = "light"
     heavy = "heavy"
 
 
 class RaceWind(Enum):
+    """
+    Model for displaying wind during race (for multipliers)
+    """
     zero = "zero"
     light = "light"
     heavy = "heavy"
@@ -62,6 +74,9 @@ place_to_points_mapping_json_schema = {
 
 
 class Race(SQLModel, table=True):
+    """
+    Full model of a race
+    """
     id: Optional[int] = Field(primary_key=True, default=None)
     status: RaceStatus = Field(sa_column_args=(
         CheckConstraint("status in ('pending', 'in_progress', 'ended', 'cancelled')", name="race_status_enum"),
@@ -125,6 +140,9 @@ class Race(SQLModel, table=True):
 
 
 class RaceCreate(SQLModel):
+    """
+    Model for race creation
+    """
     name: str
     description: str
     requirements: str
@@ -140,6 +158,9 @@ class RaceCreate(SQLModel):
 
 
 class RaceUpdate(SQLModel):
+    """
+    Model for creating a race update
+    """
     name: str = Field(default=None)
     description: str = Field(default=None)
     status: RaceStatus = Field(default=None)
@@ -157,6 +178,9 @@ class RaceUpdate(SQLModel):
 
 
 class RaceReadListRider(SQLModel):
+    """
+    Model for listing a race for a rider
+    """
     id: int
     status: RaceStatus
     name: str
@@ -171,6 +195,9 @@ class RaceReadListRider(SQLModel):
 
 
 class RaceReadDetailRider(SQLModel):
+    """
+    Model for listing race details for a rider
+    """
     id: int
     status: RaceStatus
     name: str
@@ -192,6 +219,9 @@ class RaceReadDetailRider(SQLModel):
 
 
 class RaceReadListCoordinator(SQLModel):
+    """
+    Model for listing a race for a coordinator
+    """
     id: int
     status: RaceStatus
     name: str
@@ -206,6 +236,9 @@ class RaceReadListCoordinator(SQLModel):
 
 
 class RaceReadDetailCoordinator(SQLModel):
+    """
+    Model for listing race details for a coordinator
+    """
     id: int
     status: RaceStatus
     name: str
@@ -230,6 +263,9 @@ class RaceReadDetailCoordinator(SQLModel):
 
 
 class RaceReadUpdatedCoordinator(SQLModel):
+    """
+    Model for reading an updated race for a coordinator
+    """
     id: int
     status: RaceStatus
     name: str

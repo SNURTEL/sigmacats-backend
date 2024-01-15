@@ -9,6 +9,9 @@ if TYPE_CHECKING:
 
 
 class RaceBonus(SQLModel, table=True):
+    """
+    Full model of a race bonus
+    """
     id: Optional[int] = Field(primary_key=True, default=None)
     name: str = Field(max_length=80, unique=True)
     rule: str = Field(max_length=512)
@@ -21,6 +24,9 @@ class RaceBonus(SQLModel, table=True):
 
 
 class RaceBonusListRead(SQLModel):
+    """
+    Model for reading a race bonus
+    """
     id: int
     name: str
     rule: str

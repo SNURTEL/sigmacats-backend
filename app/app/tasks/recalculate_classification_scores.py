@@ -19,6 +19,11 @@ from app.models.ride_participation_classification_place import RiderParticipatio
 
 logger = get_logger()
 
+"""
+This file contains necessary data and task for recalculation of classification scores.
+Recalculation is based on weather multipliers, approval of race submission and other factors.
+"""
+
 temperature_multiplier = {
     None: 1.,
     RaceTemperature.normal: 1.,
@@ -46,6 +51,9 @@ def recalculate_classification_scores(
         season_id: Optional[list[int]] = None,
         db: Optional[Session] = None
 ) -> None:
+    """
+    Task for recalculation of race results
+    """
     logger.info(f"Recalculating stats in season {season_id}")
 
     if not db:
@@ -159,4 +167,7 @@ def recalculate_classification_scores(
 
 
 def get_points_for_place(place_assigned: int, mapping: dict[int, int]) -> int:
+    """
+    Return points assigned to a given place
+    """
     return next((points for place, points in mapping.items() if place >= place_assigned), 0)

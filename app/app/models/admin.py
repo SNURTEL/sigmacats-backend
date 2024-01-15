@@ -7,6 +7,9 @@ if TYPE_CHECKING:
 
 
 class Admin(SQLModel, table=True):
+    """
+    Full model of an admin account
+    """
     id: int = Field(foreign_key="account.id", primary_key=True)
     account: "Account" = Relationship(back_populates="admin",
                                       sa_relationship_kwargs={

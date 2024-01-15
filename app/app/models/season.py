@@ -10,6 +10,9 @@ if TYPE_CHECKING:
 
 
 class Season(SQLModel, table=True):
+    """
+    Full model of a season
+    """
     id: Optional[int] = Field(primary_key=True, default=None)
     name: str = Field(max_length=80, unique=True)
     start_timestamp: datetime
@@ -21,6 +24,9 @@ class Season(SQLModel, table=True):
 
 
 class SeasonRead(SQLModel):
+    """
+    Model for reading a season
+    """
     id: int
     name: str
     start_timestamp: datetime
@@ -28,4 +34,7 @@ class SeasonRead(SQLModel):
 
 
 class SeasonStart(SQLModel):
+    """
+    Initial model of a season
+    """
     name: str

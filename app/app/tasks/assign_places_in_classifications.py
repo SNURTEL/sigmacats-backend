@@ -16,12 +16,18 @@ from app.util.log import get_logger
 
 logger = get_logger()
 
+"""
+This file contains task related to assignment of places in classification
+"""
 
 @celery_app.task()
 def assign_places_in_classifications(
         race_id: int,
         db: Optional[Session] = None
 ) -> None:
+    """
+    Assignment of places in classification
+    """
     logger.info(f"Granting points for race {race_id}")
 
     if not db:
@@ -114,6 +120,9 @@ def create_race_classification_entries(
         participations: list[RaceParticipation],
         filter: Callable[[RaceParticipation], bool]
 ) -> list[RiderParticipationClassificationPlace]:
+    """
+    Create race classification entries to be entered in classification
+    """
     race_classification_entries = []
     offset = 0
     for participation in sorted(participations,

@@ -5,9 +5,15 @@ from app.util.log import get_logger
 
 logger = get_logger()
 
+"""
+This file contains a sample celery task
+"""
 
 @celery_app.task()
 def test_celery() -> str:
+    """
+    Sample celery task
+    """
     logger.info("GOT TASK")
     time.sleep(3)
     logger.info("TASK DONE")
