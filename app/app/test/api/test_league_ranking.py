@@ -7,6 +7,7 @@ from app.models.classification import ClassificationRead
 from app.models.season import SeasonRead
 from app.models.rider_classification_link import RiderClassificationLinkRead, RiderClassificationLinkRiderDetails
 from app.test.fixtures import NOVEMBER_TIME
+from app.models.race_participation import RaceParticipationStatus, RaceParticipationListReadNames
 
 
 def test_classification_list_riders(rider1_client, db, classification_with_rider, rider1):
@@ -94,4 +95,11 @@ def test_rider_classification_link_no_rider_404(
         rider1_client,
         db):
     response = rider1_client.get("/api/rider/rider_classification_link/934789374893897/rider")
+    assert response.status_code == 404
+
+
+def test_rider_race_no_participations_404(
+        rider1_client, db
+):
+    response = rider1_client.get(f"/api/rider/race/3048304/participations/all")
     assert response.status_code == 404
