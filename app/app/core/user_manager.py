@@ -16,8 +16,14 @@ from app.util.mail.mail_client import send_reset_password
 
 logger = get_logger()
 
+"""
+This file contains necessary functionalities related to user management
+"""
 
 class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
+    """
+    Class for user management
+    """
     reset_password_token_secret = str(os.environ.get("FASTAPI_RESET_PASSWORD_TOKEN_SECRET"))
     verification_token_secret = str(os.environ.get("FASTAPI_VERIFICATION_TOKEN_SECRET"))
 
@@ -27,6 +33,9 @@ class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
             safe: bool = True,
             request: Optional[Request] = None,
     ) -> Account:
+        """
+        Create user
+        """
         if user_create.type not in set(i for i in AccountType):
             raise HTTPException(400)
 
@@ -81,6 +90,9 @@ class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
             safe: bool = False,
             request: Optional[Request] = None,
     ) -> models.UP:
+        """
+        Update user
+        """
         return await super().update(  # type: ignore[return-value]
             user_update=user_update,
             user=user,
@@ -91,6 +103,9 @@ class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
     async def on_after_forgot_password(
             self, user: Account, token: str, request: Optional[Request] = None
     ) -> None:
+        """
+        Password reset
+        """
         logger.info(f"User {user.id} has forgot their password.")
         send_reset_password(
             receiver_email=user.email,
@@ -100,6 +115,9 @@ class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
     async def on_after_request_verify(
             self, user: Account, token: str, request: Optional[Request] = None
     ) -> None:
+        """
+        Verification logging
+        """
         logger.info(f"Verification requested for user {user.id}. Verification token: {token}")
 
     async def on_after_login(
@@ -108,6 +126,9 @@ class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
             request: Optional[Request] = None,
             response: Optional[Response] = None,
     ) -> None:
+        """
+        User login logging
+        """
         logger.info(f"User {user.id} logged in.")
 
     async def validate_password(
@@ -115,6 +136,9 @@ class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
             password: str,
             user: Union[AccountCreate, Account],  # type: ignore[override]
     ) -> None:
+        """
+        Password validation
+        """
         if len(password) < 8:
             raise InvalidPasswordException(
                 reason="Password should be at least 8 characters"

@@ -15,12 +15,21 @@ from app.util.log import get_logger
 
 logger = get_logger()
 
+"""
+This file contains functions related to management of current users
+"""
 
 def get_user_db(session: Session = Depends(get_db)) -> Generator[SQLModelUserDatabase, Any, None]:
+    """
+    Get current database user
+    """
     yield SQLModelUserDatabase(session, Account)
 
 
 def get_user_manager(user_db: SQLModelUserDatabase = Depends(get_user_db)) -> Generator[UserManager, Any, None]:
+    """
+    Get current user manager
+    """
     yield UserManager(user_db)
 
 
@@ -36,6 +45,9 @@ current_superuser = fastapi_users.current_user(active=True, superuser=True)
 async def current_rider_user(
         user: Account = Depends(current_active_user)
 ) -> Rider:
+    """
+    Return rider that is currently logged into the app
+    """
     if not user.type == AccountType.rider:
         raise HTTPException(403)
     assert user.rider is not None
@@ -45,6 +57,9 @@ async def current_rider_user(
 async def current_coordinator_user(
         user: Account = Depends(current_active_user)
 ) -> Account:
+    """
+    Return coordinator that is currently logged into the app
+    """
     if not user.type == AccountType.coordinator:
         raise HTTPException(403)
     return user
@@ -53,6 +68,9 @@ async def current_coordinator_user(
 async def current_admin_user(
         user: Account = Depends(current_active_user)
 ) -> Account:
+    """
+    Return admin that is currently logged into the app
+    """
     if not user.type == AccountType.admin:
         raise HTTPException(403)
     return user

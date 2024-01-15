@@ -13,12 +13,18 @@ from app.util.log import get_logger
 
 logger = get_logger()
 
+"""
+This file contains functionality used for user registration
+"""
 
 def get_register_router(
         get_user_manager: UserManagerDependency[models.UP, models.ID],
         user_schema: Type[schemas.U],
         user_create_schema: Type[schemas.UC],
 ) -> APIRouter:
+    """
+    Function used for user registration
+    """
     router = APIRouter()
 
     @router.post(

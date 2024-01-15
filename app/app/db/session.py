@@ -5,6 +5,10 @@ from sqlmodel import Session
 
 from app.core.config import create_db_engine, create_db_engine_admin
 
+"""
+This file is used for establishing a database session
+"""
+
 # ATTENTION PLEASE! SQLModel does not include `sessionmaker`, yet we want to use SQLModel's Session class (it is
 # different from SQLAlchemy's session!) for proper ORM handling. We can hack the sessionmaker by passing the Session
 # class as `class_` attribute
@@ -17,6 +21,9 @@ SessionLocalAdmin = sessionmaker(autocommit=False, autoflush=False, bind=engine_
 
 
 def get_db() -> Generator[Session, Any, None]:
+    """
+    Check if database session is established
+    """
     db = SessionLocal()
     try:
         yield db

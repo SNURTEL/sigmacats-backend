@@ -2,6 +2,10 @@ import os
 
 from fastapi_users.authentication import AuthenticationBackend, BearerTransport, JWTStrategy, CookieTransport
 
+"""
+This file contains necessary functionality for JWT Tokens, used for authentication and storing of user session
+"""
+
 bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
 cookie_transport = CookieTransport(
     cookie_max_age=3600,
