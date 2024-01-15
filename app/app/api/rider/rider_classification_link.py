@@ -12,6 +12,9 @@ from app.api.rider.classification import read_riders
 
 router = APIRouter()
 
+"""
+This file contains API functions for rider related to rider and classification link
+"""
 
 @router.get("/{classification_id}/classification")
 async def read_scores_from_classification(

@@ -11,7 +11,9 @@ from app.models.rider import Rider
 
 router = APIRouter()
 
-
+"""
+This file contains API functions for rider related to bikes
+"""
 # mypy: disable-error-code=var-annotated
 
 @router.get("/")

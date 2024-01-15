@@ -7,6 +7,10 @@ from app.models.account import AccountRead, AccountCreate
 
 router = APIRouter()
 
+"""
+This file creates APIRouter for authorisation
+"""
+
 router.include_router(
     fastapi_users.get_auth_router(jwt_auth_backend),
     prefix="/jwt"

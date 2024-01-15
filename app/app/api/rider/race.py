@@ -17,7 +17,9 @@ from app.models.race_participation import RaceParticipation, RaceParticipationSt
 
 router = APIRouter()
 
-
+"""
+This file contains API functions for rider related to races
+"""
 # mypy: disable-error-code=var-annotated
 
 @router.get("/")

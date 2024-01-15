@@ -7,6 +7,10 @@ from app.api.rider.classification import router as classification_router
 from app.api.rider.bike import router as bikes_router
 from app.api.rider.rider_classification_link import router as link_router
 
+"""
+This file creates APIRouter for a rider
+"""
+
 router = APIRouter(dependencies=[Depends(current_rider_user)])
 
 router.include_router(races_router, prefix="/race")

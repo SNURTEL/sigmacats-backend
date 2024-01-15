@@ -34,6 +34,9 @@ router = APIRouter()
 
 logger = get_logger()
 
+"""
+This file contains API functions for coordinator related to a race
+"""
 
 # mypy: disable-error-code=var-annotated
 
@@ -137,6 +140,9 @@ async def create_race(
 
 @router.post("/create/upload-route/", status_code=201)
 async def create_upload_route(request: Request) -> dict[str, str]:
+    """
+    Upload route for a race
+    """
     form: FormData = await request.form()
     tmp_path = str(form.get('fileobj.path'))
 
@@ -173,6 +179,9 @@ async def create_upload_route(request: Request) -> dict[str, str]:
 
 @router.post("/create/upload-graphic/", status_code=201)
 async def create_upload_graphic(request: Request) -> dict[str, str]:
+    """
+    Upload graphic for a race
+    """
     form: FormData = await request.form()
     tmp_path = str(form.get('fileobj.path'))
 
@@ -315,6 +324,9 @@ async def race_force_end(
         id: int,
         db: Session = Depends(get_db)
 ) -> list[RaceParticipationListRead]:
+    """
+    Force end of a race
+    """
     race = db.get(Race, id)
     if not race:
         raise HTTPException(404)

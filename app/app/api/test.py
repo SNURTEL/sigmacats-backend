@@ -16,15 +16,25 @@ logger = get_logger()
 
 router = APIRouter()
 
+"""
+This file contains basic tests for database and celery to ensure proper operation
+"""
+
 
 @router.get("/celery")
 async def celery_test() -> dict[str, str]:
+    """
+    Test celery setup
+    """
     r = basic_tasks.test_celery.delay()
     return {"Queued task": f"{r}"}
 
 
 @router.get("/db")
 async def db_test(db: Session = Depends(get_db)) -> list[Account]:
+    """
+    Test database read
+    """
     accounts = db.exec(select(Account)).all()
     logger.info(accounts)
     return accounts  # type: ignore[return-value]
@@ -32,6 +42,9 @@ async def db_test(db: Session = Depends(get_db)) -> list[Account]:
 
 @router.post("/upload-test/")
 async def upload_test(request: Request) -> dict[str, str]:
+    """
+    Test database write
+    """
     form: FormData = await request.form()
     filename = str(form.get('fileobj.path'))
     with open(filename, mode='r', encoding='utf-8') as fp:

@@ -10,6 +10,10 @@ from app.models.season import Season, SeasonRead, SeasonStart
 router = APIRouter()
 
 
+"""
+This file contains API functions for coordinator related to league seasons
+"""
+
 # mypy: disable-error-code=var-annotated
 
 @router.get("/")
@@ -80,6 +84,9 @@ async def start_new_season(
 
 
 def create_new_classifications(season: Season) -> list[Classification]:
+    """
+    Create new classifications for a season
+    """
     return [
         Classification(
             name="Klasyfikacja generalna",
