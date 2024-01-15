@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from sqlmodel import SQLModel
 
@@ -164,9 +164,9 @@ def create_initial_data(
                     "cenne punkty dostajecie za samo wzięcie udziału :D.",
         requirements="Kask!!! Poruszamy się w ruchu drogowym",
         checkpoints_gpx_file="/attachments/47161631-7a5f-48a4-b870-a1df3c1ae411.gpx",
-        meetup_timestamp=datetime(day=1, month=10, year=2023, hour=11, minute=30),
-        start_timestamp=datetime(day=1, month=10, year=2023, hour=12, minute=00),
-        end_timestamp=datetime(day=1, month=10, year=2023, hour=15),
+        meetup_timestamp=datetime.today() + timedelta(hours=1, minutes=30),
+        start_timestamp=datetime.today() + timedelta(hours=1),
+        end_timestamp=datetime.today() + timedelta(hours=4),
         entry_fee_gr=0,
         no_laps=1,
         event_graphic_file="/attachments/db65250d-7d48-42c2-b4c5-16331f6bd636.jpg",
@@ -264,6 +264,42 @@ def create_initial_data(
         classification=dummy_classification
     )
 
+    ended_race_participation_second_rider = RaceParticipation(
+        status=RaceParticipationStatus.approved.value,
+        rider=second_rider_account.rider,
+        race=race3,
+        bike=bike_other,
+        ride_start_timestamp=datetime.today() + timedelta(hours=1),
+        ride_end_timestamp=datetime.today() + timedelta(hours=3),
+        ride_gpx_file="nuh_uh",
+        place_generated_overall=1,
+        place_assigned_overall=1
+    )
+
+    ended_race_participation_third_rider = RaceParticipation(
+        status=RaceParticipationStatus.approved.value,
+        rider=third_rider_account.rider,
+        race=race3,
+        bike=bike_third,
+        ride_start_timestamp=datetime.today() + timedelta(hours=1),
+        ride_end_timestamp=datetime.today() + timedelta(hours=3),
+        ride_gpx_file="nuh_uh",
+        place_generated_overall=2,
+        place_assigned_overall=2
+    )
+
+    ended_race_participation_classification_place_second_rider = RiderParticipationClassificationPlace(
+        place=1,
+        race_participation=ended_race_participation_second_rider,
+        classification=general_classification
+    )
+
+    ended_race_participation_classification_place_third_rider = RiderParticipationClassificationPlace(
+        place=2,
+        race_participation=ended_race_participation_third_rider,
+        classification=general_classification
+    )
+
     return [
         # dummy_rider_account,
         bike_road,
@@ -287,7 +323,8 @@ def create_initial_data(
         race2,
         race3,
         dummy_race_participation_classification_place,
-
+        ended_race_participation_classification_place_second_rider,
+        ended_race_participation_classification_place_third_rider,
         rider_account,
         second_rider_account,
         third_rider_account,

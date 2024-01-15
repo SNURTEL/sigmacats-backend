@@ -13,12 +13,14 @@ from app.db.session import get_db
 from app.models.race import Race, RaceReadListRider, RaceReadDetailRider, RaceStatus
 from app.models.bike import Bike
 from app.models.rider import Rider
-from app.models.race_participation import RaceParticipation, RaceParticipationStatus, RaceParticipationCreated
+from app.models.race_participation import RaceParticipation, RaceParticipationStatus, RaceParticipationCreated, \
+    RaceParticipationListReadNames
 
 router = APIRouter()
 
 
 # mypy: disable-error-code=var-annotated
+
 
 @router.get("/")
 async def read_races(
@@ -66,6 +68,29 @@ async def read_race(
             next((p for p in race.race_participations if p.rider_id == rider.id), None),
             'status', None)
     })
+
+
+@router.get('/{race_id}/participation/all')
+async def get_all_participations(
+        race_id: int,
+        db: Session = Depends(get_db),
+) -> list[RaceParticipationListReadNames]:
+    stmt: SelectOfScalar = (
+        select(RaceParticipation)
+        .where(RaceParticipation.race_id == race_id)
+        .order_by(RaceParticipation.place_assigned_overall)  # type: ignore[arg-type]
+    )
+    participations = db.exec(stmt).all()
+
+    if not participations or len(participations) <= 0:
+        raise HTTPException(404)
+
+    return [RaceParticipationListReadNames.from_orm(p, update={
+        'rider_name': p.rider.account.name,
+        'rider_surname': p.rider.account.surname,
+        'rider_username': p.rider.account.username,
+        'time_seconds': p.ride_end_timestamp - p.ride_start_timestamp
+    }) for p in participations]
 
 
 @router.post("/{id}/join")
