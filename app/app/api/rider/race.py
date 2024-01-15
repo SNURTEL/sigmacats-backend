@@ -1,6 +1,5 @@
 import uuid
 import shutil
-import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from starlette.datastructures import FormData
@@ -18,6 +17,8 @@ from app.models.race_participation import RaceParticipation, RaceParticipationSt
     RaceParticipationListReadNames
 
 router = APIRouter()
+
+
 # mypy: disable-error-code=var-annotated
 
 
@@ -77,7 +78,7 @@ async def get_all_participations(
     stmt: SelectOfScalar = (
         select(RaceParticipation)
         .where(RaceParticipation.race_id == race_id)
-        .order_by(RaceParticipation.place_assigned_overall)
+        .order_by(RaceParticipation.place_assigned_overall)  # type: ignore[arg-type]
     )
     participations = db.exec(stmt).all()
 
