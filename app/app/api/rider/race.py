@@ -41,7 +41,9 @@ async def read_races(
     return [RaceReadListRider.from_orm(r, update={
         'participation_status': getattr(
             next((p for p in r.race_participations if p.rider_id == rider.id), None),
-            'status', None)
+            'status', None),
+        'is_approved': any([p.place_assigned_overall is not None for p in
+                            r.race_participations]) or (r.status == RaceStatus.ended and not r.race_participations)
     }) for r in races]
 
 
@@ -66,7 +68,9 @@ async def read_race(
     return RaceReadDetailRider.from_orm(race, update={
         'participation_status': getattr(
             next((p for p in race.race_participations if p.rider_id == rider.id), None),
-            'status', None)
+            'status', None),
+        'is_approved': any([p.place_assigned_overall is not None for p in race.race_participations]) or (
+                    race.status == RaceStatus.ended and not race.race_participations)
     })
 
 
