@@ -25,7 +25,7 @@ for attempt in Retrying(
             from app.db.session import engine_admin
             from app.models import *  # noqa: F401,F403
         except Exception as e:
-            logger.exception(e)
+            logger.warning(f"{e}")
             raise e
 
 oracle_user_username = os.environ.get("ORACLE_USER_USERNAME", default="user1")
