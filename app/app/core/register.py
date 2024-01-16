@@ -13,12 +13,14 @@ from app.util.log import get_logger
 
 logger = get_logger()
 
+
 """
 This file alters the default register router from `fastapi-users`.
 Since creating accounts of different types (rider vs coordinator/admin)
 has different authentication requirements, we want to redirect
 the client to a secured endpoint when creating coordinator/admin account.
 """
+
 
 def get_register_router(
         get_user_manager: UserManagerDependency[models.UP, models.ID],

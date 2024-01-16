@@ -4,9 +4,9 @@ from app.util.log import get_logger
 from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixed, Retrying
 
 """
-This script establishes connection to Oracle DB using admin account and sets up the database - creates the user account along with schema and datafile. 
+This script establishes connection to Oracle DB using admin account and sets up the database -
+- creates the user account along with schema and datafile.
 """
-
 
 logger = get_logger()
 

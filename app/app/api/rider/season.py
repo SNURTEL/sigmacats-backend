@@ -13,6 +13,7 @@ router = APIRouter()
 This file contains API functions for rider related to seasons
 """
 
+
 @router.get("/{id}/classification")
 async def read_classifications(
         id: int,

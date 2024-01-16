@@ -11,6 +11,7 @@ SMTP_PORT = 465
 File contains functions for sending the password reset email
 """
 
+
 class MailError(Exception):
     def __init__(self, cause: Exception):
         super().__init__(cause)

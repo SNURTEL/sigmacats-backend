@@ -17,9 +17,10 @@ from app.util.log import get_logger
 logger = get_logger()
 
 """
-This file contains a Celery task for assigning rider 
+This file contains a Celery task for assigning rider
 places in classifications within one race.
 """
+
 
 @celery_app.task()
 def assign_places_in_classifications(

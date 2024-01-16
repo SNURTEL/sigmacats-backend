@@ -10,6 +10,7 @@ LOG_TAG = os.environ.get("FASTAPI_LOG_TAG", default="=== NO LOG TAG SET ===")
 This file contains functionalities for logging the execution of the application
 """
 
+
 class LogConfig(BaseModel):
     """
     Class for logging the execution of the application

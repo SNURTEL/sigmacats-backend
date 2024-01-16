@@ -14,9 +14,6 @@ def test_end_point_interpolation(
     Test interpolation of end_point (correct case)
     """
     ride = gpxo.Track(sample_ride_gpx)
-    with open(sample_ride_gpx) as fp:
-        print(fp.read())
-    print(ride)
     track_end = np.array([52.219954, 21.011319])  # last trackpoint in file
     interpolated = interpolate_end_timestamp(ride, track_end, no_laps=3)
     assert interpolated < datetime.fromisoformat('2024-01-08T20:53:39.570Z').replace(tzinfo=None)

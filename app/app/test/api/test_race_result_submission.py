@@ -9,6 +9,7 @@ from app.models.race_participation import RaceParticipationStatus
 This file contains tests related to submission of race results
 """
 
+
 def test_submit_race_result(
         rider1_client,
         race_in_progress_with_rider_and_participation,
@@ -19,7 +20,6 @@ def test_submit_race_result(
     Test submission of race result
     """
     monkeypatch.setattr(shutil, 'move', lambda *args, **kwargs: None)
-
 
     race, participation, rider, bike = race_in_progress_with_rider_and_participation
 

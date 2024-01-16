@@ -30,7 +30,7 @@ from app.models.rider_classification_link import RiderClassificationLink, RiderC
 
 from app.main import app
 
-NOVEMBER_TIME = datetime.datetime(2023, 11, 1, 1, 1, 1)
+NOVEMBER_TIME = datetime.datetime(2123, 11, 1, 1, 1, 1)
 PAST_TIME = datetime.datetime(1997, 11, 1, 1, 1, 1)
 
 """
@@ -300,7 +300,7 @@ def season_1(db) -> Generator[Season, Any, None]:
     """
     season = Season(
         name="Sezon 1",
-        start_timestamp=datetime.datetime(year=2024, month=1, day=1),
+        start_timestamp=datetime.datetime(year=2124, month=1, day=1),
     )
     db.add(season)
     db.commit()
@@ -314,7 +314,7 @@ def season_2(db) -> Generator[Season, Any, None]:
     """
     season = Season(
         name="Sezon 2",
-        start_timestamp=datetime.datetime(year=2027, month=10, day=2),
+        start_timestamp=datetime.datetime(year=2127, month=10, day=2),
     )
     db.add(season)
     db.commit()

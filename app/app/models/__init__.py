@@ -3,7 +3,7 @@ import glob
 
 """
 This files allows to do `from  app.models import *`, which has to be done before
-connecting to DB, updating Pydantic forward refs and using the ORM 
+connecting to DB, updating Pydantic forward refs and using the ORM
 """
 
 # this allows to do `from app.models import *`

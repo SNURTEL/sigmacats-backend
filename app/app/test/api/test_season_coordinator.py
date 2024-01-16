@@ -1,3 +1,5 @@
+import datetime
+
 from sqlmodel import select
 from fastapi.encoders import jsonable_encoder
 
@@ -37,13 +39,17 @@ def test_coordinator_season_detail_404(coordinator_client, db):
     assert response.status_code == 404
 
 
-def test_coordinator_season_start_new(coordinator_client, db, season_1):
+def test_coordinator_season_start_new(coordinator_client, db, season_1, patch_datetime_now):
     """
     Test starting of a new season
     """
+    season_1.start_timestamp = datetime.datetime(year=2023, month=1, day=1, hour=12, minute=00)
+    db.add(season_1)
+    db.commit()
+    db.refresh(season_1)
+
     response = coordinator_client.post("/api/coordinator/season/start-new",
                                        json={"name": "Test Season"})
-    print(response.json())
     assert response.status_code == 201
     assert response.json()['name'] == "Test Season"
 
@@ -59,5 +65,4 @@ def test_coordinator_season_start_new_empty_name_400(coordinator_client, db, sea
     """
     response = coordinator_client.post("/api/coordinator/season/start-new",
                                        json={"name": ""})
-    print(response.json())
     assert response.status_code == 400

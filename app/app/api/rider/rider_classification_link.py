@@ -16,6 +16,7 @@ router = APIRouter()
 This file contains API functions for rider related to rider scores in classifications
 """
 
+
 @router.get("/{classification_id}/classification")
 async def read_scores_from_classification(
         classification_id: int,

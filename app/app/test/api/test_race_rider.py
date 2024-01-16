@@ -7,6 +7,7 @@ from app.models.race_participation import RaceParticipationStatus
 This files contains tests related to a rider and his race participation
 """
 
+
 def test_rider_list_races(rider1_client, db, race_pending, race_ended):
     """
     Test listing of races

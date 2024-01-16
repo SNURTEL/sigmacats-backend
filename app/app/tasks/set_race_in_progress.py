@@ -14,6 +14,7 @@ This file contains a Celery task for starting a race. Scheduled to run on
 race start timestamp when race is created / updated.
 """
 
+
 @celery_app.task()
 def set_race_in_progress(race_id: int, db: Optional[Session] = None) -> None:
     """

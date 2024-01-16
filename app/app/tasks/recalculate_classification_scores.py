@@ -142,7 +142,6 @@ def recalculate_classification_scores(
                     f"({race_classification_place.classification.name})\n " + repr(e))
                 continue
 
-    print(classification_rider_scores)
     logger.info("Task done!")
 
     old_classification_places = db.exec(

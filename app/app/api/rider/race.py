@@ -20,6 +20,8 @@ router = APIRouter()
 """
 This file contains API functions for rider related to races
 """
+
+
 # mypy: disable-error-code=var-annotated
 
 @router.get("/")
@@ -164,10 +166,7 @@ async def upload_race_result(
 
     with open(tmp_path, 'r') as f:
         content = f.read(43)
-        if content.startswith('<?xml version="1.0" encoding="UTF-8"?>\n<gpx'):
-            print('GPX')
-        else:
-            print('INVALID TYPE')
+        if not content.startswith('<?xml version="1.0" encoding="UTF-8"?>\n<gpx'):
             raise HTTPException(400)
 
     stmt_race: SelectOfScalar = (

@@ -16,12 +16,13 @@ from app.util.log import get_logger
 logger = get_logger()
 
 """
-This file contains FastAPI dependencies for user db, 
+This file contains FastAPI dependencies for user db,
 user manager, and currently active users. Adding the
 former ones to endpoints will result in throwing  401 if
 currently logged in user is not of required type (or user is
 not logged in at all).
 """
+
 
 def get_user_db(session: Session = Depends(get_db)) -> Generator[SQLModelUserDatabase, Any, None]:
     """

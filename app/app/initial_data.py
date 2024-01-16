@@ -64,20 +64,6 @@ def create_initial_data(
         model="WTP"
     )
 
-    # dummy_rider_account = Account(
-    #     type="rider",
-    #     username="dummy_rider",
-    #     name="John",
-    #     surname="Doe",
-    #     email="jo.doe@sigma.org",
-    #     hashed_password="JSDHFGKIUSDFHBKGSBHDFKGS",
-    # )
-    #
-    # dummy_rider = Rider(
-    #     account=dummy_rider_account,
-    #     bikes=[bike_road, bike_fixie]
-    # )
-
     assert isinstance(rider_account.rider, Rider)
     assert isinstance(second_rider_account.rider, Rider)
     assert isinstance(third_rider_account.rider, Rider)
@@ -272,7 +258,6 @@ def create_initial_data(
     )
 
     return [
-        # dummy_rider_account,
         bike_road,
         bike_fixie,
         bike_other,
@@ -289,7 +274,6 @@ def create_initial_data(
         second_rider_classification_link,
         third_rider_classification_link,
         fourth_rider_classification_link,
-        # dummy_rider,
         race1,
         race2,
         race3,

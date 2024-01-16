@@ -20,6 +20,7 @@ logger = get_logger()
 This file contains necessary functionalities related to user management
 """
 
+
 class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
     """
     Class for user management, required to implement
@@ -43,23 +44,12 @@ class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
         try:
             session = self.user_db.session  # type: ignore[attr-defined]
 
-            # FIXME NOTE - when something breaks when creating a Rider/Coordinator/Admin table row, a dangling account
-            #  remains in Account table
-            #  This can be prevented by either:
-            #   - running the entire thing in a transaction - unfortunately, super().create(...) calls session.commit()
-            #    internally, which closes the transaction immediately (even though this behaviour has apperantly been
-            #     fixed long time ago - https://github.com/sqlalchemy/sqlalchemy/issues/6288
-            #   - running super().create(...) in a nested transaction - unfortunately, SQLModel does not support them :)
-            #  that being said, all potential points of failure should be placed before super().create(...) call -
-            #  - either in AccountCreate validators, or physically on the beginning of the function
-
-            # with session.begin():
             account = await super().create(user_create, safe, request)
             if account.type == AccountType.rider:
                 rider = Rider(
                     account=account,
                     bikes=[],
-                    classifications=[],  # TODO defaults
+                    classifications=[],
                     race_participations=[],
                     classification_links=[]
                 )

@@ -38,6 +38,7 @@ logger = get_logger()
 This file contains API endpoints related to race management available for race coordinators
 """
 
+
 # mypy: disable-error-code=var-annotated
 
 
@@ -100,7 +101,7 @@ async def create_race(
         db: Session = Depends(get_db),
 ) -> RaceReadDetailCoordinator:
     """
-    Create a new race.
+    Create a new race and schedule a Celery task to set status to `in_progress` on race start.
     """
     current_season = db.exec(
         select(Season)
@@ -108,10 +109,12 @@ async def create_race(
     ).first()
 
     if not current_season:
-        print(db.exec(select(Season)).all())
         raise HTTPException(500, "Could not find current season")
 
-    if db.exec(select(Race).where(Race.name == race_create.name, Race.season_id == current_season.id)).first():
+    if db.exec(select(Race).where(
+            Race.name == race_create.name,
+            Race.season_id == current_season.id
+    )).first():
         raise HTTPException(400, "Race with given name already exists in current season")
 
     try:
@@ -141,17 +144,15 @@ async def create_race(
 @router.post("/create/upload-route/", status_code=201)
 async def create_upload_route(request: Request) -> dict[str, str]:
     """
-    Upload GPX route for a race. This endpoint is used only for processing requests forwarded by the `nginx-upload` module and will not do anything meaningful if called directly.
+    Upload GPX route for a race. This endpoint is used only for processing requests forwarded by the
+    `nginx-upload` module and will not do anything meaningful if called directly.
     """
     form: FormData = await request.form()
     tmp_path = str(form.get('fileobj.path'))
 
     with open(tmp_path, 'r') as f:
         content = f.read(43)
-        if content.startswith('<?xml version="1.0" encoding="UTF-8"?>\n<gpx'):
-            print('GPX')
-        else:
-            print('INVALID TYPE')
+        if not content.startswith('<?xml version="1.0" encoding="UTF-8"?>\n<gpx'):
             raise HTTPException(400)
 
     track = gpxo.Track(tmp_path)
@@ -180,16 +181,14 @@ async def create_upload_route(request: Request) -> dict[str, str]:
 @router.post("/create/upload-graphic/", status_code=201)
 async def create_upload_graphic(request: Request) -> dict[str, str]:
     """
-    Upload graphic for a race. This endpoint is used only for processing requests forwarded by the `nginx-upload` module and will not do anything meaningful if called directly.
+    Upload graphic for a race. This endpoint is used only for processing requests forwarded by the `nginx-upload`
+    module and will not do anything meaningful if called directly.
     """
     form: FormData = await request.form()
     tmp_path = str(form.get('fileobj.path'))
 
     extension = imghdr.what(tmp_path)
-    if extension in ('jpeg', 'png'):
-        print(extension)
-    else:
-        print('INVALID TYPE')
+    if extension not in ('jpeg', 'png'):
         raise HTTPException(400)
 
     new_name = f"{str(uuid.uuid4())}.{extension}"
@@ -248,7 +247,7 @@ async def update_race(
 
     return RaceReadUpdatedCoordinator.from_orm(race, update={
         "is_approved": any([p.place_assigned_overall is not None for p in race.race_participations]) or (
-                    race.status == RaceStatus.ended and not race.race_participations)})
+                race.status == RaceStatus.ended and not race.race_participations)})
 
 
 @router.post("/{id}/cancel")

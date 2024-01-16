@@ -24,6 +24,7 @@ This file contains Celery task and function for processing race result submissio
 including extracting ride end timestamp from ride GPX.
 """
 
+
 @celery_app.task()
 def process_race_result_submission(
         race_id: int,

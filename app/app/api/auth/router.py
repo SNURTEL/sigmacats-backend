@@ -25,8 +25,3 @@ router.include_router(
 router.include_router(
     get_register_router(fastapi_users.get_user_manager, AccountRead, AccountCreate)
 )
-
-# # uncomment if needed
-# router.include_router(
-#     fastapi_users.get_verify_router(AccountRead),
-# )
