@@ -4,8 +4,7 @@ from app.util.log import get_logger
 from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixed, Retrying
 
 """
-File responsible for checking, if database is running.
-If it is running, it also creates database users.
+This script establishes connection to Oracle DB using admin account and sets up the database - creates the user account along with schema and datafile. 
 """
 
 
@@ -41,7 +40,7 @@ oracle_user_password = os.environ.get("ORACLE_USER_USERNAME", default="user1")
 )
 def init() -> None:
     """
-    Start database
+    Connect to DB as admin
     """
     try:
         with engine_admin.connect() as connection:
@@ -54,7 +53,7 @@ def init() -> None:
 
 def create_db_users() -> None:
     """
-    Create database users
+    Create the DB user
     """
     with engine_admin.connect() as connection:
         with connection.begin():

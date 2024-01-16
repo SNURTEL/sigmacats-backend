@@ -80,7 +80,8 @@ class RaceParticipationListRead(SQLModel):
 
 class RaceParticipationListReadNames(RaceParticipationListRead):
     """
-    Model for reading name from race participation
+    Model for reading detailed race participation status
+    with user data
     """
     rider_name: str
     rider_surname: str
@@ -91,6 +92,7 @@ class RaceParticipationListReadNames(RaceParticipationListRead):
 class RaceParticipationAssignPlaceListUpdate(SQLModel):
     """
     Model for updating assigned place in general classification
+    within a race
     """
     id: int
     place_assigned_overall: int

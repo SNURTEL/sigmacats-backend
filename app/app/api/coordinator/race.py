@@ -35,7 +35,7 @@ router = APIRouter()
 logger = get_logger()
 
 """
-This file contains API functions for coordinator related to a race
+This file contains API endpoints related to race management available for race coordinators
 """
 
 # mypy: disable-error-code=var-annotated
@@ -141,7 +141,7 @@ async def create_race(
 @router.post("/create/upload-route/", status_code=201)
 async def create_upload_route(request: Request) -> dict[str, str]:
     """
-    Upload route for a race
+    Upload GPX route for a race. This endpoint is used only for processing requests forwarded by the `nginx-upload` module and will not do anything meaningful if called directly.
     """
     form: FormData = await request.form()
     tmp_path = str(form.get('fileobj.path'))
@@ -180,7 +180,7 @@ async def create_upload_route(request: Request) -> dict[str, str]:
 @router.post("/create/upload-graphic/", status_code=201)
 async def create_upload_graphic(request: Request) -> dict[str, str]:
     """
-    Upload graphic for a race
+    Upload graphic for a race. This endpoint is used only for processing requests forwarded by the `nginx-upload` module and will not do anything meaningful if called directly.
     """
     form: FormData = await request.form()
     tmp_path = str(form.get('fileobj.path'))
@@ -325,7 +325,8 @@ async def race_force_end(
         db: Session = Depends(get_db)
 ) -> list[RaceParticipationListRead]:
     """
-    Force end of a race
+    End the race immediately and trigger Celery task
+    for assigning places in classifications.
     """
     race = db.get(Race, id)
     if not race:

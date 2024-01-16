@@ -10,7 +10,8 @@ from app.models.race import Race, RaceStatus
 logger = get_logger()
 
 """
-This file contains a task for starting a race
+This file contains a Celery task for starting a race. Scheduled to run on
+race start timestamp when race is created / updated.
 """
 
 @celery_app.task()

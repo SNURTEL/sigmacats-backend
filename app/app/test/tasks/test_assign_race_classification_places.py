@@ -192,7 +192,7 @@ def test_assign_classification_places_skip_unapproved(
         race_ended, riders_with_bikes, race_participations_factory, classifications, db, status
 ):
     """
-    Test assignment of places while skipping unapproved results
+    Test assignment of places while skipping unapproved participations
     """
     (r1, r2, r3, r4), (b1, b2, b3, b4) = riders_with_bikes
     places = [3, 1, 4, 2]

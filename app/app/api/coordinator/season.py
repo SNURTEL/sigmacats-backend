@@ -11,7 +11,7 @@ router = APIRouter()
 
 
 """
-This file contains API functions for coordinator related to league seasons
+This file contains API functions available to race coordinators related to league seasons
 """
 
 # mypy: disable-error-code=var-annotated

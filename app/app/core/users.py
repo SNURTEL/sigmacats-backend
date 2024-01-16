@@ -16,19 +16,23 @@ from app.util.log import get_logger
 logger = get_logger()
 
 """
-This file contains functions related to management of current users
+This file contains FastAPI dependencies for user db, 
+user manager, and currently active users. Adding the
+former ones to endpoints will result in throwing  401 if
+currently logged in user is not of required type (or user is
+not logged in at all).
 """
 
 def get_user_db(session: Session = Depends(get_db)) -> Generator[SQLModelUserDatabase, Any, None]:
     """
-    Get current database user
+    Get the user DB used by `UserManager`
     """
     yield SQLModelUserDatabase(session, Account)
 
 
 def get_user_manager(user_db: SQLModelUserDatabase = Depends(get_user_db)) -> Generator[UserManager, Any, None]:
     """
-    Get current user manager
+    Get the `UserManger`
     """
     yield UserManager(user_db)
 
@@ -46,7 +50,8 @@ async def current_rider_user(
         user: Account = Depends(current_active_user)
 ) -> Rider:
     """
-    Return rider that is currently logged into the app
+    Return rider that is currently logged into the app.
+    401 if user is not logged in.
     """
     if not user.type == AccountType.rider:
         raise HTTPException(403)
@@ -58,7 +63,8 @@ async def current_coordinator_user(
         user: Account = Depends(current_active_user)
 ) -> Account:
     """
-    Return coordinator that is currently logged into the app
+    Return coordinator that is currently logged into the app.
+    401 if user is not a coordinator.
     """
     if not user.type == AccountType.coordinator:
         raise HTTPException(403)
@@ -69,7 +75,8 @@ async def current_admin_user(
         user: Account = Depends(current_active_user)
 ) -> Account:
     """
-    Return admin that is currently logged into the app
+    Return admin that is currently logged into the app.
+    401 if user is not an admin.
     """
     if not user.type == AccountType.admin:
         raise HTTPException(403)

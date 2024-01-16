@@ -5,6 +5,9 @@ from sqlalchemy.engine import URL, Engine
 import sys
 import oracledb
 
+# SQLModel / SQLAlchemy require resolving all relationships between models
+# before connecting  to DB and using ORM. Putting the import here ensures
+# they will be resolved properly.
 from app.models import *  # noqa: F401,F403
 from app.db.forward_refs import update_forward_refs
 

@@ -22,7 +22,7 @@ SessionLocalAdmin = sessionmaker(autocommit=False, autoflush=False, bind=engine_
 
 def get_db() -> Generator[Session, Any, None]:
     """
-    Check if database session is established
+    FastAPI dependency for DB session
     """
     db = SessionLocal()
     try:

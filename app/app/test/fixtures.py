@@ -34,7 +34,7 @@ NOVEMBER_TIME = datetime.datetime(2023, 11, 1, 1, 1, 1)
 PAST_TIME = datetime.datetime(1997, 11, 1, 1, 1, 1)
 
 """
-This file creates fixtures that are later used for testing the application
+This file defines `pytest` fixtures that are later used for testing the application
 """
 
 
@@ -249,7 +249,7 @@ def admin(db) -> Generator[Rider, Any, None]:
 @pytest.fixture(scope="function")
 def bike_rider1_road(db, rider1) -> Generator[Bike, Any, None]:
     """
-    Add roadbike to rider1
+    Road bike belonging to rider1
     """
     bike = Bike(
         name="Rakieta",
@@ -266,7 +266,7 @@ def bike_rider1_road(db, rider1) -> Generator[Bike, Any, None]:
 @pytest.fixture(scope="function")
 def bike_rider1_fixie(db, rider1) -> Generator[Bike, Any, None]:
     """
-    Add fixed gear bike to rider1
+    Fixed gear bike belonging to rider1
     """
     bike = Bike(
         name="Czarna strzała",
@@ -287,7 +287,7 @@ def riders_with_bikes(
         bike_rider1_road, bike_rider2, bike_rider3, bike_rider4
 ) -> Generator[tuple[tuple[Rider], tuple[Bike]], Any, None]:
     """
-    Return a set of specified riders with specified bikes
+    A set of riders along with with their bikes
     """
     yield ((rider1, rider2, rider3, rider4),
            (bike_rider1_road, bike_rider2, bike_rider3, bike_rider4))  # type: ignore[misc]
@@ -554,7 +554,7 @@ def race_ended(db, season_1) -> Generator[Race, Any, None]:
 @pytest.fixture(scope="function")
 def rider1_client(rider1, db):
     """
-    Set rider1 as active client
+    API client authenticated as rider1
     """
     stmt = (
         select(Account)
@@ -573,7 +573,7 @@ def rider1_client(rider1, db):
 @pytest.fixture(scope="function")
 def rider2_client(rider2):
     """
-    Set rider2 as active client
+    API client authenticated as rider2
     """
     app.dependency_overrides[current_active_user] = lambda: rider2.account
     with TestClient(app) as c:
@@ -585,7 +585,7 @@ def rider2_client(rider2):
 @pytest.fixture(scope="function")
 def coordinator_client(coordinator):
     """
-    Set coordinator as active client
+    API client authenticated as coordinator
     """
     app.dependency_overrides[current_active_user] = lambda: coordinator.account
     with TestClient(app) as c:
@@ -597,7 +597,7 @@ def coordinator_client(coordinator):
 @pytest.fixture(scope="function")
 def admin_client(admin):
     """
-    Set admin as active client
+    API client authenticated as admin
     """
     app.dependency_overrides[current_active_user] = lambda: admin.account
     with TestClient(app) as c:
@@ -648,7 +648,8 @@ def classification_without_rider(db, season_1) -> Generator[Classification, Any,
 @pytest.fixture(scope="function")
 def sample_track_gpx() -> Generator[str, Any, None]:
     """
-    Create sample gpx file of a track (map of the track)
+    Create sample gpx file of a track (map of the track). Uses GPX
+    file from `assets` directory.
     """
     asset_path = 'app/test/assets/track.gpx'
     new_path = '/attachments/track.gpx'
@@ -665,7 +666,8 @@ def sample_track_gpx() -> Generator[str, Any, None]:
 @pytest.fixture(scope="function")
 def sample_ride_gpx() -> Generator[str, Any, None]:
     """
-    Create sample gpx file of a ride (the route a rider has covered during a race)
+    Create sample gpx file of a ride (the route a rider has covered during a race). Uses GPX
+    file from `assets` directory.
     """
     asset_path = 'app/test/assets/test_recording.gpx'
     new_path = '/attachments/test_recording.gpx'
@@ -698,7 +700,7 @@ def disable_celery_tasks(monkeypatch):
 @pytest.fixture(scope="function")
 def race_participations_factory(db) -> Generator[Callable, Any, None]:
     """
-    Create race participations
+    Factory for creating race participations
     """
     def factory(
             race: Race,
@@ -727,7 +729,7 @@ def race_participations_factory(db) -> Generator[Callable, Any, None]:
 @pytest.fixture(scope="function")
 def race_classification_entries_factory(db) -> Generator[Callable, Any, None]:
     """
-    Create race classication entries
+    Factory for creating race classication entries
     """
     def factory(
             classification: Classification,
@@ -752,7 +754,7 @@ def race_classification_entries_factory(db) -> Generator[Callable, Any, None]:
 @pytest.fixture(scope="function")
 def race_factory(db) -> Generator[Callable, Any, None]:
     """
-    Create race using a factory
+    Factory for creating races
     """
     def factory(
             season: Season,
@@ -796,7 +798,7 @@ def race_factory(db) -> Generator[Callable, Any, None]:
 @pytest.fixture(scope="function")
 def classifications(season_1, db) -> Generator[dict[str, Classification], Any, None]:
     """
-    Add classifications to the database
+    A set of sample classifications
     """
     classifications = {
         "general": Classification(
@@ -833,7 +835,7 @@ def classifications(season_1, db) -> Generator[dict[str, Classification], Any, N
 @pytest.fixture(scope="function")
 def rider_classification_link(db, season_1, rider1) -> Generator[RiderClassificationLink, Any, None]:
     """
-    Create rider classification link
+    Create rider classification link (entry)
     """
     classification = Classification(
         name="Dzieci",
@@ -855,7 +857,7 @@ def rider_classification_link(db, season_1, rider1) -> Generator[RiderClassifica
 @pytest.fixture(scope="function")
 def rider_classification_link_rider_details(rider1) -> Generator[RiderClassificationLinkRiderDetails, Any, None]:
     """
-    Specify rider's details in rider classification link
+    Ride classification link response schema with rider details
     """
     riderClassificationLinkRiderDetails = RiderClassificationLinkRiderDetails(
         score=10,
@@ -883,7 +885,7 @@ def patch_datetime_now(monkeypatch):
 @pytest.fixture(scope="function")
 def patch_datetime_past(monkeypatch):
     """
-    Patch past time for tests
+    Patch current time for tests
     """
     class November(datetime.datetime):
         @classmethod

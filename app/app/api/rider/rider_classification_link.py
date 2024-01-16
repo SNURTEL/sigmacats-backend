@@ -13,7 +13,7 @@ from app.api.rider.classification import read_riders
 router = APIRouter()
 
 """
-This file contains API functions for rider related to rider and classification link
+This file contains API functions for rider related to rider scores in classifications
 """
 
 @router.get("/{classification_id}/classification")

@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 class RaceStatus(Enum):
     """
-    Model for displaying race status
+    Model for race status
     """
     pending = "pending"
     in_progress = "in_progress"
@@ -31,7 +31,7 @@ class RaceStatus(Enum):
 
 class RaceTemperature(Enum):
     """
-    Model for displaying race temperature (for multipliers)
+    Model for temperature during race
     """
     cold = "cold"
     normal = "normal"
@@ -40,7 +40,7 @@ class RaceTemperature(Enum):
 
 class RaceRain(Enum):
     """
-    Model for displaying raining during race (for multipliers)
+    Model for rain during race
     """
     zero = "zero"
     light = "light"
@@ -49,7 +49,7 @@ class RaceRain(Enum):
 
 class RaceWind(Enum):
     """
-    Model for displaying wind during race (for multipliers)
+    Model for wind during race
     """
     zero = "zero"
     light = "light"
@@ -159,7 +159,7 @@ class RaceCreate(SQLModel):
 
 class RaceUpdate(SQLModel):
     """
-    Model for creating a race update
+    Model for updating race details
     """
     name: str = Field(default=None)
     description: str = Field(default=None)

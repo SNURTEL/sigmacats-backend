@@ -8,7 +8,7 @@ from app.api.users import router as users_router
 from app.api.test import router as test_router
 
 """
-This file created APIRouter for the app
+This file creates the main APIRouter (`app`), which includes subrouters for specific parts of the API
 """
 
 api_router = APIRouter()

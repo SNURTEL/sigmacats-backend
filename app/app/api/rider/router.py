@@ -8,7 +8,7 @@ from app.api.rider.bike import router as bikes_router
 from app.api.rider.rider_classification_link import router as link_router
 
 """
-This file creates APIRouter for a rider
+This file creates the main APIRouter for rider API
 """
 
 router = APIRouter(dependencies=[Depends(current_rider_user)])

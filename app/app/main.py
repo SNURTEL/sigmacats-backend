@@ -6,7 +6,7 @@ from app.api.api import api_router
 from app.util.log import get_logger
 
 """
-File for starting the backend
+Main app file
 """
 
 logger = get_logger()

@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 class RaceBonus(SQLModel, table=True):
     """
-    Full model of a race bonus
+    Full model of a bonus race points multiplier
     """
     id: Optional[int] = Field(primary_key=True, default=None)
     name: str = Field(max_length=80, unique=True)

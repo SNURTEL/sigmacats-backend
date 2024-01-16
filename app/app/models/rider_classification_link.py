@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 class RiderClassificationLink(SQLModel, table=True):
     """
-    Full model of RiderClassificationLink, a link between rider and classification
+    Full model of link entity between rider and classification
     """
     score: int = Field(sa_column_args=(
         CheckConstraint("score >= 0", name="rider_classification_link_score_non_negative"),

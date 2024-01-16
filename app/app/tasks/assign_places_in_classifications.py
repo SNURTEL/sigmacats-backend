@@ -17,7 +17,8 @@ from app.util.log import get_logger
 logger = get_logger()
 
 """
-This file contains task related to assignment of places in classification
+This file contains a Celery task for assigning rider 
+places in classifications within one race.
 """
 
 @celery_app.task()
@@ -121,7 +122,8 @@ def create_race_classification_entries(
         filter: Callable[[RaceParticipation], bool]
 ) -> list[RiderParticipationClassificationPlace]:
     """
-    Create race classification entries to be entered in classification
+    Create race classification entries from general classification
+    only including entries matching `filter` condition.
     """
     race_classification_entries = []
     offset = 0

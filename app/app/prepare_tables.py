@@ -23,7 +23,7 @@ get_user_db_context = contextlib.contextmanager(get_user_db)
 get_user_manager_context = contextlib.contextmanager(get_user_manager)
 
 """
-This file contains a set of DDL functions used for inserting data.
+This file contains a set of DDL functions for creating DB tables.
 It also runs all Oracle-specific DDL commands that cannot be invoked from Alembic and inserts initial table contents
 """
 
@@ -123,7 +123,8 @@ def insert_initial_users() -> None:
 
     async def create_account(account_create: AccountCreate) -> Account:
         """
-        Create new account
+        Create new user account. This has to be handled separately
+        since account creation is managed by the library
         """
         with get_session_context() as session:
             with get_user_db_context(session) as user_db:

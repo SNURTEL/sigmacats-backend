@@ -22,7 +22,8 @@ This file contains necessary functionalities related to user management
 
 class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
     """
-    Class for user management
+    Class for user management, required to implement
+    by `fastapi-users`
     """
     reset_password_token_secret = str(os.environ.get("FASTAPI_RESET_PASSWORD_TOKEN_SECRET"))
     verification_token_secret = str(os.environ.get("FASTAPI_VERIFICATION_TOKEN_SECRET"))

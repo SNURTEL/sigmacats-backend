@@ -1,4 +1,4 @@
-# Configuration for code coverage measurement tool
+# Configuration for pytest-cov plugin for measuring code coverage
 
 [run]
 omit =

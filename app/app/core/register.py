@@ -14,7 +14,10 @@ from app.util.log import get_logger
 logger = get_logger()
 
 """
-This file contains functionality used for user registration
+This file alters the default register router from `fastapi-users`.
+Since creating accounts of different types (rider vs coordinator/admin)
+has different authentication requirements, we want to redirect
+the client to a secured endpoint when creating coordinator/admin account.
 """
 
 def get_register_router(
@@ -23,7 +26,7 @@ def get_register_router(
         user_create_schema: Type[schemas.UC],
 ) -> APIRouter:
     """
-    Function used for user registration
+    Build the register router
     """
     router = APIRouter()
 

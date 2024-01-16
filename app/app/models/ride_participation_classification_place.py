@@ -9,7 +9,8 @@ if TYPE_CHECKING:
 
 class RiderParticipationClassificationPlace(SQLModel, table=True):
     """
-    Full model for RiderParticipationClassificationPlace, place of a rider in given classification
+    Full model for place taken by a rider in a
+    given classification within a race
     """
     place: int = Field(sa_column_args=(
         CheckConstraint("place > 0", name="rider_participation_classification_place_place_positive"),

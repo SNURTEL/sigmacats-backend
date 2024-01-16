@@ -8,7 +8,7 @@ from app.models.account import AccountRead, AccountCreate
 router = APIRouter()
 
 """
-This file creates APIRouter for authorisation
+This file creates APIRouter for authentication using the `fastapi-users` library
 """
 
 router.include_router(

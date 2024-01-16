@@ -1,7 +1,7 @@
 import os
 
 """
-This file contains configuration fo celery, distributed task queue
+Config file for for Celery
 """
 
 broker_url = os.environ.get("CELERY_BROKER_URL")

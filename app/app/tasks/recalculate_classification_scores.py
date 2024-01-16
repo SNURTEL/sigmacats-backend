@@ -20,7 +20,7 @@ from app.models.ride_participation_classification_place import RiderParticipatio
 logger = get_logger()
 
 """
-This file contains necessary data and task for recalculation of classification scores.
+This file contains necessary data and Celery task for recalculation of classification scores.
 Recalculation is based on weather multipliers, approval of race submission and other factors.
 """
 
@@ -52,7 +52,8 @@ def recalculate_classification_scores(
         db: Optional[Session] = None
 ) -> None:
     """
-    Task for recalculation of race results
+    Recalculate scores of all users in all classifications
+    in a given season, then insert to DB.
     """
     logger.info(f"Recalculating stats in season {season_id}")
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-# Script for running a database migration
+# Script for creating an automatic DB migrations. Generates the migration
+in a running container and extracts the migration file
 # execute from scripts directory
 
 if [ "$#" -ne 1 ]; then

@@ -11,7 +11,7 @@ def test_end_point_interpolation(
         sample_ride_gpx,
 ):
     """
-    Test interpolation of end_point (used for checking, if the race has been completed)
+    Test interpolation of end_point (correct case)
     """
     ride = gpxo.Track(sample_ride_gpx)
     with open(sample_ride_gpx) as fp:
@@ -52,7 +52,7 @@ def test_end_point_interpolation_broken_race_end(
         sample_ride_gpx
 ):
     """
-    Test interpolation of end_point in case of a failure
+    Test interpolation of end_point in case of a broken GPX file (not close to race track)
     """
     ride = gpxo.Track(sample_ride_gpx)
     track_end = np.array([0., 0.])  # last trackpoint in file
@@ -64,7 +64,7 @@ def test_process_submission(
         race_in_progress_with_rider_and_participation,
         db, sample_ride_gpx, sample_track_gpx):
     """
-    Test submission of a route covered by a rider during a race
+    Test processing ride GPX file
     """
     race, participation, rider, bike = race_in_progress_with_rider_and_participation
 
@@ -89,7 +89,7 @@ def test_process_fallback_strategy(
         race_in_progress_with_rider_and_participation,
         db, sample_ride_gpx):
     """
-    Test implemented strategy for failed submission of a route covered by a rider during a race
+    Test implemented strategy for failed submission of ride GPX
     """
     broken_gpx = \
         """<?xml version="1.0" encoding="UTF-8"?>
