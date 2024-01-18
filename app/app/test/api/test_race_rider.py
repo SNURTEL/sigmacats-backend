@@ -14,8 +14,9 @@ def test_rider_list_races(rider1_client, db, race_pending, race_ended):
     """
     response = rider1_client.get("/api/rider/race")
     assert response.status_code == 200
-    assert response.json()[-2:] == [jsonable_encoder(RaceReadListRider.from_orm(item)) for item in
-                                    (race_pending, race_ended)]
+    assert response.json()[-2:] == [
+        jsonable_encoder(RaceReadListRider.from_orm(item, update={"is_approved": is_approved})) for item, is_approved in
+        zip((race_pending, race_ended), (False, True))]
 
 
 def test_rider_race_detail(rider1_client, db, race_pending):
@@ -24,7 +25,8 @@ def test_rider_race_detail(rider1_client, db, race_pending):
     """
     response = rider1_client.get(f"/api/rider/race/{race_pending.id}")
     assert response.status_code == 200
-    assert response.json() == jsonable_encoder(RaceReadDetailRider.from_orm(race_pending))
+    assert response.json() == jsonable_encoder(
+        RaceReadDetailRider.from_orm(race_pending, update={"is_approved": False}))
 
 
 def test_rider_race_detail_404(rider1_client, db, rider1):

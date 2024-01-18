@@ -192,6 +192,7 @@ class RaceReadListRider(SQLModel):
     event_graphic_file: str
     participation_status: Optional["RaceParticipationStatus"] = Field(default=None)
     season_id: int = Field(foreign_key="season.id")
+    is_approved: bool
 
 
 class RaceReadDetailRider(SQLModel):
@@ -216,6 +217,7 @@ class RaceReadDetailRider(SQLModel):
     race_participations: list["RaceParticipationListRead"] = Field(default=None)
     place_to_points_mapping_json: str
     sponsor_banners_uuids_json: Optional[str] = Field(max_length=4000)
+    is_approved: bool
 
 
 class RaceReadListCoordinator(SQLModel):

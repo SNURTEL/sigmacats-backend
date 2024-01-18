@@ -131,3 +131,10 @@ def test_rider_classification_link_no_rider_404(
     """
     response = rider1_client.get("/api/rider/rider_classification_link/934789374893897/rider")
     assert response.status_code == 404
+
+
+def test_rider_race_no_participations_404(
+        rider1_client, db
+):
+    response = rider1_client.get("/api/rider/race/3048304/participations/all")
+    assert response.status_code == 404
