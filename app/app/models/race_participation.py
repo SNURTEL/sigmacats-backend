@@ -65,7 +65,7 @@ class RaceParticipationCreated(SQLModel):
     bike_id: int
 
 
-class RaceParticipationListRead(SQLModel):
+class RaceParticipationCoordinatorListRead(SQLModel):
     """
     Model for reading race participation
     """
@@ -78,7 +78,7 @@ class RaceParticipationListRead(SQLModel):
     place_assigned_overall: Optional[int]
 
 
-class RaceParticipationListReadNames(RaceParticipationListRead):
+class RaceParticipationListReadNames(RaceParticipationCoordinatorListRead):
     """
     Model for reading detailed race participation status
     with user data
@@ -87,6 +87,7 @@ class RaceParticipationListReadNames(RaceParticipationListRead):
     rider_surname: str
     rider_username: str
     time_seconds: Optional[timedelta]
+    ride_gpx_file: Optional[str]
 
 
 class RaceParticipationAssignPlaceListUpdate(SQLModel):

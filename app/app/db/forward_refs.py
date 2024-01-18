@@ -1,5 +1,5 @@
 from app.models.race_participation import RaceParticipation, RaceParticipationStatus, RaceParticipationListReadNames, \
-    RaceParticipationListRead
+    RaceParticipationCoordinatorListRead
 from app.models.bike import Bike, BikeType
 from app.models.rider import Rider, RiderRead
 from app.models.season import Season
@@ -101,7 +101,7 @@ def update_forward_refs() -> None:
     RaceReadDetailRider.update_forward_refs(
         RaceBonusListRead=RaceBonusListRead,
         SeasonRead=SeasonRead,
-        RaceParticipationListRead=RaceParticipationListRead,
+        RaceParticipationCoordinatorListRead=RaceParticipationCoordinatorListRead,
         RaceParticipationStatus=RaceParticipationStatus)
 
     RaceReadListRider.update_forward_refs(
@@ -116,4 +116,4 @@ def update_forward_refs() -> None:
     RaceReadUpdatedCoordinator.update_forward_refs(
         RaceBonusListRead=RaceBonusListRead,
         SeasonRead=SeasonRead,
-        RaceParticipationListRead=RaceParticipationListRead)
+        RaceParticipationCoordinatorListRead=RaceParticipationCoordinatorListRead)

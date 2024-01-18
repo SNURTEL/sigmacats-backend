@@ -25,7 +25,8 @@ from app.tasks.assign_places_in_classifications import assign_places_in_classifi
 from app.models.race import Race, RaceStatus, RaceCreate, RaceUpdate, RaceReadDetailCoordinator, \
     RaceReadListCoordinator, RaceReadUpdatedCoordinator
 from app.models.season import Season
-from app.models.race_participation import RaceParticipationListRead, RaceParticipation, RaceParticipationStatus, \
+from app.models.race_participation import RaceParticipationCoordinatorListRead, RaceParticipation, \
+    RaceParticipationStatus, \
     RaceParticipationAssignPlaceListUpdate, RaceParticipationListReadNames
 
 LOOP_DISTANCE_THRESHOLD = 0.00015
@@ -275,7 +276,7 @@ async def race_list_participants(
         id: int,
         limit: int = 30, offset: int = 0,
         db: Session = Depends(get_db)
-) -> list[RaceParticipationListRead]:
+) -> list[RaceParticipationCoordinatorListRead]:
     """
     List all participations (no matter what state) in given race.
     """
@@ -301,7 +302,7 @@ async def race_participation_set_status(
         participation_id: int,
         status: RaceParticipationStatus,
         db: Session = Depends(get_db)
-) -> RaceParticipationListRead:
+) -> RaceParticipationCoordinatorListRead:
     """
     Set status of a given race participation
     """
@@ -322,7 +323,7 @@ async def race_participation_set_status(
 async def race_force_end(
         id: int,
         db: Session = Depends(get_db)
-) -> list[RaceParticipationListRead]:
+) -> list[RaceParticipationCoordinatorListRead]:
     """
     End the race immediately and trigger Celery task
     for assigning places in classifications.
@@ -334,7 +335,7 @@ async def race_force_end(
     end_race_and_generate_places(race_id=id, db=db)
 
     db.refresh(race)
-    return [RaceParticipationListRead.from_orm(r) for r in race.race_participations]
+    return [RaceParticipationCoordinatorListRead.from_orm(r) for r in race.race_participations]
 
 
 @router.patch("/{id}/participations")
@@ -342,7 +343,7 @@ async def race_assign_places(
         id: int,
         race_participation_updates: list[RaceParticipationAssignPlaceListUpdate],
         db: Session = Depends(get_db)
-) -> list[RaceParticipationListRead]:
+) -> list[RaceParticipationCoordinatorListRead]:
     """
     Manually assign places to race participants
     """
@@ -387,5 +388,5 @@ async def race_assign_places(
 
     assign_places_in_classifications.delay(race_id=id)
 
-    return [RaceParticipationListRead.from_orm(p) for p in race.race_participations if
+    return [RaceParticipationCoordinatorListRead.from_orm(p) for p in race.race_participations if
             p.status == RaceParticipationStatus.approved]
