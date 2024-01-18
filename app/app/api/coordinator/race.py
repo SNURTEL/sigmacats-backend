@@ -25,7 +25,8 @@ from app.tasks.assign_places_in_classifications import assign_places_in_classifi
 from app.models.race import Race, RaceStatus, RaceCreate, RaceUpdate, RaceReadDetailCoordinator, \
     RaceReadListCoordinator, RaceReadUpdatedCoordinator
 from app.models.season import Season
-from app.models.race_participation import RaceParticipationCoordinatorListRead, RaceParticipation, RaceParticipationStatus, \
+from app.models.race_participation import RaceParticipationCoordinatorListRead, RaceParticipation, \
+    RaceParticipationStatus, \
     RaceParticipationAssignPlaceListUpdate, RaceParticipationListReadNames
 
 LOOP_DISTANCE_THRESHOLD = 0.00015
