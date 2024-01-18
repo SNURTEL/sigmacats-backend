@@ -30,14 +30,21 @@ from app.models.rider_classification_link import RiderClassificationLink, RiderC
 
 from app.main import app
 
-NOVEMBER_TIME = datetime.datetime(2023, 11, 1, 1, 1, 1)
+NOVEMBER_TIME = datetime.datetime(2123, 11, 1, 1, 1, 1)
 PAST_TIME = datetime.datetime(1997, 11, 1, 1, 1, 1)
+
+"""
+This file defines `pytest` fixtures that are later used for testing the application
+"""
 
 
 async def create_account(
         session: Session,
         account_create: AccountCreate
 ):
+    """
+    Function for creating an account
+    """
     user_db_generator = get_user_db(session)
     user_manager_generator = get_user_manager(next(user_db_generator))
     user_manager = next(user_manager_generator)
@@ -49,6 +56,9 @@ async def create_account(
 
 @pytest.fixture(scope="function")
 def rider1(db) -> Generator[Rider, Any, None]:
+    """
+    Create rider account
+    """
     rider_create = AccountCreate(
         type=AccountType.rider,
         username="balbinka123",
@@ -75,6 +85,9 @@ def rider1(db) -> Generator[Rider, Any, None]:
 
 @pytest.fixture(scope="function")
 def bike_rider2(db, rider2) -> Generator[Bike, Any, None]:
+    """
+    Create rider account
+    """
     bike = Bike(
         name="Rakieta2",
         type=BikeType.road,
@@ -89,6 +102,9 @@ def bike_rider2(db, rider2) -> Generator[Bike, Any, None]:
 
 @pytest.fixture(scope="function")
 def bike_rider3(db, rider3) -> Generator[Bike, Any, None]:
+    """
+    Create rider account
+    """
     bike = Bike(
         name="Rakieta3",
         type=BikeType.road,
@@ -103,6 +119,9 @@ def bike_rider3(db, rider3) -> Generator[Bike, Any, None]:
 
 @pytest.fixture(scope="function")
 def bike_rider4(db, rider4) -> Generator[Bike, Any, None]:
+    """
+    Create rider account
+    """
     bike = Bike(
         name="Rakieta4",
         type=BikeType.road,
@@ -117,6 +136,9 @@ def bike_rider4(db, rider4) -> Generator[Bike, Any, None]:
 
 @pytest.fixture(scope="function")
 def rider2(db) -> Generator[Rider, Any, None]:
+    """
+    Create rider account
+    """
     rider_create = AccountCreate(
         type=AccountType.rider,
         username="balbinka456",
@@ -136,6 +158,9 @@ def rider2(db) -> Generator[Rider, Any, None]:
 
 @pytest.fixture(scope="function")
 def rider3(db) -> Generator[Rider, Any, None]:
+    """
+    Create rider account
+    """
     rider_create = AccountCreate(
         type=AccountType.rider,
         username="balbinka666",
@@ -155,6 +180,9 @@ def rider3(db) -> Generator[Rider, Any, None]:
 
 @pytest.fixture(scope="function")
 def rider4(db) -> Generator[Rider, Any, None]:
+    """
+    Create rider account
+    """
     rider_create = AccountCreate(
         type=AccountType.rider,
         username="balbinka777",
@@ -174,6 +202,9 @@ def rider4(db) -> Generator[Rider, Any, None]:
 
 @pytest.fixture(scope="function")
 def coordinator(db) -> Generator[Rider, Any, None]:
+    """
+    Create coordinator account
+    """
     coordinator_create = AccountCreate(
         type=AccountType.coordinator,
         username="coord",
@@ -194,6 +225,9 @@ def coordinator(db) -> Generator[Rider, Any, None]:
 
 @pytest.fixture(scope="function")
 def admin(db) -> Generator[Rider, Any, None]:
+    """
+    Create admin account
+    """
     admin_create = AccountCreate(
         type=AccountType.admin,
         username="admin",
@@ -214,6 +248,9 @@ def admin(db) -> Generator[Rider, Any, None]:
 
 @pytest.fixture(scope="function")
 def bike_rider1_road(db, rider1) -> Generator[Bike, Any, None]:
+    """
+    Road bike belonging to rider1
+    """
     bike = Bike(
         name="Rakieta",
         type=BikeType.road,
@@ -228,6 +265,9 @@ def bike_rider1_road(db, rider1) -> Generator[Bike, Any, None]:
 
 @pytest.fixture(scope="function")
 def bike_rider1_fixie(db, rider1) -> Generator[Bike, Any, None]:
+    """
+    Fixed gear bike belonging to rider1
+    """
     bike = Bike(
         name="Czarna strzała",
         type=BikeType.fixie,
@@ -246,15 +286,21 @@ def riders_with_bikes(
         rider1, rider2, rider3, rider4,
         bike_rider1_road, bike_rider2, bike_rider3, bike_rider4
 ) -> Generator[tuple[tuple[Rider], tuple[Bike]], Any, None]:
+    """
+    A set of riders along with with their bikes
+    """
     yield ((rider1, rider2, rider3, rider4),
            (bike_rider1_road, bike_rider2, bike_rider3, bike_rider4))  # type: ignore[misc]
 
 
 @pytest.fixture(scope="function")
 def season_1(db) -> Generator[Season, Any, None]:
+    """
+    Create new season
+    """
     season = Season(
         name="Sezon 1",
-        start_timestamp=datetime.datetime(year=2024, month=1, day=1),
+        start_timestamp=datetime.datetime(year=2124, month=1, day=1),
     )
     db.add(season)
     db.commit()
@@ -263,9 +309,12 @@ def season_1(db) -> Generator[Season, Any, None]:
 
 @pytest.fixture(scope="function")
 def season_2(db) -> Generator[Season, Any, None]:
+    """
+    Create new season
+    """
     season = Season(
         name="Sezon 2",
-        start_timestamp=datetime.datetime(year=2027, month=10, day=2),
+        start_timestamp=datetime.datetime(year=2127, month=10, day=2),
     )
     db.add(season)
     db.commit()
@@ -274,6 +323,9 @@ def season_2(db) -> Generator[Season, Any, None]:
 
 @pytest.fixture(scope="function")
 def race_bonus_snow(db) -> Generator[RaceBonus, Any, None]:
+    """
+    Create new bonus for difficult race conditions
+    """
     bonus = RaceBonus(
         name="bonus",
         rule="NOT_IMPLEMENTED",
@@ -286,6 +338,9 @@ def race_bonus_snow(db) -> Generator[RaceBonus, Any, None]:
 
 @pytest.fixture(scope="function")
 def race_pending(db, season_1, race_bonus_snow) -> Generator[Race, Any, None]:
+    """
+    Create new pending race
+    """
     race = Race(
         status=RaceStatus.pending,
         name="Jazda w śniegu",
@@ -315,6 +370,9 @@ def race_pending(db, season_1, race_bonus_snow) -> Generator[Race, Any, None]:
 
 @pytest.fixture(scope="function")
 def race_in_progress(db, season_1, race_bonus_snow) -> Generator[Race, Any, None]:
+    """
+    Crate new ongoing race
+    """
     race = Race(
         status=RaceStatus.in_progress,
         name="Jazda w śniegu",
@@ -368,6 +426,9 @@ def race_in_progress_with_rider_and_multiple_participations(
         rider1, rider2, rider3, rider4,
         bike_rider1_road, bike_rider2, bike_rider3, bike_rider4,
         sample_track_gpx) -> Generator[tuple[Race, list[RaceParticipation], list[Rider], list[Bike]], Any, None]:
+    """
+    Create ongoing race with multiple riders
+    """
     race_in_progress.checkpoints_gpx_file = sample_track_gpx
 
     riders = [rider1, rider2, rider3, rider4]
@@ -398,6 +459,9 @@ def race_ended_with_rider_and_multiple_participations(
         rider1, rider2, rider3, rider4,
         bike_rider1_road, bike_rider2, bike_rider3, bike_rider4,
         sample_track_gpx) -> Generator[tuple[Race, list[RaceParticipation], list[Rider], list[Bike]], Any, None]:
+    """
+    Create finished race with multiple riders
+    """
     race_ended.checkpoints_gpx_file = sample_track_gpx
 
     riders = [rider1, rider2, rider3, rider4]
@@ -425,6 +489,9 @@ def race_ended_with_rider_and_multiple_participations(
 
 @pytest.fixture(scope="function")
 def race_cancelled(db, season_1, race_bonus_snow) -> Generator[Race, Any, None]:
+    """
+    Create cancelled race
+    """
     race = Race(
         status=RaceStatus.cancelled,
         name="Jazda w śniegu",
@@ -454,6 +521,9 @@ def race_cancelled(db, season_1, race_bonus_snow) -> Generator[Race, Any, None]:
 
 @pytest.fixture(scope="function")
 def race_ended(db, season_1) -> Generator[Race, Any, None]:
+    """
+    Create finished race
+    """
     race = Race(
         status=RaceStatus.ended,
         name="Coffe ride: Pożegnanie lata",
@@ -483,6 +553,9 @@ def race_ended(db, season_1) -> Generator[Race, Any, None]:
 
 @pytest.fixture(scope="function")
 def rider1_client(rider1, db):
+    """
+    API client authenticated as rider1
+    """
     stmt = (
         select(Account)
         .where(Account.type == AccountType.rider, Account.rider == rider1)
@@ -499,6 +572,9 @@ def rider1_client(rider1, db):
 
 @pytest.fixture(scope="function")
 def rider2_client(rider2):
+    """
+    API client authenticated as rider2
+    """
     app.dependency_overrides[current_active_user] = lambda: rider2.account
     with TestClient(app) as c:
         yield c
@@ -508,6 +584,9 @@ def rider2_client(rider2):
 
 @pytest.fixture(scope="function")
 def coordinator_client(coordinator):
+    """
+    API client authenticated as coordinator
+    """
     app.dependency_overrides[current_active_user] = lambda: coordinator.account
     with TestClient(app) as c:
         yield c
@@ -517,6 +596,9 @@ def coordinator_client(coordinator):
 
 @pytest.fixture(scope="function")
 def admin_client(admin):
+    """
+    API client authenticated as admin
+    """
     app.dependency_overrides[current_active_user] = lambda: admin.account
     with TestClient(app) as c:
         yield c
@@ -526,6 +608,9 @@ def admin_client(admin):
 
 @pytest.fixture(scope="function")
 def classification_with_rider(db, season_1, rider1) -> Generator[Classification, Any, None]:
+    """
+    Create classification with rider
+    """
     classification = Classification(
         name="Dzieci",
         description="<18 lat",
@@ -545,6 +630,9 @@ def classification_with_rider(db, season_1, rider1) -> Generator[Classification,
 
 @pytest.fixture(scope="function")
 def classification_without_rider(db, season_1) -> Generator[Classification, Any, None]:
+    """
+    Create empty classification
+    """
     classification = Classification(
         name="Dorośli",
         description=">=18 lat",
@@ -559,6 +647,10 @@ def classification_without_rider(db, season_1) -> Generator[Classification, Any,
 
 @pytest.fixture(scope="function")
 def sample_track_gpx() -> Generator[str, Any, None]:
+    """
+    Create sample gpx file of a track (map of the track). Uses GPX
+    file from `assets` directory.
+    """
     asset_path = 'app/test/assets/track.gpx'
     new_path = '/attachments/track.gpx'
     shutil.copy2(asset_path, new_path)
@@ -573,6 +665,10 @@ def sample_track_gpx() -> Generator[str, Any, None]:
 
 @pytest.fixture(scope="function")
 def sample_ride_gpx() -> Generator[str, Any, None]:
+    """
+    Create sample gpx file of a ride (the route a rider has covered during a race). Uses GPX
+    file from `assets` directory.
+    """
     asset_path = 'app/test/assets/test_recording.gpx'
     new_path = '/attachments/test_recording.gpx'
     shutil.copy2(asset_path, new_path)
@@ -587,6 +683,9 @@ def sample_ride_gpx() -> Generator[str, Any, None]:
 
 @pytest.fixture(scope="function")
 def disable_celery_tasks(monkeypatch):
+    """
+    Disable celery tasks for tests
+    """
     for task in [
         assign_places_in_classifications,
         end_race_and_generate_places,
@@ -600,6 +699,9 @@ def disable_celery_tasks(monkeypatch):
 
 @pytest.fixture(scope="function")
 def race_participations_factory(db) -> Generator[Callable, Any, None]:
+    """
+    Factory for creating race participations
+    """
     def factory(
             race: Race,
             riders: Iterable[Rider],
@@ -626,6 +728,9 @@ def race_participations_factory(db) -> Generator[Callable, Any, None]:
 
 @pytest.fixture(scope="function")
 def race_classification_entries_factory(db) -> Generator[Callable, Any, None]:
+    """
+    Factory for creating race classication entries
+    """
     def factory(
             classification: Classification,
             race_participations: list[RaceParticipation],
@@ -648,6 +753,9 @@ def race_classification_entries_factory(db) -> Generator[Callable, Any, None]:
 
 @pytest.fixture(scope="function")
 def race_factory(db) -> Generator[Callable, Any, None]:
+    """
+    Factory for creating races
+    """
     def factory(
             season: Season,
             status: RaceStatus,
@@ -689,6 +797,9 @@ def race_factory(db) -> Generator[Callable, Any, None]:
 
 @pytest.fixture(scope="function")
 def classifications(season_1, db) -> Generator[dict[str, Classification], Any, None]:
+    """
+    A set of sample classifications
+    """
     classifications = {
         "general": Classification(
             name="Klasyfikacja generalna",
@@ -723,6 +834,9 @@ def classifications(season_1, db) -> Generator[dict[str, Classification], Any, N
 
 @pytest.fixture(scope="function")
 def rider_classification_link(db, season_1, rider1) -> Generator[RiderClassificationLink, Any, None]:
+    """
+    Create rider classification link (entry)
+    """
     classification = Classification(
         name="Dzieci",
         description="<18 lat",
@@ -742,6 +856,9 @@ def rider_classification_link(db, season_1, rider1) -> Generator[RiderClassifica
 
 @pytest.fixture(scope="function")
 def rider_classification_link_rider_details(rider1) -> Generator[RiderClassificationLinkRiderDetails, Any, None]:
+    """
+    Ride classification link response schema with rider details
+    """
     riderClassificationLinkRiderDetails = RiderClassificationLinkRiderDetails(
         score=10,
         name=rider1.account.name,
@@ -754,6 +871,9 @@ def rider_classification_link_rider_details(rider1) -> Generator[RiderClassifica
 
 @pytest.fixture(scope="function")
 def patch_datetime_now(monkeypatch):
+    """
+    Patch current time for tests
+    """
     class November(datetime.datetime):
         @classmethod
         def now(cls):
@@ -764,6 +884,9 @@ def patch_datetime_now(monkeypatch):
 
 @pytest.fixture(scope="function")
 def patch_datetime_past(monkeypatch):
+    """
+    Patch current time for tests
+    """
     class November(datetime.datetime):
         @classmethod
         def now(cls):

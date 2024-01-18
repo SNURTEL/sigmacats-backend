@@ -5,11 +5,15 @@ from sqlalchemy.engine import URL, Engine
 import sys
 import oracledb
 
-# But wait, what is this import doing in `core.config`? All models
-# have to be imported before doing ANYTHING with ORM, putting the import
-# here ensures all ORM relationships will be resolved properly by the mapper
+# SQLModel / SQLAlchemy require resolving all relationships between models
+# before connecting  to DB and using ORM. Putting the import here ensures
+# they will be resolved properly.
 from app.models import *  # noqa: F401,F403
 from app.db.forward_refs import update_forward_refs
+
+"""
+This file contains necessary configuration for SQLAlchemy, tool for communication with database
+"""
 
 update_forward_refs()
 
@@ -35,7 +39,6 @@ db_url_admin = URL.create(
 )
 
 
-# TODO disable echo if not in devel / test mode
 def create_db_engine(echo: bool = True) -> Engine:
     return create_engine(db_url, echo=echo)
 

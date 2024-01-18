@@ -4,8 +4,15 @@ from fastapi.encoders import jsonable_encoder
 from app.models.race import RaceStatus, RaceReadDetailCoordinator, RaceReadListCoordinator
 from app.models.race_participation import RaceParticipationStatus
 
+"""
+This file contains tests related to race functionalities for coordinator
+"""
+
 
 def test_coordinator_list_races(coordinator_client, db, race_pending, race_ended):
+    """
+    Test listing of races
+    """
     response = coordinator_client.get("/api/coordinator/race")
     assert response.status_code == 200
     assert response.json()[-2:] == [
@@ -16,6 +23,9 @@ def test_coordinator_list_races(coordinator_client, db, race_pending, race_ended
 
 
 def test_coordinator_race_detail(coordinator_client, db, race_pending):
+    """
+    Test listing of race details
+    """
     response = coordinator_client.get(f"/api/coordinator/race/{race_pending.id}")
     assert response.status_code == 200
     assert response.json() == jsonable_encoder(RaceReadDetailCoordinator.from_orm(race_pending,
@@ -23,12 +33,18 @@ def test_coordinator_race_detail(coordinator_client, db, race_pending):
 
 
 def test_coordinator_race_detail_404(coordinator_client, db):
+    """
+    Test listing of a non-existent race
+    """
     response = coordinator_client.get("/api/coordinator/race/54654246")
     assert response.status_code == 404
 
 
 def test_coordinator_create_race(coordinator_client, db, season_1,
                                  disable_celery_tasks):
+    """
+    Test race creation
+    """
     response = coordinator_client.post("/api/coordinator/race/create",
                                        json={
                                            "name": "test",
@@ -50,6 +66,9 @@ def test_coordinator_create_race(coordinator_client, db, season_1,
 
 def test_coordinator_create_race_timestamp_order(coordinator_client, db, season_1,
                                                  disable_celery_tasks):
+    """
+    Test race creation wrong timestamp order
+    """
     response = coordinator_client.post("/api/coordinator/race/create",
                                        json={
                                            "name": "test",
@@ -71,6 +90,9 @@ def test_coordinator_create_race_timestamp_order(coordinator_client, db, season_
 
 def test_coordinator_create_race_zero_laps(coordinator_client, db, season_1,
                                            disable_celery_tasks):
+    """
+    Test race creation with no laps
+    """
     response = coordinator_client.post("/api/coordinator/race/create",
                                        json={
                                            "name": "test",
@@ -92,6 +114,9 @@ def test_coordinator_create_race_zero_laps(coordinator_client, db, season_1,
 
 def test_coordinator_create_race_negative_entry_fee(coordinator_client, db, season_1,
                                                     disable_celery_tasks):
+    """
+    Test race creation with negative entry fee
+    """
     response = coordinator_client.post("/api/coordinator/race/create",
                                        json={
                                            "name": "test",
@@ -113,6 +138,9 @@ def test_coordinator_create_race_negative_entry_fee(coordinator_client, db, seas
 
 def test_coordinator_create_race_invalid_score_json(coordinator_client, db, season_1,
                                                     disable_celery_tasks):
+    """
+    Test race creation with invalid score mapping
+    """
     response = coordinator_client.post("/api/coordinator/race/create",
                                        json={
                                            "name": "test",
@@ -133,6 +161,9 @@ def test_coordinator_create_race_invalid_score_json(coordinator_client, db, seas
 
 
 def test_coordinator_create_race_invalid_sponsors_json(coordinator_client, db, season_1, disable_celery_tasks):
+    """
+    Test race creation for invalid race sponsors
+    """
     response = coordinator_client.post("/api/coordinator/race/create",
                                        json={
                                            "name": "test",
@@ -153,6 +184,9 @@ def test_coordinator_create_race_invalid_sponsors_json(coordinator_client, db, s
 
 
 def test_coordinator_cancel_race(coordinator_client, db, race_pending):
+    """
+    Test race cancellation
+    """
     response = coordinator_client.post(f"/api/coordinator/race/{race_pending.id}/cancel")
     assert response.status_code == 200
     assert response.json()['id'] == race_pending.id
@@ -160,6 +194,9 @@ def test_coordinator_cancel_race(coordinator_client, db, race_pending):
 
 
 def test_coordinator_cancel_race_multiple(coordinator_client, db, race_pending):
+    """
+    Test cancellation of multiple races
+    """
     ids = set()
     for _ in range(5):
         response = coordinator_client.post(f"/api/coordinator/race/{race_pending.id}/cancel")
@@ -171,17 +208,26 @@ def test_coordinator_cancel_race_multiple(coordinator_client, db, race_pending):
 
 
 def test_coordinator_cancel_race_ended(coordinator_client, db, race_ended):
+    """
+    Test cancellation of a finished race
+    """
     response = coordinator_client.post(f"/api/coordinator/race/{race_ended.id}/cancel")
     assert response.status_code == 403
 
 
 def test_coordinator_cancel_race_race_404(coordinator_client, db):
+    """
+    Test cancellation of a non-existent race
+    """
     response = coordinator_client.post("/api/coordinator/race/4545645/cancel")
     assert response.status_code == 404
 
 
 def test_coordinator_update_race(coordinator_client, db, race_pending,
                                  disable_celery_tasks):
+    """
+    Test updating of race details
+    """
     json = {
         "name": "Different name"
     }
@@ -200,6 +246,9 @@ def test_coordinator_update_race(coordinator_client, db, race_pending,
 ])
 def test_coordinator_update_race_invalid_status_400(coordinator_client, db, race,
                                                     disable_celery_tasks):
+    """
+    Test updating of race details for a race with invalid status
+    """
     json = {
         "name": "Different name"
     }
@@ -215,6 +264,9 @@ def test_coordinator_update_race_invalid_status_400(coordinator_client, db, race
 ])
 def test_coordinator_update_race_weather_conditions_200(coordinator_client, db, race,
                                                         disable_celery_tasks):
+    """
+    Test updating of weather conditions for a race
+    """
     json = {
         "temperature": "cold",
         "rain": "heavy",
@@ -230,6 +282,9 @@ def test_coordinator_update_race_weather_conditions_200(coordinator_client, db, 
 
 def test_coordinator_update_race_404(coordinator_client, db,
                                      disable_celery_tasks):
+    """
+    Test updating of a non-existent race
+    """
     json = {
         "name": "Different name"
     }
@@ -242,6 +297,9 @@ def test_race_assign_places(
         race_ended_with_rider_and_multiple_participations, db, coordinator_client,
         disable_celery_tasks
 ):
+    """
+    Test place assignment for a race
+    """
     race, participations, riders, bikes = race_ended_with_rider_and_multiple_participations
 
     places = [2, 1, 4, 3]
@@ -267,6 +325,9 @@ def test_race_assign_places_not_all_entries(
         race_ended_with_rider_and_multiple_participations, db, coordinator_client,
         disable_celery_tasks
 ):
+    """
+    Test place assignment for a race with missing entries
+    """
     race, participations, riders, bikes = race_ended_with_rider_and_multiple_participations
 
     places = [2, 1, 4, 3]
@@ -289,6 +350,9 @@ def test_race_assign_places_duplicate_entries(
         race_ended_with_rider_and_multiple_participations, db, coordinator_client,
         disable_celery_tasks
 ):
+    """
+    Test place assignment for a race with duplicate entries
+    """
     race, participations, riders, bikes = race_ended_with_rider_and_multiple_participations
 
     places = [2, 1, 4, 3]
@@ -311,6 +375,9 @@ def test_race_assign_places_race_not_ended(
         race_ended_with_rider_and_multiple_participations, db, coordinator_client, status,
         disable_celery_tasks
 ):
+    """
+    Test place assignment for a race, that hasn't finished yet
+    """
     race, participations, riders, bikes = race_ended_with_rider_and_multiple_participations
 
     race.status = status
@@ -338,6 +405,9 @@ def test_race_assign_places_skip_unapproved(
         race_ended_with_rider_and_multiple_participations, db, coordinator_client, status,
         disable_celery_tasks
 ):
+    """
+    Test place assignment for a race with skipping of unapproved results
+    """
     race, participations, riders, bikes = race_ended_with_rider_and_multiple_participations
 
     participations[2].status = status

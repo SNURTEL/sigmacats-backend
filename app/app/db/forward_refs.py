@@ -14,6 +14,12 @@ from app.models.race import RaceReadDetailRider, RaceReadDetailCoordinator, Race
 from app.models.season import SeasonRead
 from app.models.race_bonus import RaceBonusListRead
 
+"""
+This files updates Pydantic forward refs in models.
+Needs to be called after all models are imported, but
+before they are actually used.
+"""
+
 
 # if you are getting "TypeError: issubclass() arg 1 must be a class" from pydantic, models forward refs need to be
 # updated
@@ -22,6 +28,9 @@ from app.models.race_bonus import RaceBonusListRead
 
 
 def update_forward_refs() -> None:
+    """
+    Update forward references.
+    """
     Account.update_forward_refs(
         Rider=Rider,
         Gender=Gender,
@@ -33,13 +42,6 @@ def update_forward_refs() -> None:
         RaceParticipation=RaceParticipation,
         BikeType=BikeType
     )
-
-    # Classification.update_forward_refs(
-    #     Season=Season,
-    #     Rider=Rider,
-    #     RiderClassificationLink=RiderClassificationLink,
-    #     RiderParticipationClassificationPlace=RiderParticipationClassificationPlace
-    # )
 
     Race.update_forward_refs(
         Season=Season,
@@ -88,9 +90,6 @@ def update_forward_refs() -> None:
 
     RiderRead.update_forward_refs(
         Account=Account,
-        # Classification=Classification,
-        # RaceParticipation=RaceParticipation,
-        # Bike=Bike
     )
 
     ClassificationRead.update_forward_refs(

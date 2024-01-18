@@ -12,12 +12,20 @@ from app.util.log import get_logger
 
 logger = get_logger()
 
+"""
+This file contains task for generating places for a race based on
+ride end timestamps.
+"""
+
 
 @celery_app.task()
 def end_race_and_generate_places(
-    race_id: int,
-    db: Optional[Session] = None
+        race_id: int,
+        db: Optional[Session] = None
 ) -> None:
+    """
+    End race and assign places in classifications.
+    """
     if not db:
         db = next(get_db())
 

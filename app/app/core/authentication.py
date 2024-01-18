@@ -2,6 +2,11 @@ import os
 
 from fastapi_users.authentication import AuthenticationBackend, BearerTransport, JWTStrategy, CookieTransport
 
+"""
+This file sets up JWT authentication using `fastapi-users` library.
+Cookie and Bearer authentication schemas are supported.
+"""
+
 bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
 cookie_transport = CookieTransport(
     cookie_max_age=3600,

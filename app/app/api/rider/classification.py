@@ -9,6 +9,10 @@ from app.models.classification import Classification
 
 router = APIRouter()
 
+"""
+This file contains API functions for rider related to classification
+"""
+
 
 @router.get("/{id}/rider")
 async def read_riders(

@@ -7,6 +7,10 @@ from app.models.account import AccountRead, AccountCreate
 
 router = APIRouter()
 
+"""
+This file creates APIRouter for authentication using the `fastapi-users` library
+"""
+
 router.include_router(
     fastapi_users.get_auth_router(jwt_auth_backend),
     prefix="/jwt"
@@ -21,8 +25,3 @@ router.include_router(
 router.include_router(
     get_register_router(fastapi_users.get_user_manager, AccountRead, AccountCreate)
 )
-
-# # uncomment if needed
-# router.include_router(
-#     fastapi_users.get_verify_router(AccountRead),
-# )

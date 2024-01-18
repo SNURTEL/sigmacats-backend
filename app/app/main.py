@@ -5,6 +5,10 @@ from fastapi import FastAPI
 from app.api.api import api_router
 from app.util.log import get_logger
 
+"""
+Main app file
+"""
+
 logger = get_logger()
 
 app_name = os.getenv("FASTAPI_APP_NAME", "NAME NOT SET")

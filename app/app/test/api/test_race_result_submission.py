@@ -5,6 +5,10 @@ import pytest
 from app.models.race import RaceStatus
 from app.models.race_participation import RaceParticipationStatus
 
+"""
+This file contains tests related to submission of race results
+"""
+
 
 def test_submit_race_result(
         rider1_client,
@@ -12,6 +16,9 @@ def test_submit_race_result(
         db, sample_ride_gpx,
         disable_celery_tasks,
         monkeypatch):
+    """
+    Test submission of race result
+    """
     monkeypatch.setattr(shutil, 'move', lambda *args, **kwargs: None)
 
     race, participation, rider, bike = race_in_progress_with_rider_and_participation
@@ -38,6 +45,9 @@ def test_submit_race_result_access(
         monkeypatch,
         client,
         code):
+    """
+    Test submission of a race result for a given access level
+    """
     monkeypatch.setattr(shutil, 'move', lambda *args, **kwargs: None)
 
     race, participation, rider, bike = race_in_progress_with_rider_and_participation
@@ -56,6 +66,9 @@ def test_submit_race_result_malformed_gpx_400(
         db, sample_ride_gpx,
         disable_celery_tasks,
         monkeypatch):
+    """
+    Test submission of race result for a damaged gpx file
+    """
     monkeypatch.setattr(shutil, 'move', lambda *args, **kwargs: None)
 
     race, participation, rider, bike = race_in_progress_with_rider_and_participation
@@ -79,6 +92,9 @@ def test_submit_race_result_incorrect_race_status_400(
         disable_celery_tasks,
         monkeypatch,
         status):
+    """
+    Test submission of race result for a race with incorrect status
+    """
     monkeypatch.setattr(shutil, 'move', lambda *args, **kwargs: None)
 
     race, participation, rider, bike = race_in_progress_with_rider_and_participation
@@ -102,6 +118,9 @@ def test_submit_race_result_not_participating_400(
         db, sample_ride_gpx,
         disable_celery_tasks,
         monkeypatch):
+    """
+    Test submission of race result when a rider was not participating in a given race
+    """
     monkeypatch.setattr(shutil, 'move', lambda *args, **kwargs: None)
 
     race, participation, rider, bike = race_in_progress_with_rider_and_participation
@@ -126,6 +145,9 @@ def test_submit_race_result_incorrect_participation_status_400(
         disable_celery_tasks,
         monkeypatch,
         status):
+    """
+    Test submission of race result for a rider with incorrect participation status
+    """
     monkeypatch.setattr(shutil, 'move', lambda *args, **kwargs: None)
 
     race, participation, rider, bike = race_in_progress_with_rider_and_participation
@@ -149,6 +171,9 @@ def test_submit_race_result_already_submitted(
         db, sample_ride_gpx,
         disable_celery_tasks,
         monkeypatch):
+    """
+    Test submission of race result when result has already been submitted
+    """
     monkeypatch.setattr(shutil, 'move', lambda *args, **kwargs: None)
 
     race, participation, rider, bike = race_in_progress_with_rider_and_participation

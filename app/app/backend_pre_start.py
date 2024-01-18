@@ -3,6 +3,11 @@ import os
 from app.util.log import get_logger
 from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixed, Retrying
 
+"""
+This script establishes connection to Oracle DB using admin account and sets up the database -
+- creates the user account along with schema and datafile.
+"""
+
 logger = get_logger()
 
 max_tries = int(os.environ.get("FASTAPI_DB_CONNECTION_TIMEOUT", default=120))
@@ -20,7 +25,7 @@ for attempt in Retrying(
             from app.db.session import engine_admin
             from app.models import *  # noqa: F401,F403
         except Exception as e:
-            logger.exception(e)
+            logger.warning(f"{e}")
             raise e
 
 oracle_user_username = os.environ.get("ORACLE_USER_USERNAME", default="user1")
@@ -34,6 +39,9 @@ oracle_user_password = os.environ.get("ORACLE_USER_USERNAME", default="user1")
     after=after_log(logger, logging.WARNING),
 )
 def init() -> None:
+    """
+    Connect to DB as admin
+    """
     try:
         with engine_admin.connect() as connection:
             # ping the DB
@@ -44,6 +52,9 @@ def init() -> None:
 
 
 def create_db_users() -> None:
+    """
+    Create the DB user
+    """
     with engine_admin.connect() as connection:
         with connection.begin():
             connection.execute(

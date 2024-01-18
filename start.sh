@@ -1,4 +1,5 @@
 #!/bin/bash
+# Starting script for the app. Also sets up the DB if not yet configured.
 
 set -o errexit
 set -o pipefail

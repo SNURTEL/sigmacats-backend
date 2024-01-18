@@ -1,1 +1,3 @@
-Generic single-database configuration.
+This folder contains necessary files for database migrations, run with Alembic tool.
+
+This is a generic, single-database configuration.

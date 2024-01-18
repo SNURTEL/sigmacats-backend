@@ -16,8 +16,16 @@ from app.util.mail.mail_client import send_reset_password
 
 logger = get_logger()
 
+"""
+This file contains necessary functionalities related to user management
+"""
+
 
 class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
+    """
+    Class for user management, required to implement
+    by `fastapi-users`
+    """
     reset_password_token_secret = str(os.environ.get("FASTAPI_RESET_PASSWORD_TOKEN_SECRET"))
     verification_token_secret = str(os.environ.get("FASTAPI_VERIFICATION_TOKEN_SECRET"))
 
@@ -27,29 +35,21 @@ class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
             safe: bool = True,
             request: Optional[Request] = None,
     ) -> Account:
+        """
+        Create user
+        """
         if user_create.type not in set(i for i in AccountType):
             raise HTTPException(400)
 
         try:
             session = self.user_db.session  # type: ignore[attr-defined]
 
-            # FIXME NOTE - when something breaks when creating a Rider/Coordinator/Admin table row, a dangling account
-            #  remains in Account table
-            #  This can be prevented by either:
-            #   - running the entire thing in a transaction - unfortunately, super().create(...) calls session.commit()
-            #    internally, which closes the transaction immediately (even though this behaviour has apperantly been
-            #     fixed long time ago - https://github.com/sqlalchemy/sqlalchemy/issues/6288
-            #   - running super().create(...) in a nested transaction - unfortunately, SQLModel does not support them :)
-            #  that being said, all potential points of failure should be placed before super().create(...) call -
-            #  - either in AccountCreate validators, or physically on the beginning of the function
-
-            # with session.begin():
             account = await super().create(user_create, safe, request)
             if account.type == AccountType.rider:
                 rider = Rider(
                     account=account,
                     bikes=[],
-                    classifications=[],  # TODO defaults
+                    classifications=[],
                     race_participations=[],
                     classification_links=[]
                 )
@@ -81,6 +81,9 @@ class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
             safe: bool = False,
             request: Optional[Request] = None,
     ) -> models.UP:
+        """
+        Update user
+        """
         return await super().update(  # type: ignore[return-value]
             user_update=user_update,
             user=user,
@@ -91,6 +94,9 @@ class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
     async def on_after_forgot_password(
             self, user: Account, token: str, request: Optional[Request] = None
     ) -> None:
+        """
+        Password reset
+        """
         logger.info(f"User {user.id} has forgot their password.")
         send_reset_password(
             receiver_email=user.email,
@@ -100,6 +106,9 @@ class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
     async def on_after_request_verify(
             self, user: Account, token: str, request: Optional[Request] = None
     ) -> None:
+        """
+        Verification logging
+        """
         logger.info(f"Verification requested for user {user.id}. Verification token: {token}")
 
     async def on_after_login(
@@ -108,6 +117,9 @@ class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
             request: Optional[Request] = None,
             response: Optional[Response] = None,
     ) -> None:
+        """
+        User login logging
+        """
         logger.info(f"User {user.id} logged in.")
 
     async def validate_password(
@@ -115,6 +127,9 @@ class UserManager(IntegerIDMixin, BaseUserManager[Account, int]):
             password: str,
             user: Union[AccountCreate, Account],  # type: ignore[override]
     ) -> None:
+        """
+        Password validation
+        """
         if len(password) < 8:
             raise InvalidPasswordException(
                 reason="Password should be at least 8 characters"

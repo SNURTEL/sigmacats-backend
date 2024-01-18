@@ -18,6 +18,9 @@ from app.models.account import Account, AccountType, AccountCreate, Gender
                              (pytest.lazy_fixture("admin_client"), 403)
                          ])
 def test_accounts_rider_api_access(client, code):
+    """
+    Test rider account API access
+    """
     response = client.get("/api/rider/race")
     assert response.status_code == code
 
@@ -30,25 +33,17 @@ def test_accounts_rider_api_access(client, code):
                              (pytest.lazy_fixture("admin_client"), 403)
                          ])
 def test_accounts_coordinator_api_access(client, code):
+    """
+    Test coordinator account API access
+    """
     response = client.get("/api/coordinator/race")
     assert response.status_code == code
 
 
-# admin API does not yet exists :d
-
-# @pytest.mark.parametrize("client,code",
-#                          [
-#                              (pytest.lazy_fixture("client_unauthenticated"), 401),
-#                              (pytest.lazy_fixture("rider1_client"), 403),
-#                              (pytest.lazy_fixture("coordinator_client"), 403),
-#                              (pytest.lazy_fixture("admin_client"), 200)
-#                          ])
-# def test_accounts_admin_api_access(client, code):
-#     response = client.get("/api/rider/race")
-#     assert response.status_code == code
-
-
 def test_accounts_create_rider_account_200(client_unauthenticated, db):
+    """
+    Test rider account creation (status 200)
+    """
     ac = AccountCreate(
         type=AccountType.rider,
         email="testuser123@sigma.org",
@@ -75,6 +70,9 @@ def test_accounts_create_rider_account_200(client_unauthenticated, db):
                              AccountType.coordinator,
                          ])
 def test_accounts_create_staff_unauthorized_401(type, client_unauthenticated):
+    """
+    Test creation of staff (coordinator) account by an unautorized used (status 401)
+    """
     ac = AccountCreate(
         type=type,
         email="testuser123@sigma.org",
@@ -106,6 +104,9 @@ def test_accounts_create_staff_unauthorized_401(type, client_unauthenticated):
         )
     )))
 def test_accounts_create_staff_account_307(client, type):
+    """
+    Test creation of staff (coordinator) account with status 307
+    """
     ac = AccountCreate(
         type=type,
         email="testuser123@sigma.org",
@@ -137,6 +138,9 @@ def test_accounts_create_staff_account_307(client, type):
         )
     )))
 def test_accounts_create_staff_account_403(client, type):
+    """
+    Test creation of staff (coordinator) account with status 403
+    """
     ac = AccountCreate(
         type=type,
         email="testuser123@sigma.org",
@@ -161,6 +165,9 @@ def test_accounts_create_staff_account_403(client, type):
         AccountType.admin,
     ])
 def test_accounts_create_staff_account_as_admin_200(type, admin_client, db):
+    """
+    Test creation of staff (coordinator) account by an admin (with exti status 200)
+    """
     ac = AccountCreate(
         type=type,
         email="testuser123@sigma.org",

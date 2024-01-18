@@ -11,6 +11,9 @@ from app.models.account import Gender
 def test_assign_classification_places_general(
         race_ended, riders_with_bikes, race_participations_factory, classifications, db
 ):
+    """
+    Test assignement of places in general classification
+    """
     (r1, r2, r3, r4), (b1, b2, b3, b4) = riders_with_bikes
     places = [3, 1, 4, 2]
 
@@ -38,6 +41,9 @@ def test_assign_classification_places_general(
 def test_assign_classification_places_road(
         race_ended, riders_with_bikes, race_participations_factory, classifications, db
 ):
+    """
+    Test assignment of places in road bikes classification
+    """
     (r1, r2, r3, r4), (b1, b2, b3, b4) = riders_with_bikes
     places = [3, 1, 4, 2]
     classification_places = [3, 1, 2]
@@ -70,6 +76,9 @@ def test_assign_classification_places_road(
 def test_assign_classification_places_fixie(
         race_ended, riders_with_bikes, race_participations_factory, classifications, db
 ):
+    """
+    Test assignment of places in fixed gear bikes classification
+    """
     (r1, r2, r3, r4), (b1, b2, b3, b4) = riders_with_bikes
     places = [3, 1, 4, 2]
     classification_places = [2, 1, 3]
@@ -105,6 +114,9 @@ def test_assign_classification_places_fixie(
 def test_assign_classification_places_men(
         race_ended, riders_with_bikes, race_participations_factory, classifications, db
 ):
+    """
+    Test assignment of places in male classification
+    """
     (r1, r2, r3, r4), (b1, b2, b3, b4) = riders_with_bikes
     places = [3, 1, 4, 2]
     classification_places = [1, 2]
@@ -140,6 +152,9 @@ def test_assign_classification_places_men(
 def test_assign_classification_places_women(
         race_ended, riders_with_bikes, race_participations_factory, classifications, db
 ):
+    """
+    Test assignment of places in female classification
+    """
     (r1, r2, r3, r4), (b1, b2, b3, b4) = riders_with_bikes
     places = [3, 1, 4, 2]
     classification_places = [1, 2]
@@ -176,6 +191,9 @@ def test_assign_classification_places_women(
 def test_assign_classification_places_skip_unapproved(
         race_ended, riders_with_bikes, race_participations_factory, classifications, db, status
 ):
+    """
+    Test assignment of places while skipping unapproved participations
+    """
     (r1, r2, r3, r4), (b1, b2, b3, b4) = riders_with_bikes
     places = [3, 1, 4, 2]
     classification_places = [3, 1, 2]

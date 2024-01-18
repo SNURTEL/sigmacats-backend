@@ -12,12 +12,18 @@ if TYPE_CHECKING:
 
 
 class RaceParticipationStatus(Enum):
+    """
+    Model for race participation status
+    """
     pending = "pending"
     approved = "approved"
     rejected = "rejected"
 
 
 class RaceParticipation(SQLModel, table=True):
+    """
+    Full model for race participation
+    """
     id: Optional[int] = Field(primary_key=True, default=None)
     status: RaceParticipationStatus = Field(sa_column_args=(
         CheckConstraint("status in ('pending', 'approved', 'rejected')", name="race_participation_status_enum"),
@@ -45,10 +51,13 @@ class RaceParticipation(SQLModel, table=True):
 
     classification_places: list["RiderParticipationClassificationPlace"] = Relationship(
         back_populates="race_participation",
-        sa_relationship_kwargs={"cascade": "delete"})
+        sa_relationship_kwargs={"cascade": "save-update, delete"})
 
 
 class RaceParticipationCreated(SQLModel):
+    """
+    Model for created race participation
+    """
     id: int
     status: RaceParticipationStatus
     rider_id: int
@@ -57,6 +66,9 @@ class RaceParticipationCreated(SQLModel):
 
 
 class RaceParticipationListRead(SQLModel):
+    """
+    Model for reading race participation
+    """
     id: int
     race_id: int
     rider_id: int
@@ -67,6 +79,10 @@ class RaceParticipationListRead(SQLModel):
 
 
 class RaceParticipationListReadNames(RaceParticipationListRead):
+    """
+    Model for reading detailed race participation status
+    with user data
+    """
     rider_name: str
     rider_surname: str
     rider_username: str
@@ -74,5 +90,9 @@ class RaceParticipationListReadNames(RaceParticipationListRead):
 
 
 class RaceParticipationAssignPlaceListUpdate(SQLModel):
+    """
+    Model for updating assigned place in general classification
+    within a race
+    """
     id: int
     place_assigned_overall: int

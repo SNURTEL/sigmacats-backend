@@ -14,17 +14,26 @@ if TYPE_CHECKING:
 
 
 class Gender(Enum):
+    """
+    Class for gender of a user
+    """
     male = "male"
     female = "female"
 
 
 class AccountType(Enum):
+    """
+    Class for user account type
+    """
     rider = "rider"
     coordinator = "coordinator"
     admin = "admin"
 
 
 class Account(SQLModelBaseUserDB, table=True):  # type: ignore
+    """
+    Full model of an account
+    """
     __tablename__ = 'account'
     id: Optional[int] = Field(primary_key=True, default=None)  # type: ignore[assignment] # override is intentional
     type: AccountType = Field(sa_column_args=(
@@ -57,6 +66,9 @@ class Account(SQLModelBaseUserDB, table=True):  # type: ignore
 
 
 class AccountCreate(schemas.BaseUserCreate):
+    """
+    Model for creating an account
+    """
     type: AccountType
     username: str = Field(max_length=24, unique=True)
     name: str = Field(max_length=80)
@@ -67,6 +79,9 @@ class AccountCreate(schemas.BaseUserCreate):
 
     @validator("phone_number")
     def validate_phone_number(cls, v: str) -> str:
+        """
+        Check if the phone number is correct
+        """
         try:
             if (v is not None
                     and (
@@ -81,6 +96,9 @@ class AccountCreate(schemas.BaseUserCreate):
 
 
 class AccountRead(schemas.BaseUser[int]):
+    """
+    Model for reading the account
+    """
     type: AccountType
     username: str = Field(max_length=24, unique=True)
     name: str = Field(max_length=80)
@@ -90,4 +108,7 @@ class AccountRead(schemas.BaseUser[int]):
 
 
 class AccountUpdate(schemas.BaseUserUpdate):
+    """
+    Model for updating the account
+    """
     pass

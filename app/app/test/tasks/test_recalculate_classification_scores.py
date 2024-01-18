@@ -16,6 +16,9 @@ from app.models.rider_classification_link import RiderClassificationLink
 def _get_classification_entries(classification: Classification, season_1: Season, db: Session) -> Sequence[
     RiderClassificationLink
 ]:
+    """
+    Get current classification entries from database
+    """
     return db.exec(
         select(RiderClassificationLink)
         .join(Classification, RiderClassificationLink.classification_id == Classification.id)  # type: ignore[arg-type]
@@ -30,6 +33,9 @@ def test_recalculate_classification_scores_general(
         riders_with_bikes, race_factory, classifications,
         race_participations_factory, race_classification_entries_factory, season_1, db
 ):
+    """
+    Test recalculation of general classification
+    """
     riders, bikes = riders_with_bikes
     (r1, r2, r3, r4) = riders
     (b1, b2, b3, b4) = bikes
@@ -100,6 +106,9 @@ def test_recalculate_classification_scores_bike_type(
         riders_with_bikes, race_factory, classifications,
         race_participations_factory, race_classification_entries_factory, season_1, db
 ):
+    """
+    Test recalculation of classification for given bike types
+    """
     riders, bikes = riders_with_bikes
     (r1, r2, r3, r4) = riders
     (b1, b2, b3, b4) = bikes
@@ -165,6 +174,9 @@ def test_recalculate_classification_scores_men_women(
         riders_with_bikes, race_factory, classifications,
         race_participations_factory, race_classification_entries_factory, season_1, db
 ):
+    """
+    Test recalculation of classification for a given gender
+    """
     riders, bikes = riders_with_bikes
     (r1, r2, r3, r4) = riders
     (b1, b2, b3, b4) = bikes
@@ -232,6 +244,9 @@ def test_recalculate_classification_scores_weather_multipliers(
         riders_with_bikes, race_factory, classifications,
         race_participations_factory, race_classification_entries_factory, season_1, db
 ):
+    """
+    Test recalculatoin of classification for weather multipliers
+    """
     riders, bikes = riders_with_bikes
     (r1, r2, r3, r4) = riders
     (b1, b2, b3, b4) = bikes
