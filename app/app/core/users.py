@@ -17,7 +17,7 @@ logger = get_logger()
 
 
 """
-This file contains FastAPI dependencies for user db, 
+This file contains FastAPI dependencies for user db,
 user manager, and currently active users. Adding the
 former ones to endpoints will result in throwing  401 if
 currently logged in user is not of required type (or user is

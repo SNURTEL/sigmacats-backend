@@ -1,3 +1,12 @@
+## NOTE
+
+This is the backend repository for the SIGMACATS project. Check out the main repo [here](https://github.com/SNURTEL/23z-pzsp2-sigmacats).
+
+---
+
+# sigmacats-backend
+
+
 ### Quickstart guide
 
 #### Prerequisites
