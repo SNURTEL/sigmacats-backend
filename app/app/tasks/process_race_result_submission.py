@@ -19,11 +19,6 @@ FINISH_DISTANCE_THRESHOLD = 0.00015
 
 logger = get_logger()
 
-"""
-This file contains Celery task and function for processing race result submission,
-including extracting ride end timestamp from ride GPX.
-"""
-
 
 @celery_app.task()
 def process_race_result_submission(
@@ -32,12 +27,6 @@ def process_race_result_submission(
         recording_filepath: str,
         db: Optional[Session] = None
 ) -> None:
-    """
-    Processes race result submission - extract ride start / end timestamps
-    from GPX or use fallback strategy (start = race start, end = now). Insert
-    the processed participation in DB. Immediately triggers
-    `end_race_and_generate_places` if all users finished.
-    """
     logger.info(f"Received participation task for race_id={race_id}, rider_id={rider_id}")
 
     if not db:
@@ -58,7 +47,7 @@ def process_race_result_submission(
     race_participation = db.exec(stmt).first()
 
     if not race_participation:
-        raise ValueError(f"Race participation for race_id={race_id} rider_id{rider_id} not found")
+        raise ValueError(f"Race participation for race_id={race_id} ider_id{rider_id} not found")
 
     recording = gpxo.Track(recording_filepath)
     track = gpxo.Track(race.checkpoints_gpx_file)
@@ -109,10 +98,6 @@ def process_race_result_submission(
 
 
 def interpolate_end_timestamp(recording: gpxo.Track, end_point: np.ndarray, no_laps: int) -> datetime:
-    """
-    Interpolate ride end timestamp using two points closest to
-    finish in the last lap.
-    """
     if end_point.shape != (2,):
         raise ValueError(f'GPX processing error: end point coordinates have wrong shape ({end_point.shape})')
 

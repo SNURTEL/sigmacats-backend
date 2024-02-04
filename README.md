@@ -50,7 +50,7 @@ Running `pytest` requires a live system:
 ```shell
 docker compose up --build --detach
 # wait for containers to spin up
-docker exec fastapi-backend bash -c "pytest -vv --cov=app"
+docker exec fastapi-backend "pytest"
 ```
 #### Create migrations
 Check if a migration can be generated:

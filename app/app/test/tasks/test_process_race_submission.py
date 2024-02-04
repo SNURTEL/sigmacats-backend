@@ -10,10 +10,10 @@ from app.tasks.process_race_result_submission import process_race_result_submiss
 def test_end_point_interpolation(
         sample_ride_gpx,
 ):
-    """
-    Test interpolation of end_point (correct case)
-    """
     ride = gpxo.Track(sample_ride_gpx)
+    with open(sample_ride_gpx) as fp:
+        print(fp.read())
+    print(ride)
     track_end = np.array([52.219954, 21.011319])  # last trackpoint in file
     interpolated = interpolate_end_timestamp(ride, track_end, no_laps=3)
     assert interpolated < datetime.fromisoformat('2024-01-08T20:53:39.570Z').replace(tzinfo=None)
@@ -23,9 +23,6 @@ def test_end_point_interpolation(
 def test_end_point_interpolation_fewer_laps(
         sample_ride_gpx
 ):
-    """
-    Test interpolation of end_point when not all laps have been completed
-    """
     ride = gpxo.Track(sample_ride_gpx)
     track_end = np.array([52.219954, 21.011319])  # last trackpoint in file
     interpolated = interpolate_end_timestamp(ride, track_end, no_laps=1)
@@ -36,9 +33,6 @@ def test_end_point_interpolation_fewer_laps(
 def test_end_point_interpolation_too_many_laps(
         sample_ride_gpx
 ):
-    """
-    Test interpolation of end_point when there were too many laps completed
-    """
     ride = gpxo.Track(sample_ride_gpx)
     track_end = np.array([52.219954, 21.011319])  # last trackpoint in file
     with pytest.raises(ValueError):
@@ -48,9 +42,6 @@ def test_end_point_interpolation_too_many_laps(
 def test_end_point_interpolation_broken_race_end(
         sample_ride_gpx
 ):
-    """
-    Test interpolation of end_point in case of a broken GPX file (not close to race track)
-    """
     ride = gpxo.Track(sample_ride_gpx)
     track_end = np.array([0., 0.])  # last trackpoint in file
     with pytest.raises(ValueError):
@@ -60,9 +51,6 @@ def test_end_point_interpolation_broken_race_end(
 def test_process_submission(
         race_in_progress_with_rider_and_participation,
         db, sample_ride_gpx, sample_track_gpx):
-    """
-    Test processing ride GPX file
-    """
     race, participation, rider, bike = race_in_progress_with_rider_and_participation
 
     process_race_result_submission(
@@ -85,9 +73,6 @@ def test_process_submission(
 def test_process_fallback_strategy(
         race_in_progress_with_rider_and_participation,
         db, sample_ride_gpx):
-    """
-    Test implemented strategy for failed submission of ride GPX
-    """
     broken_gpx = \
         """<?xml version="1.0" encoding="UTF-8"?>
             <gpx xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

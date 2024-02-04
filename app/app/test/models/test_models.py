@@ -6,9 +6,6 @@ from app.models.rider import Rider
 
 
 def test_key_increment(db) -> None:  # type: ignore[no-untyped-def]
-    """
-    Test DB key autoincrement when creating entities through ORM
-    """
     account = Account(
         username="testuser",
         type="rider",

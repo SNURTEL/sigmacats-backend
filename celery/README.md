@@ -1,1 +1,0 @@
-This folder contains startup scripts for celery apps - worker, beat, and flower.

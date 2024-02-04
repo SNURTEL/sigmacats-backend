@@ -14,8 +14,6 @@ from app.test.fixtures import *  # noqa: F401,F403
 
 class TestIdSequences:
     """
-    Context manager used for testing the database, prevents changes from affecting actual database.
-
     Temporarily disables caching on id sequences and replace them with mock ones, all starting from 100001. This has
     to be done because:
      - We want to be sure which id's will be assigned to objects created during tests
@@ -45,9 +43,6 @@ class TestIdSequences:
 
 @pytest.fixture(scope="session")
 def db_engine() -> Generator[Engine, Any, None]:
-    """
-    Fixture for DB engine.
-    """
     test_engine = create_db_engine(echo=False)
 
     yield test_engine
@@ -55,9 +50,6 @@ def db_engine() -> Generator[Engine, Any, None]:
 
 @pytest.fixture(scope="function")
 def db(db_engine) -> Generator[Session, Any, None]:  # type: ignore[no-untyped-def]
-    """
-    Fixture for DB session.
-    """
     connection = db_engine.connect()
 
     with TestIdSequences(db_engine):
@@ -73,8 +65,5 @@ def db(db_engine) -> Generator[Session, Any, None]:  # type: ignore[no-untyped-d
 
 @pytest.fixture(scope="function")
 def client_unauthenticated(db) -> Generator[TestClient, Any, None]:  # type: ignore[no-untyped-def]
-    """
-    Fixture for unauthenticated API client.
-    """
     with TestClient(app) as c:
         yield c

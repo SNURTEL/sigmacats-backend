@@ -11,10 +11,6 @@ import oracledb
 from app.models import *  # noqa: F401,F403
 from app.db.forward_refs import update_forward_refs
 
-"""
-This file contains necessary configuration for SQLAlchemy, tool for communication with database
-"""
-
 update_forward_refs()
 
 oracledb.version = "23.0.0.0"
@@ -39,6 +35,7 @@ db_url_admin = URL.create(
 )
 
 
+# TODO disable echo if not in devel / test mode
 def create_db_engine(echo: bool = True) -> Engine:
     return create_engine(db_url, echo=echo)
 

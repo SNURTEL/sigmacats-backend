@@ -1,1 +1,0 @@
-This folder contains assets (GPX files) that are used for testing

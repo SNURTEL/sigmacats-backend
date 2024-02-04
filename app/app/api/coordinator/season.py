@@ -9,10 +9,6 @@ from app.models.season import Season, SeasonRead, SeasonStart
 
 router = APIRouter()
 
-"""
-This file contains API functions available to race coordinators related to league seasons
-"""
-
 
 # mypy: disable-error-code=var-annotated
 
@@ -66,6 +62,7 @@ async def start_new_season(
     ).first()
 
     if not current_season:
+        print(db.exec(select(Season)).all())
         raise HTTPException(500, "Could not find current season")
 
     current_season.end_timestamp = now
@@ -83,9 +80,6 @@ async def start_new_season(
 
 
 def create_new_classifications(season: Season) -> list[Classification]:
-    """
-    Create new classifications for a season
-    """
     return [
         Classification(
             name="Klasyfikacja generalna",
