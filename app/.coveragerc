@@ -1,5 +1,3 @@
-# Configuration for pytest-cov plugin for measuring code coverage
-
 [run]
 omit =
   app/backend_pre_start.py

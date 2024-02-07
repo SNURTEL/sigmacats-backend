@@ -9,18 +9,12 @@ if TYPE_CHECKING:
 
 
 class BikeType(Enum):
-    """
-    Model for bike type
-    """
     road = "road"
     fixie = "fixie"
     other = "other"
 
 
 class Bike(SQLModel, table=True):
-    """
-    Full model of a bike
-    """
     id: Optional[int] = Field(primary_key=True, default=None)
     name: str = Field(max_length=80)
     type: BikeType = Field(sa_column_args=(
@@ -36,9 +30,6 @@ class Bike(SQLModel, table=True):
 
 
 class BikeCreate(SQLModel):
-    """
-    Model for creating a bike
-    """
     name: str = Field(max_length=80)
     type: BikeType
     brand: Optional[str] = Field(max_length=80, default=None)
@@ -46,9 +37,6 @@ class BikeCreate(SQLModel):
 
 
 class BikeUpdate(SQLModel):
-    """
-    Model for updating bike details
-    """
     name: str = Field(max_length=80, default=None)
     type: BikeType = Field(default=None)
     brand: Optional[str] = Field(max_length=80, default=None)

@@ -22,16 +22,8 @@ get_session_context = contextlib.contextmanager(get_db)
 get_user_db_context = contextlib.contextmanager(get_user_db)
 get_user_manager_context = contextlib.contextmanager(get_user_manager)
 
-"""
-This file contains a set of DDL functions for creating DB tables.
-It also runs all Oracle-specific DDL commands that cannot be invoked from Alembic and inserts initial table contents
-"""
-
 
 def create_index_sequences() -> None:
-    """
-    Create index sequences for creating IDs
-    """
     # Oracle does not support autoincrement and hence we cannot fully trust SQLModel with index generation
     with engine.connect() as connection:
         with open("app/sql/create_id_sequences.sql", mode='r') as fp:
@@ -41,9 +33,6 @@ def create_index_sequences() -> None:
 
 
 def create_triggers() -> None:
-    """
-    Create triggers for the database
-    """
     with engine.connect() as connection:
         with open("app/sql/create_triggers.sql", mode='r') as fp:
             with connection.begin():
@@ -55,9 +44,6 @@ def create_triggers() -> None:
 
 
 def insert_initial_users() -> None:
-    """
-    Insert initial users into database
-    """
     with engine.connect() as connection:
         with connection.begin():
             if connection.execute(text(
@@ -122,10 +108,6 @@ def insert_initial_users() -> None:
     )
 
     async def create_account(account_create: AccountCreate) -> Account:
-        """
-        Create new user account. This has to be handled separately
-        since account creation is managed by the library
-        """
         with get_session_context() as session:
             with get_user_db_context(session) as user_db:
                 with get_user_manager_context(user_db) as user_manager:
@@ -144,9 +126,6 @@ def insert_initial_users() -> None:
 
 
 def insert_initial_data() -> None:
-    """
-    Insert initial data into database
-    """
     with engine.connect() as connection:
         with connection.begin():
             if connection.execute(text(

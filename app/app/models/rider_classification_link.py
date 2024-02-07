@@ -8,9 +8,6 @@ if TYPE_CHECKING:
 
 
 class RiderClassificationLink(SQLModel, table=True):
-    """
-    Full model of link entity between rider and classification
-    """
     score: int = Field(sa_column_args=(
         CheckConstraint("score >= 0", name="rider_classification_link_score_non_negative"),
     ), default=0)
@@ -28,18 +25,12 @@ class RiderClassificationLink(SQLModel, table=True):
 
 
 class RiderClassificationLinkRead(SQLModel):
-    """
-    Model for reading a RiderClassificationLink
-    """
     score: int
     rider_id: int
     classification_id: int
 
 
 class RiderClassificationLinkRiderDetails(SQLModel):
-    """
-    Model for displaying rider details in RiderClassificationLink
-    """
     score: int
     name: str
     surname: str

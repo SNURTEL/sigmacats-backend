@@ -13,9 +13,6 @@ if TYPE_CHECKING:
 
 
 class Rider(SQLModel, table=True):
-    """
-    Full model of a rider
-    """
     id: int = Field(foreign_key="account.id", primary_key=True)
     account: "Account" = Relationship(back_populates="rider",
                                       sa_relationship_kwargs={
@@ -36,8 +33,5 @@ class Rider(SQLModel, table=True):
 
 
 class RiderRead(SQLModel):
-    """
-    Model for reading a rider
-    """
     id: int
     account: "Account"

@@ -1,3 +1,11 @@
+# sigmacats-backend
+
+![banner.png](.img/banner.png)
+
+## IMPORTANT NOTE
+
+This is the backend repository for the SIGMACATS project. Check out the [main repo](https://github.com/SNURTEL/23z-pzsp2-sigmacats) first.
+
 ### Quickstart guide
 
 #### Prerequisites
@@ -50,7 +58,7 @@ Running `pytest` requires a live system:
 ```shell
 docker compose up --build --detach
 # wait for containers to spin up
-docker exec fastapi-backend bash -c "pytest -vv --cov=app"
+docker exec fastapi-backend "pytest"
 ```
 #### Create migrations
 Check if a migration can be generated:

@@ -7,10 +7,6 @@ from email.mime.text import MIMEText
 
 SMTP_PORT = 465
 
-"""
-File contains functions for sending the password reset email
-"""
-
 
 class MailError(Exception):
     def __init__(self, cause: Exception):
@@ -21,9 +17,6 @@ def _send_mail(
         receiver_email: str,
         message: str
 ) -> None:
-    """
-    Send email to defined receiver
-    """
     try:
         password = os.environ.get("FASTAPI_SMTP_PASSWORD", "")
         sender_email = os.environ.get("FASTAPI_SMTP_ADDRESS", "")
@@ -42,9 +35,6 @@ def send_reset_password(
         receiver_email: str,
         token: str
 ) -> None:
-    """
-    Send email with password resetting
-    """
     base_url = os.environ.get("FRONTEND_URL", "localhost")
 
     plain = f"""\

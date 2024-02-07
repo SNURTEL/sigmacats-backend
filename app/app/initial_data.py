@@ -13,10 +13,6 @@ from app.models.ride_participation_classification_place import RiderParticipatio
 from app.models.rider_classification_link import RiderClassificationLink
 from app.models.rider import Rider
 
-"""
-This file contains initial data that will be inserted into database.
-"""
-
 
 def create_initial_data(
         rider_account: Account,
@@ -26,9 +22,6 @@ def create_initial_data(
         coordinator_account: Account,
         admin_account: Account,
 ) -> list[SQLModel]:
-    """
-    Create initial data to be inserted into database
-    """
     bike_road = Bike(
         name="Rakieta",
         type=BikeType.road,
@@ -63,6 +56,20 @@ def create_initial_data(
         brand="MPK",
         model="WTP"
     )
+
+    # dummy_rider_account = Account(
+    #     type="rider",
+    #     username="dummy_rider",
+    #     name="John",
+    #     surname="Doe",
+    #     email="jo.doe@sigma.org",
+    #     hashed_password="JSDHFGKIUSDFHBKGSBHDFKGS",
+    # )
+    #
+    # dummy_rider = Rider(
+    #     account=dummy_rider_account,
+    #     bikes=[bike_road, bike_fixie]
+    # )
 
     assert isinstance(rider_account.rider, Rider)
     assert isinstance(second_rider_account.rider, Rider)
@@ -294,6 +301,7 @@ def create_initial_data(
     )
 
     return [
+        # dummy_rider_account,
         bike_road,
         bike_fixie,
         bike_other,
@@ -310,6 +318,7 @@ def create_initial_data(
         second_rider_classification_link,
         third_rider_classification_link,
         fourth_rider_classification_link,
+        # dummy_rider,
         race1,
         race2,
         race3,

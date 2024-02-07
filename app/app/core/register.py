@@ -27,9 +27,6 @@ def get_register_router(
         user_schema: Type[schemas.U],
         user_create_schema: Type[schemas.UC],
 ) -> APIRouter:
-    """
-    Build the register router
-    """
     router = APIRouter()
 
     @router.post(

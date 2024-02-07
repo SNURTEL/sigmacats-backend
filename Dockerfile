@@ -1,7 +1,5 @@
 FROM python:3.11.6-slim-bullseye
 
-# Dockerfile for backend and celery
-
 # "production", "development", "test"
 ARG BUILD_ENV=development
 

@@ -10,9 +10,6 @@ from app.models.race_participation import RaceParticipation, RaceParticipationSt
 def test_race_generate_places(
         race_in_progress_with_rider_and_multiple_participations, db
 ):
-    """
-    Test generation of race places
-    """
     race, participations, riders, bikes = race_in_progress_with_rider_and_multiple_participations
 
     now = datetime(2024, 1, 10, 12, 0, 0)
@@ -38,9 +35,6 @@ def test_race_generate_places(
 def test_race_generate_places_identical_time(
         race_in_progress_with_rider_and_multiple_participations, db
 ):
-    """
-    Test generation of race places with identical times
-    """
     race, participations, riders, bikes = race_in_progress_with_rider_and_multiple_participations
 
     now = datetime(2024, 1, 10, 12, 0, 0)
@@ -64,9 +58,6 @@ def test_race_generate_places_identical_time(
 def test_race_generate_places_no_end_timestamp(
         race_in_progress_with_rider_and_multiple_participations, db
 ):
-    """
-    Test generation of race places when there is no end timestamp
-    """
     race, participations, riders, bikes = race_in_progress_with_rider_and_multiple_participations
 
     now = datetime(2024, 1, 10, 12, 0, 0)
@@ -95,9 +86,6 @@ def test_race_generate_places_no_end_timestamp(
 def test_race_generate_places_different_status(
         race_in_progress_with_rider_and_multiple_participations, db, status
 ):
-    """
-    Test generation of race places with different rider statuses
-    """
     race, participations, riders, bikes = race_in_progress_with_rider_and_multiple_participations
 
     now = datetime(2024, 1, 10, 12, 0, 0)
@@ -124,9 +112,6 @@ def test_race_generate_places_different_status(
 def test_race_generate_places_no_participations(
         race_in_progress_with_rider_and_multiple_participations, db
 ):
-    """
-    Test generation of race places when there are no participants
-    """
     race, participations, riders, bikes = race_in_progress_with_rider_and_multiple_participations
 
     for p in participations:
@@ -142,9 +127,6 @@ def test_race_generate_places_no_participations(
 def test_race_generate_places_no_timestamps(
         race_in_progress_with_rider_and_multiple_participations, db
 ):
-    """
-    Test generation of race places when there are no timestamps
-    """
     race, participations, riders, bikes = race_in_progress_with_rider_and_multiple_participations
 
     for participation in participations:
